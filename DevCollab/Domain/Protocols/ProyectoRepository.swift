@@ -1,0 +1,7 @@
+protocol ProyectoRepository {
+    func obtenerProyectos() async throws -> [Proyecto]
+    func crearProyecto(proyecto: Proyecto) async throws
+    func actualizarProyecto(proyecto: Proyecto) async throws
+    func cerrarProyecto(proyectoID: String) async throws
+    func eliminarProyecto(proyectoID: String) async throws
+}
