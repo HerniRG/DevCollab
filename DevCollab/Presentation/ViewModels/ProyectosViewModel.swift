@@ -3,11 +3,12 @@ import Combine
 
 class ProyectosViewModel: ObservableObject {
     @Published var proyectos: [Proyecto] = []
-    private let obtenerProyectosUseCase: ObtenerProyectosUseCase
-    private var cancellables = Set<AnyCancellable>()
     
-    init(obtenerProyectosUseCase: ObtenerProyectosUseCase) {
-        self.obtenerProyectosUseCase = obtenerProyectosUseCase
+    private let obtenerProyectosUseCase: ObtenerProyectosUseCase
+    
+    init() {
+        let repository = FirebaseProyectoRepository()
+        self.obtenerProyectosUseCase = ObtenerProyectosUseCaseImpl(repository: repository)
         fetchProyectos()
     }
     

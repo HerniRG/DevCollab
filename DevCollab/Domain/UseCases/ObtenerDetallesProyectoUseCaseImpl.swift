@@ -2,7 +2,7 @@ protocol ObtenerDetallesProyectoUseCaseProtocol {
     func ejecutar(proyectoID: String, userID: String) async throws -> (String, Bool, Bool, Bool)
 }
 
-class ObtenerDetallesProyectoUseCase: ObtenerDetallesProyectoUseCaseProtocol {
+class ObtenerDetallesProyectoUseCaseImpl: ObtenerDetallesProyectoUseCaseProtocol {
     private let repository: ProyectoRepository
     
     init(repository: ProyectoRepository) {

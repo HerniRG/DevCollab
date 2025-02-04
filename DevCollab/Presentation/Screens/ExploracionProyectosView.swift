@@ -1,17 +1,19 @@
 import SwiftUI
 
+import SwiftUI
+
 struct ExploracionProyectosView: View {
-    @ObservedObject var viewModel: ProyectosViewModel
-    
+    @StateObject private var viewModel = ProyectosViewModel()
+
     var body: some View {
         NavigationView {
-            List(viewModel.proyectos, id: \ .id) { proyecto in
+            List(viewModel.proyectos, id: \.id) { proyecto in
                 NavigationLink(destination: DetalleProyectoView(proyecto: proyecto)) {
                     ProyectoRowView(proyecto: proyecto)
                 }
             }
             .navigationTitle("Proyectos Disponibles")
-            .onAppear {
+            .task {
                 viewModel.fetchProyectos()
             }
         }

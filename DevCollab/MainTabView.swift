@@ -6,7 +6,7 @@ struct MainTabView: View {
     var body: some View {
         if authViewModel.user != nil {
             TabView {
-                ExploracionProyectosView(viewModel: ViewModelProvider.shared.proyectosViewModel)
+                ExploracionProyectosView()
                     .tabItem {
                         Label("Explorar", systemImage: "magnifyingglass")
                     }

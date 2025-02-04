@@ -5,7 +5,7 @@ protocol GestionarSolicitudesUseCaseProtocol {
     func abandonarProyecto(proyectoID: String, usuarioID: String) async throws
 }
 
-class GestionarSolicitudesUseCase: GestionarSolicitudesUseCaseProtocol {
+class GestionarSolicitudesUseCaseImpl: GestionarSolicitudesUseCaseProtocol {
     private let repository: SolicitudRepository
     
     init(repository: SolicitudRepository) {

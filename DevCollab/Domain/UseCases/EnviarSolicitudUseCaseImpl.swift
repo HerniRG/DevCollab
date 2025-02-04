@@ -10,6 +10,6 @@ class EnviarSolicitudUseCaseImpl: EnviarSolicitudUseCase {
     }
     
     func execute(solicitud: Solicitud) async throws {
-        try await repository.enviarSolicitud(solicitud: solicitud)
+        try await repository.enviarSolicitud(proyectoID: solicitud.proyectoID, usuarioID: solicitud.usuarioID)
     }
 }

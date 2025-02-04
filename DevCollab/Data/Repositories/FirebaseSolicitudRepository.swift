@@ -1,6 +1,7 @@
 import FirebaseFirestore
 
 class FirebaseSolicitudRepository: SolicitudRepository {
+    
     private let db = Firestore.firestore()
     
     func enviarSolicitud(proyectoID: String, usuarioID: String) async throws {
@@ -27,6 +28,20 @@ class FirebaseSolicitudRepository: SolicitudRepository {
             .getDocuments()
         for document in snapshot.documents {
             try await document.reference.delete()
+        }
+    }
+    
+    func obtenerSolicitudes(proyectoID: String) async throws -> [Solicitud] {
+        let snapshot = try await db.collection("solicitudes").whereField("proyectoID", isEqualTo: proyectoID).getDocuments()
+        return snapshot.documents.compactMap { doc in
+            let data = doc.data()
+            return Solicitud(
+                id: doc.documentID,
+                usuarioID: data["usuarioID"] as? String ?? "",
+                proyectoID: data["proyectoID"] as? String ?? "",
+                mensaje: data["mensaje"] as? String,
+                estado: data["estado"] as? String ?? "Pendiente"
+            )
         }
     }
 }
