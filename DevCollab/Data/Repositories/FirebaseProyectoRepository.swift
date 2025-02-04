@@ -11,7 +11,7 @@ class FirebaseProyectoRepository: ProyectoRepository {
                 id: doc.documentID,
                 nombre: data["nombre"] as? String ?? "",
                 descripcion: data["descripcion"] as? String ?? "",
-                lenguajes: data["lenguajes"] as? [LenguajeProgramacion] ?? [],
+                lenguajes: (data["lenguajes"] as? [String])?.compactMap { LenguajeProgramacion(rawValue: $0) } ?? [],
                 horasSemanales: data["horasSemanales"] as? Int ?? 0,
                 tipoColaboracion: data["tipoColaboracion"] as? String ?? "",
                 estado: data["estado"] as? String ?? "Abierto",
@@ -24,7 +24,7 @@ class FirebaseProyectoRepository: ProyectoRepository {
         let data: [String: Any] = [
             "nombre": proyecto.nombre,
             "descripcion": proyecto.descripcion,
-            "lenguajes": proyecto.lenguajes,
+            "lenguajes": proyecto.lenguajes.map { $0.rawValue },
             "horasSemanales": proyecto.horasSemanales,
             "tipoColaboracion": proyecto.tipoColaboracion,
             "estado": proyecto.estado,
@@ -37,7 +37,7 @@ class FirebaseProyectoRepository: ProyectoRepository {
         let data: [String: Any] = [
             "nombre": proyecto.nombre,
             "descripcion": proyecto.descripcion,
-            "lenguajes": proyecto.lenguajes,
+            "lenguajes": proyecto.lenguajes.map { $0.rawValue },
             "horasSemanales": proyecto.horasSemanales,
             "tipoColaboracion": proyecto.tipoColaboracion,
             "estado": proyecto.estado
@@ -51,5 +51,25 @@ class FirebaseProyectoRepository: ProyectoRepository {
     
     func eliminarProyecto(proyectoID: String) async throws {
         try await db.collection("proyectos").document(proyectoID).delete()
+    }
+    
+    func obtenerDetallesProyecto(proyectoID: String, userID: String) async throws -> (nombreCreador: String, yaSolicitado: Bool, esCreador: Bool, soyParticipante: Bool) {
+        let document = try await db.collection("proyectos").document(proyectoID).getDocument()
+        guard let data = document.data() else {
+            throw NSError(domain: "FirebaseProyectoRepository", code: 404, userInfo: [NSLocalizedDescriptionKey: "Proyecto no encontrado"])
+        }
+        let nombreCreador = data["creadorID"] as? String ?? "Desconocido"
+        let yaSolicitado = try await db.collection("solicitudes")
+            .whereField("proyectoID", isEqualTo: proyectoID)
+            .whereField("usuarioID", isEqualTo: userID)
+            .getDocuments()
+            .documents.count > 0
+        let esCreador = nombreCreador == userID
+        let soyParticipante = try await db.collection("participantes")
+            .whereField("proyectoID", isEqualTo: proyectoID)
+            .whereField("usuarioID", isEqualTo: userID)
+            .getDocuments()
+            .documents.count > 0
+        return (nombreCreador, yaSolicitado, esCreador, soyParticipante)
     }
 }
