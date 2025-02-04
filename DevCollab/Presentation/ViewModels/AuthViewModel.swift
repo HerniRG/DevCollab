@@ -16,12 +16,12 @@ class AuthViewModel: ObservableObject {
         Task {
             do {
                 let usuario = try await authRepository.login(email: email, password: password)
-                DispatchQueue.main.async {
-                    self.user = usuario
+                DispatchQueue.main.async { [weak self] in
+                    self?.user = usuario
                 }
             } catch {
-                DispatchQueue.main.async {
-                    self.errorMessage = error.localizedDescription
+                DispatchQueue.main.async { [weak self] in
+                    self?.errorMessage = error.localizedDescription
                 }
             }
         }
@@ -39,12 +39,12 @@ class AuthViewModel: ObservableObject {
                     descripcion: descripcion
                 )
                 
-                DispatchQueue.main.async {
-                    self.user = usuario
+                DispatchQueue.main.async { [weak self] in
+                    self?.user = usuario
                 }
             } catch {
-                DispatchQueue.main.async {
-                    self.errorMessage = error.localizedDescription
+                DispatchQueue.main.async { [weak self] in
+                    self?.errorMessage = error.localizedDescription
                 }
             }
         }
@@ -54,12 +54,12 @@ class AuthViewModel: ObservableObject {
         Task {
             do {
                 try await authRepository.logout()
-                DispatchQueue.main.async {
-                    self.user = nil
+                DispatchQueue.main.async { [weak self] in
+                    self?.user = nil
                 }
             } catch {
-                DispatchQueue.main.async {
-                    self.errorMessage = error.localizedDescription
+                DispatchQueue.main.async { [weak self] in
+                    self?.errorMessage = error.localizedDescription
                 }
             }
         }
@@ -69,12 +69,12 @@ class AuthViewModel: ObservableObject {
         Task {
             do {
                 let usuario = try await authRepository.getCurrentUser()
-                DispatchQueue.main.async {
-                    self.user = usuario
+                DispatchQueue.main.async { [weak self] in
+                    self?.user = usuario
                 }
             } catch {
-                DispatchQueue.main.async {
-                    self.errorMessage = error.localizedDescription
+                DispatchQueue.main.async { [weak self] in
+                    self?.errorMessage = error.localizedDescription
                 }
             }
         }

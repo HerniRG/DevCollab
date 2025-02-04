@@ -17,17 +17,26 @@ struct DetalleProyectoView: View {
                 .font(.largeTitle)
                 .bold()
             Text("Creador: \(viewModel.nombreCreador)")
+            Text("Estado: \(viewModel.esMiProyecto ? "Abierto" : "Cerrado")")
+                .foregroundColor(viewModel.esMiProyecto ? .green : .red)
+
             Button(action: {
                 Task {
                     await viewModel.toggleEstadoProyecto(proyectoID: proyecto.id)
+                    await viewModel.obtenerDatosAdicionales(proyectoID: proyecto.id) // 🔥 Recargar después del cambio
                 }
             }) {
-                Text(proyecto.estado == "Abierto" ? "Cerrar Proyecto" : "Reabrir Proyecto")
+                Text(viewModel.esMiProyecto ? "Cerrar Proyecto" : "Reabrir Proyecto")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(viewModel.esMiProyecto ? Color.red : Color.green)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
             }
         }
         .padding()
         .task {
-            viewModel.obtenerDatosAdicionales(proyectoID: proyecto.id)
+            await viewModel.obtenerDatosAdicionales(proyectoID: proyecto.id)
         }
     }
 }

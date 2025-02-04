@@ -3,6 +3,7 @@ import Combine
 
 class DetalleProyectoViewModel: ObservableObject {
     @Published var nombreCreador: String = ""
+    @Published var estadoProyecto: String = ""
     @Published var yaSolicitado: Bool = false
     @Published var esMiProyecto: Bool = false
     @Published var soyParticipante: Bool = false
@@ -27,11 +28,11 @@ class DetalleProyectoViewModel: ObservableObject {
         Task {
             do {
                 let detalles = try await obtenerDetallesProyectoUseCase.ejecutar(proyectoID: proyectoID, userID: userID)
-                DispatchQueue.main.async {
-                    self.nombreCreador = detalles.0
-                    self.yaSolicitado = detalles.1
-                    self.esMiProyecto = detalles.2
-                    self.soyParticipante = detalles.3
+                DispatchQueue.main.async { [weak self] in
+                    self?.nombreCreador = detalles.0
+                    self?.yaSolicitado = detalles.1
+                    self?.esMiProyecto = detalles.2
+                    self?.soyParticipante = detalles.3
                 }
                 if self.esMiProyecto {
                     await self.fetchSolicitudes(proyectoID: proyectoID)
@@ -45,8 +46,8 @@ class DetalleProyectoViewModel: ObservableObject {
     func fetchSolicitudes(proyectoID: String) async {
         do {
             let solicitudes = try await obtenerSolicitudesUseCase.execute(proyectoID: proyectoID)
-            DispatchQueue.main.async {
-                self.solicitudesPendientes = solicitudes
+            DispatchQueue.main.async { [weak self] in
+                self?.solicitudesPendientes = solicitudes
             }
         } catch {
             print("Error al obtener solicitudes: \(error.localizedDescription)")
@@ -54,12 +55,16 @@ class DetalleProyectoViewModel: ObservableObject {
     }
 
     func toggleEstadoProyecto(proyectoID: String) async {
-        do {
-            try await gestionarSolicitudesUseCase.cambiarEstadoProyecto(proyectoID: proyectoID)
-        } catch {
-            print("Error al cambiar estado del proyecto: \(error.localizedDescription)")
+            do {
+                let nuevoEstado = try await gestionarSolicitudesUseCase.toggleEstadoProyecto(proyectoID: proyectoID)
+                DispatchQueue.main.async {
+                    self.estadoProyecto = nuevoEstado
+                }
+                print("✅ Proyecto cambiado a estado: \(nuevoEstado)")
+            } catch {
+                print("❌ Error al cambiar estado del proyecto: \(error.localizedDescription)")
+            }
         }
-    }
     
     func solicitarParticipacion(proyectoID: String) async {
         do {

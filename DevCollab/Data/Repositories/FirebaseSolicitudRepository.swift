@@ -17,8 +17,9 @@ class FirebaseSolicitudRepository: SolicitudRepository {
         try await db.collection("solicitudes").document(solicitudID).updateData(["estado": estado])
     }
     
-    func cambiarEstadoProyecto(proyectoID: String) async throws {
-        try await db.collection("proyectos").document(proyectoID).updateData(["estado": "Cerrado"])
+    func cambiarEstadoProyecto(proyectoID: String, nuevoEstado: String) async throws {
+        try await db.collection("proyectos").document(proyectoID).updateData(["estado": nuevoEstado])
+        print("🔥 Estado cambiado en Firestore a: \(nuevoEstado)")
     }
     
     func abandonarProyecto(proyectoID: String, usuarioID: String) async throws {
@@ -43,5 +44,13 @@ class FirebaseSolicitudRepository: SolicitudRepository {
                 estado: data["estado"] as? String ?? "Pendiente"
             )
         }
+    }
+    
+    func obtenerEstadoProyecto(proyectoID: String) async throws -> String {
+        let document = try await db.collection("proyectos").document(proyectoID).getDocument()
+        guard let data = document.data(), let estado = data["estado"] as? String else {
+            throw NSError(domain: "Firebase", code: 404, userInfo: [NSLocalizedDescriptionKey: "Estado no encontrado"])
+        }
+        return estado
     }
 }

@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseAuth
 
 struct CrearProyectoView: View {
     @ObservedObject var viewModel: CrearProyectoViewModel
@@ -57,15 +58,20 @@ struct CrearProyectoView: View {
                 .padding()
             
             Button(action: {
+                guard let userID = Auth.auth().currentUser?.uid else {
+                    print("Error: No hay usuario autenticado")
+                    return
+                }
+                
                 let proyecto = Proyecto(
                     id: UUID().uuidString,
                     nombre: nombre,
                     descripcion: descripcion,
-                    lenguajes: lenguajesSeleccionados, // Ahora seleccionamos del enum
+                    lenguajes: lenguajesSeleccionados,
                     horasSemanales: Int(horasSemanales) ?? 0,
                     tipoColaboracion: tipoColaboracion,
                     estado: estado,
-                    creadorID: "UserIDPlaceholder"
+                    creadorID: userID
                 )
                 viewModel.crearProyecto(proyecto: proyecto)
             }) {
