@@ -2,27 +2,56 @@ import SwiftUI
 
 struct MainTabView: View {
     @StateObject var authViewModel = ViewModelProvider.shared.authViewModel
-    
+    @State private var isLoading = true // 🔥 Estado de carga inicial
+
     var body: some View {
-        if authViewModel.user != nil {
-            TabView {
-                ExploracionProyectosView()
-                    .tabItem {
-                        Label("Explorar", systemImage: "magnifyingglass")
+        Group {
+            if isLoading {
+                // 🔥 Nueva pantalla de carga personalizada
+                LoadingView()
+            } else if authViewModel.user != nil {
+                // 🔹 Usuario autenticado: Muestra la app
+                NavigationView {
+                    TabView {
+                        ExploracionProyectosView()
+                            .tabItem {
+                                Label("Explorar", systemImage: "magnifyingglass")
+                            }
+
+                        CrearProyectoView(viewModel: ViewModelProvider.shared.crearProyectoViewModel)
+                            .tabItem {
+                                Label("Crear Proyecto", systemImage: "plus.circle")
+                            }
+
+                        PerfilView(viewModel: ViewModelProvider.shared.perfilViewModel)
+                            .tabItem {
+                                Label("Perfil", systemImage: "person.crop.circle")
+                            }
                     }
-                
-                CrearProyectoView(viewModel: ViewModelProvider.shared.crearProyectoViewModel)
-                    .tabItem {
-                        Label("Crear Proyecto", systemImage: "plus.circle")
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button(action: {
+                                authViewModel.logout()
+                            }) {
+                                Label("Cerrar sesión", systemImage: "rectangle.portrait.and.arrow.right")
+                            }
+                        }
                     }
-                
-                PerfilView(viewModel: ViewModelProvider.shared.perfilViewModel)
-                    .tabItem {
-                        Label("Perfil", systemImage: "person.crop.circle")
-                    }
+                    .navigationTitle("DevCollab")
+                }
+            } else {
+                // 🔹 Si no hay sesión, muestra el login
+                LoginView(viewModel: authViewModel)
             }
-        } else {
-            LoginView(viewModel: authViewModel)
+        }
+        .task {
+            // ✅ Esperar la verificación de sesión antes de actualizar la UI
+            await authViewModel.fetchCurrentUser()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                withAnimation {
+                    isLoading = false
+                }
+            }
         }
     }
 }

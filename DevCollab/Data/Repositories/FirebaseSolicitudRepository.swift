@@ -33,24 +33,28 @@ class FirebaseSolicitudRepository: SolicitudRepository {
     }
     
     func obtenerSolicitudes(proyectoID: String) async throws -> [Solicitud] {
-        let snapshot = try await db.collection("solicitudes").whereField("proyectoID", isEqualTo: proyectoID).getDocuments()
-        return snapshot.documents.compactMap { doc in
-            let data = doc.data()
-            return Solicitud(
-                id: doc.documentID,
-                usuarioID: data["usuarioID"] as? String ?? "",
-                proyectoID: data["proyectoID"] as? String ?? "",
-                mensaje: data["mensaje"] as? String,
-                estado: data["estado"] as? String ?? "Pendiente"
-            )
+            let snapshot = try await db.collection("solicitudes").whereField("proyectoID", isEqualTo: proyectoID).getDocuments()
+            return snapshot.documents.compactMap { doc in
+                let data = doc.data()
+                return Solicitud(
+                    id: doc.documentID,
+                    usuarioID: data["usuarioID"] as? String ?? "",
+                    proyectoID: data["proyectoID"] as? String ?? "",
+                    mensaje: data["mensaje"] as? String,
+                    estado: data["estado"] as? String ?? "Pendiente"
+                )
+            }
         }
-    }
     
     func obtenerEstadoProyecto(proyectoID: String) async throws -> String {
-        let document = try await db.collection("proyectos").document(proyectoID).getDocument()
-        guard let data = document.data(), let estado = data["estado"] as? String else {
-            throw NSError(domain: "Firebase", code: 404, userInfo: [NSLocalizedDescriptionKey: "Estado no encontrado"])
+        let docRef = db.collection("proyectos").document(proyectoID)
+        
+        // 🔥 Obtiene el estado actual
+        let snapshot = try await docRef.getDocument()
+        guard let currentEstado = snapshot.data()?["estado"] as? String else {
+            throw NSError(domain: "Firestore", code: 404, userInfo: [NSLocalizedDescriptionKey: "Estado no encontrado"])
         }
-        return estado
+        
+        return currentEstado // ✅ Solo devuelve el estado, no lo cambia
     }
 }

@@ -7,7 +7,7 @@ struct DetalleProyectoView: View {
 
     init(proyecto: Proyecto) {
         self.proyecto = proyecto
-        let userID = Auth.auth().currentUser?.uid ?? "" // Recuperamos el ID del usuario autenticado
+        let userID = Auth.auth().currentUser?.uid ?? ""
         _viewModel = StateObject(wrappedValue: DetalleProyectoViewModel(userID: userID))
     }
 
@@ -17,19 +17,20 @@ struct DetalleProyectoView: View {
                 .font(.largeTitle)
                 .bold()
             Text("Creador: \(viewModel.nombreCreador)")
-            Text("Estado: \(viewModel.esMiProyecto ? "Abierto" : "Cerrado")")
-                .foregroundColor(viewModel.esMiProyecto ? .green : .red)
+            
+            // ✅ Mostrar el estado real actualizado en Firestore
+            Text("Estado: \(viewModel.estadoProyecto)")
+                .foregroundColor(viewModel.estadoProyecto == "Abierto" ? .green : .red)
 
             Button(action: {
                 Task {
-                    await viewModel.toggleEstadoProyecto(proyectoID: proyecto.id)
-                    await viewModel.obtenerDatosAdicionales(proyectoID: proyecto.id) // 🔥 Recargar después del cambio
+                    await viewModel.alternarEstadoProyecto(proyectoID: proyecto.id)
                 }
             }) {
-                Text(viewModel.esMiProyecto ? "Cerrar Proyecto" : "Reabrir Proyecto")
+                Text(viewModel.estadoProyecto == "Abierto" ? "Cerrar Proyecto" : "Reabrir Proyecto")
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(viewModel.esMiProyecto ? Color.red : Color.green)
+                    .background(viewModel.estadoProyecto == "Abierto" ? Color.red : Color.green)
                     .foregroundColor(.white)
                     .cornerRadius(8)
             }

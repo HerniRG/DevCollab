@@ -27,7 +27,18 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    func register(email: String, password: String, nombre: String, lenguajes: [LenguajeProgramacion], disponibilidad: String, descripcion: String?) {
+    func register(email: String, password: String, nombre: String, lenguajes: [LenguajeProgramacion], descripcion: String?) {
+        // Validamos que todos los campos requeridos estén completos
+        guard !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              !password.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              !nombre.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              !lenguajes.isEmpty else {
+            DispatchQueue.main.async { [weak self] in
+                self?.errorMessage = "Por favor, completa todos los campos."
+            }
+            return
+        }
+        
         Task {
             do {
                 let usuario = try await authRepository.register(
@@ -35,7 +46,6 @@ class AuthViewModel: ObservableObject {
                     password: password,
                     nombre: nombre,
                     lenguajes: lenguajes,
-                    disponibilidad: disponibilidad,
                     descripcion: descripcion
                 )
                 
@@ -65,7 +75,20 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    private func fetchCurrentUser() {
+    func resetPassword(email: String) async throws {
+        do {
+            try await authRepository.resetPassword(email: email)
+            DispatchQueue.main.async { [weak self] in
+                self?.errorMessage = nil // Limpiar errores previos
+            }
+        } catch {
+            DispatchQueue.main.async { [weak self] in
+                self?.errorMessage = "Error al enviar el correo de recuperación."
+            }
+        }
+    }
+    
+    func fetchCurrentUser() {
         Task {
             do {
                 let usuario = try await authRepository.getCurrentUser()

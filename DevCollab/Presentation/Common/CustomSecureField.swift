@@ -1,3 +1,5 @@
+import SwiftUI
+
 // 🔹 COMPONENTE PARA TEXTFIELD DE CONTRASEÑA
 struct CustomSecureField: View {
     var placeholder: String

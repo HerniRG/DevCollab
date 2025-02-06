@@ -8,7 +8,6 @@ struct PerfilView: View {
             if let usuario = viewModel.usuario {
                 Text(usuario.nombre).font(.largeTitle).bold()
                 Text("Lenguajes: \(usuario.lenguajes.map { $0.rawValue }.joined(separator: ", "))")
-                Text("Disponibilidad: \(usuario.disponibilidad)")
                 
                 Divider()
                 Text("Proyectos Creados").font(.headline)

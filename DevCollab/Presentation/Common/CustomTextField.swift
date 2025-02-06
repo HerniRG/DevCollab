@@ -1,3 +1,5 @@
+import SwiftUI
+
 // 🔹 COMPONENTE PARA TEXTFIELD NORMAL
 struct CustomTextField: View {
     var placeholder: String

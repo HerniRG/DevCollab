@@ -5,13 +5,12 @@ class FirebaseAuthRepository: AuthRepository {
     private let auth = Auth.auth()
     private let db = Firestore.firestore()
     
-    func register(email: String, password: String, nombre: String, lenguajes: [LenguajeProgramacion], disponibilidad: String, descripcion: String?) async throws -> Usuario {
+    func register(email: String, password: String, nombre: String, lenguajes: [LenguajeProgramacion], descripcion: String?) async throws -> Usuario {
         let result = try await auth.createUser(withEmail: email, password: password)
         let usuario = Usuario(
             id: result.user.uid,
             nombre: nombre,
             lenguajes: lenguajes,
-            disponibilidad: disponibilidad,
             descripcion: descripcion
         )
         try await saveUserData(usuario: usuario)
@@ -22,7 +21,6 @@ class FirebaseAuthRepository: AuthRepository {
         let userData: [String: Any] = [
             "nombre": usuario.nombre,
             "lenguajes": usuario.lenguajes.map { $0.rawValue },
-            "disponibilidad": usuario.disponibilidad,
             "descripcion": usuario.descripcion ?? ""
         ]
         try await db.collection("usuarios").document(usuario.id).setData(userData)
@@ -36,18 +34,22 @@ class FirebaseAuthRepository: AuthRepository {
         return Usuario(
             id: user.uid,
             nombre: data["nombre"] as? String ?? "",
-            lenguajes: (data["lenguajes"] as? [String])?.compactMap { LenguajeProgramacion(rawValue: $0) } ?? [], // Conversión de String a Enum
-            disponibilidad: data["disponibilidad"] as? String ?? "",
+            lenguajes: (data["lenguajes"] as? [String])?.compactMap { LenguajeProgramacion(rawValue: $0) } ?? [],
             descripcion: data["descripcion"] as? String
         )
     }
     
     func login(email: String, password: String) async throws -> Usuario {
         let result = try await auth.signIn(withEmail: email, password: password)
-        return try await getCurrentUser() ?? Usuario(id: result.user.uid, nombre: "", lenguajes: [], disponibilidad: "", descripcion: nil)
+        return try await getCurrentUser() ?? Usuario(id: result.user.uid, nombre: "", lenguajes: [], descripcion: nil)
     }
     
     func logout() async throws {
         try auth.signOut()
+    }
+    
+    /// 🔥 **Nuevo método para restablecer contraseña**
+    func resetPassword(email: String) async throws {
+        try await auth.sendPasswordReset(withEmail: email)
     }
 }
