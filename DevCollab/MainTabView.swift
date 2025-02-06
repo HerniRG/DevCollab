@@ -41,7 +41,7 @@ struct MainTabView: View {
                 }
             } else {
                 // 🔹 Si no hay sesión, muestra el login
-                LoginView(viewModel: authViewModel)
+                AuthMainView(viewModel: authViewModel)
             }
         }
         .task {
