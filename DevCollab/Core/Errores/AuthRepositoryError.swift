@@ -19,9 +19,10 @@ enum AuthRepositoryError: LocalizedError {
         case .userNotFound:
             return "No se encontró un usuario con ese correo."
         case .wrongPassword:
-            return "La contraseña es incorrecta."
+            // Se devuelve un mensaje más genérico para cubrir ambos casos
+            return "Usuario o contraseña incorrectos."
         case .unknown(let error):
-            return "Error desconocido: \(error.localizedDescription)"
+            return error.localizedDescription
         }
     }
 }

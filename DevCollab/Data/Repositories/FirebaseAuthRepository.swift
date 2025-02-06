@@ -88,9 +88,11 @@ extension NSError {
             return .emailAlreadyInUse
         case AuthErrorCode.userNotFound.rawValue:
             return .userNotFound
-        case AuthErrorCode.wrongPassword.rawValue:
+        // Se añade el código 17004 para cubrir el caso de contraseña incorrecta
+        case AuthErrorCode.wrongPassword.rawValue, 17004:
             return .wrongPassword
         default:
+            debugPrint("Error no mapeado en AuthRepositoryError: domain: \(self.domain), code: \(self.code)")
             return .unknown(self)
         }
     }
