@@ -6,5 +6,9 @@ class ViewModelProvider {
     let proyectosViewModel = ProyectosViewModel()
     let crearProyectoViewModel = CrearProyectoViewModel(crearProyectoUseCase: UseCaseProvider.shared.crearProyectoUseCase)
     let solicitudesViewModel = SolicitudesViewModel(obtenerSolicitudesUseCase: UseCaseProvider.shared.obtenerSolicitudesUseCase)
-    let perfilViewModel = PerfilViewModel(authRepository: DependencyManager.shared.authRepository, proyectoRepository: DependencyManager.shared.proyectoRepository)
+    let perfilViewModel = PerfilViewModel(
+        authRepository: DependencyManager.shared.authRepository,
+        proyectoRepository: DependencyManager.shared.proyectoRepository,
+        solicitudRepository: DependencyManager.shared.solicitudRepository
+    )
 }

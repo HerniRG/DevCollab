@@ -10,7 +10,7 @@ struct ExploracionProyectosView: View {
     var body: some View {
         List {
             // Sección 1: Mis proyectos (creados por el usuario)
-            Section("Mis proyectos") {
+            Section("Mis proyectos creados") {
                 let misProyectos = viewModel.proyectos.filter { $0.creadorID == userID }
                 if misProyectos.isEmpty {
                     Text("No has creado ningún proyecto.")

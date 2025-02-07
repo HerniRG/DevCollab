@@ -7,6 +7,7 @@ struct PerfilView: View {
         VStack(alignment: .leading, spacing: 20) {
             if let usuario = viewModel.usuario {
                 List {
+                    // Sección de Perfil
                     Section("Perfil") {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(usuario.nombre)
@@ -28,17 +29,26 @@ struct PerfilView: View {
                         }
                     }
                     
-                    Section("Proyectos Creados") {
+                    // Sección de Proyectos Creados
+                    Section("Mis proyectos creados") {
                         if viewModel.proyectosCreados.isEmpty {
                             Text("No tienes proyectos creados.")
                                 .foregroundColor(.gray)
                         } else {
                             ForEach(viewModel.proyectosCreados, id: \.id) { proyecto in
-                                ProyectoRowView(proyecto: proyecto)
+                                if proyecto.estado == "Cerrado" {
+                                    // Se pasa la función onDelete para poder borrar el proyecto
+                                    ProyectoRowView(proyecto: proyecto, onDelete: {
+                                        viewModel.deleteProject(proyecto: proyecto)
+                                    })
+                                } else {
+                                    ProyectoRowView(proyecto: proyecto)
+                                }
                             }
                         }
                     }
                     
+                    // Sección de Proyectos en los que participas
                     Section("Proyectos en los que participas") {
                         if viewModel.proyectosParticipando.isEmpty {
                             Text("No participas en ningún proyecto.")
@@ -64,6 +74,7 @@ struct PerfilView: View {
         }
         .onAppear {
             viewModel.fetchUserProfile()
+            // Se asume que fetchUserProfile encadena la carga de proyectos y solicitudes
         }
     }
 }
