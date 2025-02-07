@@ -3,18 +3,15 @@ import FirebaseAuth
 
 struct MainTabView: View {
     @StateObject var authViewModel = ViewModelProvider.shared.authViewModel
-    @State private var isLoading = true // 🔥 Estado de carga inicial
+    @State private var isLoading = true // Estado de carga inicial
     
-    // Ajustes para la barra de navegación (iOS < 16)
     init() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = UIColor.systemBackground
-        // Opcional: cambiar color del título y botones
         appearance.titleTextAttributes = [.foregroundColor: UIColor.label]
         appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
         
-        // Asigna la apariencia a los distintos estados de la barra
         UINavigationBar.appearance().standardAppearance = appearance
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
     }
@@ -22,7 +19,6 @@ struct MainTabView: View {
     var body: some View {
         Group {
             if isLoading {
-                // 🔥 Nueva pantalla de carga personalizada
                 LoadingView()
             } else if authViewModel.user != nil {
                 NavigationView {
@@ -31,22 +27,20 @@ struct MainTabView: View {
                             .tabItem {
                                 Label("Explorar", systemImage: "magnifyingglass")
                             }
-
+                        
                         CrearProyectoView(viewModel: ViewModelProvider.shared.crearProyectoViewModel)
                             .tabItem {
                                 Label("Crear Proyecto", systemImage: "plus.circle")
                             }
-
+                        
                         PerfilView(viewModel: ViewModelProvider.shared.perfilViewModel)
                             .tabItem {
                                 Label("Perfil", systemImage: "person.crop.circle")
                             }
                     }
-                    // Título en modo inline (pequeño)
-                    .navigationBarTitle("DevCollab")
-                    .navigationBarTitleDisplayMode(.inline)
-                    
-                    // Botón de "Cerrar sesión" en la barra superior derecha
+                    // Título centralizado en la barra de navegación
+                    .navigationBarTitle("DevCollab", displayMode: .inline)
+                    // Botón de "Cerrar sesión"
                     .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button(action: {
@@ -56,17 +50,16 @@ struct MainTabView: View {
                             }
                         }
                     }
-                    // Para iOS 16+: color de fondo opaco en la barra
+                    // Fondo opaco para iOS 16+
                     .toolbarBackground(Color(UIColor.systemBackground), for: .navigationBar)
                     .toolbarBackground(.visible, for: .navigationBar)
                 }
             } else {
-                // 🔹 Si no hay sesión, muestra la vista de autenticación
                 AuthMainView(viewModel: authViewModel)
             }
         }
         .task {
-            // ✅ Esperar la verificación de sesión antes de actualizar la UI
+            // Espera a la verificación de sesión antes de actualizar la UI
             await authViewModel.fetchCurrentUser()
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 withAnimation {

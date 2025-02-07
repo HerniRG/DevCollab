@@ -1,5 +1,5 @@
 protocol ObtenerSolicitudesUseCase {
-    func execute(proyectoID: String) async throws -> [Solicitud]
+    func execute(usuarioID: String) async throws -> [Solicitud]
 }
 
 class ObtenerSolicitudesUseCaseImpl: ObtenerSolicitudesUseCase {
@@ -9,7 +9,7 @@ class ObtenerSolicitudesUseCaseImpl: ObtenerSolicitudesUseCase {
         self.repository = repository
     }
     
-    func execute(proyectoID: String) async throws -> [Solicitud] {
-        return try await repository.obtenerSolicitudes(proyectoID: proyectoID)
+    func execute(usuarioID: String) async throws -> [Solicitud] {
+        return try await repository.obtenerSolicitudes(usuarioID: usuarioID)
     }
 }

@@ -45,9 +45,9 @@ class DetalleProyectoViewModel: ObservableObject {
     }
     
     /// 🔥 Obtiene las solicitudes pendientes del proyecto
-    func fetchSolicitudes(proyectoID: String) async {
+    func fetchSolicitudes() async {
         do {
-            let solicitudes = try await obtenerSolicitudesUseCase.execute(proyectoID: proyectoID)
+            let solicitudes = try await obtenerSolicitudesUseCase.execute(usuarioID: userID)
             DispatchQueue.main.async { [weak self] in
                 self?.solicitudesPendientes = solicitudes
             }

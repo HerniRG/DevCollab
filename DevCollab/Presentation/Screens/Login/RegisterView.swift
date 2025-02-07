@@ -5,16 +5,21 @@ struct RegisterView: View {
     @Binding var email: String
     @Binding var password: String
     @Binding var nombre: String
+    @Binding var descripcion: String  // Nuevo campo para la descripción
     @Binding var seleccionLenguajes: [LenguajeProgramacion]
     @Binding var isPasswordVisible: Bool
     @Binding var showSuccessResetAlert: Bool
     let viewModel: AuthViewModel
+    
+    // Número máximo de caracteres para la descripción
+    let maxDescriptionLength = 25
     
     // Enumeración para gestionar el enfoque de los campos en registro
     enum RegisterField: Hashable {
         case email
         case password
         case nombre
+        case descripcion  // Nuevo caso para el campo descripción
     }
     @FocusState private var focusedField: RegisterField?
     
@@ -53,11 +58,38 @@ struct RegisterView: View {
             .autocorrectionDisabled(true)
             .textInputAutocapitalization(.never)
             .focused($focusedField, equals: .nombre)
-            .submitLabel(.done)
+            .submitLabel(.next)
             .onSubmit {
-                focusedField = nil
+                focusedField = .descripcion
             }
             .accessibilityLabel("Nombre")
+            
+            // Nuevo campo: Descripción breve del usuario
+            // Nuevo campo: Descripción breve del usuario con contador
+            VStack(alignment: .trailing, spacing: 4) {
+                CustomTextField(
+                    placeholder: "Descripción (ej. Mobile Developer, Backend, Diseño UX/UI)",
+                    text: $descripcion
+                )
+                .autocorrectionDisabled(true)
+                .textInputAutocapitalization(.never)
+                .focused($focusedField, equals: .descripcion)
+                .submitLabel(.done)
+                .onSubmit {
+                    focusedField = nil
+                }
+                .onChange(of: descripcion) { newValue in
+                    if newValue.count > maxDescriptionLength {
+                        descripcion = String(newValue.prefix(maxDescriptionLength))
+                    }
+                }
+                .accessibilityLabel("Descripción")
+                
+                // Contador de caracteres: se muestra en rojo si se alcanza el máximo
+                Text("\(descripcion.count)/\(maxDescriptionLength)")
+                    .font(.caption)
+                    .foregroundColor(descripcion.count >= maxDescriptionLength ? .red : .gray)
+            }
             
             // Vista de selección de lenguajes
             LanguageSelectionView(seleccionLenguajes: $seleccionLenguajes)
@@ -70,7 +102,7 @@ struct RegisterView: View {
 struct LanguageSelectionView: View {
     @Binding var seleccionLenguajes: [LenguajeProgramacion]
     @State private var showLanguageSheet = false
-
+    
     var body: some View {
         Button(action: {
             showLanguageSheet = true
@@ -79,7 +111,7 @@ struct LanguageSelectionView: View {
                 Text(seleccionLenguajes.isEmpty
                      ? "Seleccionar lenguajes"
                      : seleccionLenguajes.map { $0.rawValue }.joined(separator: ", "))
-                    .foregroundColor(seleccionLenguajes.isEmpty ? .gray : .primary)
+                .foregroundColor(seleccionLenguajes.isEmpty ? .gray : .primary)
                 Spacer()
                 Image(systemName: "chevron.right")
                     .foregroundColor(.gray)
@@ -125,7 +157,7 @@ struct MultipleSelectionRow: View {
     var lenguaje: LenguajeProgramacion
     var isSelected: Bool
     var action: () -> Void
-
+    
     var body: some View {
         Button(action: action) {
             HStack {

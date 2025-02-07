@@ -12,55 +12,49 @@ struct CrearProyectoView: View {
     @State private var estado: String = "Abierto"
     
     var body: some View {
-        NavigationView {
+        VStack(alignment: .leading, spacing: 20) {
             List {
-                Section(
-                    header: Text("Crear Proyecto")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                ) {
-                    Section("Información principal") {
-                        TextField("Nombre del proyecto", text: $nombre)
-                            .autocorrectionDisabled(true)
-                            .textInputAutocapitalization(.never)
-                        
-                        TextField("Descripción", text: $descripcion)
-                            .autocorrectionDisabled(true)
-                            .textInputAutocapitalization(.never)
-                    }
-                    .headerProminence(.increased) // Más notorio el título "Información principal"
-                    .listSectionSeparator(.visible, edges: .bottom)
+                Section("Información principal") {
+                    TextField("Nombre del proyecto", text: $nombre)
+                        .autocorrectionDisabled(true)
+                        .textInputAutocapitalization(.never)
                     
-                    Section("Detalles del proyecto") {
-                        ProjectLanguageSelectionView(seleccionLenguajes: $lenguajesSeleccionados)
-                        TextField("Horas semanales", text: $horasSemanales)
-                            .keyboardType(.numberPad)
-                            .autocorrectionDisabled(true)
-                            .textInputAutocapitalization(.never)
-                        
-                        TextField("Tipo de colaboración", text: $tipoColaboracion)
-                            .autocorrectionDisabled(true)
-                            .textInputAutocapitalization(.never)
-                    }
+                    TextField("Descripción", text: $descripcion)
+                        .autocorrectionDisabled(true)
+                        .textInputAutocapitalization(.never)
+                }
+        
+                
+                Section("Detalles del proyecto") {
+                    ProjectLanguageSelectionView(seleccionLenguajes: $lenguajesSeleccionados)
                     
+                    TextField("Horas semanales", text: $horasSemanales)
+                        .keyboardType(.numberPad)
+                        .autocorrectionDisabled(true)
+                        .textInputAutocapitalization(.never)
                     
+                    TextField("Tipo de colaboración", text: $tipoColaboracion)
+                        .autocorrectionDisabled(true)
+                        .textInputAutocapitalization(.never)
+                }
+                
+                Section {
                     Button(action: crearProyecto) {
                         Text("Crear Proyecto")
                             .frame(maxWidth: .infinity)
                             .foregroundColor(.white)
                     }
                     .listRowBackground(Color.blue)
-                    
-                    if viewModel.isSuccess {
+                }
+                
+                if viewModel.isSuccess {
+                    Section {
                         Text("Proyecto creado exitosamente")
                             .foregroundColor(.green)
                     }
                 }
-                .headerProminence(.increased)
             }
-            // 🔹 Estilo de lista con secciones separadas
             .listStyle(InsetGroupedListStyle())
-            // 🔹 iOS 16: Ajustar espacio vertical entre secciones
             .listSectionSpacing(20)
         }
     }

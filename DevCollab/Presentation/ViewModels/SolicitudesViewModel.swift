@@ -9,10 +9,10 @@ class SolicitudesViewModel: ObservableObject {
         self.obtenerSolicitudesUseCase = obtenerSolicitudesUseCase
     }
     
-    func fetchSolicitudes(proyectoID: String) {
+    func fetchSolicitudes(usuarioID: String) {
         Task {
             do {
-                let solicitudes = try await obtenerSolicitudesUseCase.execute(proyectoID: proyectoID)
+                let solicitudes = try await obtenerSolicitudesUseCase.execute(usuarioID: usuarioID)
                 DispatchQueue.main.async { [weak self] in
                     self?.solicitudes = solicitudes
                 }

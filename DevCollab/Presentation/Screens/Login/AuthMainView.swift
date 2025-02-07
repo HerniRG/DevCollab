@@ -6,6 +6,7 @@ struct AuthMainView: View {
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var nombre: String = ""
+    @State private var description: String = ""
     @State private var seleccionLenguajes: [LenguajeProgramacion] = []
     @State private var isPasswordVisible: Bool = false
     @State private var showSuccessResetAlert: Bool = false
@@ -24,6 +25,7 @@ struct AuthMainView: View {
                         email: $email,
                         password: $password,
                         nombre: $nombre,
+                        descripcion: $description,
                         seleccionLenguajes: $seleccionLenguajes,
                         isPasswordVisible: $isPasswordVisible,
                         showSuccessResetAlert: $showSuccessResetAlert,
@@ -48,7 +50,7 @@ struct AuthMainView: View {
                                 password: password,
                                 nombre: nombre,
                                 lenguajes: seleccionLenguajes,
-                                descripcion: nil
+                                descripcion: description
                             )
                         } else {
                             viewModel.login(email: email, password: password)
