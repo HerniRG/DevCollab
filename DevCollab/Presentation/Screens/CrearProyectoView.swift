@@ -4,6 +4,7 @@ import FirebaseAuth
 struct CrearProyectoView: View {
     @ObservedObject var viewModel: CrearProyectoViewModel
     
+    // Estados para los campos
     @State private var nombre: String = ""
     @State private var descripcion: String = ""
     @State private var lenguajesSeleccionados: [LenguajeProgramacion] = []
@@ -11,20 +12,53 @@ struct CrearProyectoView: View {
     @State private var tipoColaboracion: String = ""
     @State private var estado: String = "Abierto"
     
+    // Límites de caracteres
+    private let maxNombreLength = 25
+    private let maxDescripcionLength = 150
+    private let maxTipoColaboracionLength = 25
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            List {
+        NavigationView {
+            Form {
+                // Sección 1: Información principal
                 Section("Información principal") {
-                    TextField("Nombre del proyecto", text: $nombre)
+                    // Campo para el nombre con límite indicado en el placeholder
+                    TextField("Nombre del proyecto (máx. \(maxNombreLength) caracteres)", text: $nombre)
                         .autocorrectionDisabled(true)
                         .textInputAutocapitalization(.never)
+                        .onChange(of: nombre) { newValue in
+                            if newValue.count > maxNombreLength {
+                                nombre = String(newValue.prefix(maxNombreLength))
+                            }
+                        }
                     
-                    TextField("Descripción", text: $descripcion)
-                        .autocorrectionDisabled(true)
-                        .textInputAutocapitalization(.never)
+                    
+                    
+                    VStack(){
+                        HStack(){
+                            Text("Descripción  (máx. \(maxDescripcionLength) caracteres)")
+                                .foregroundColor(Color(UIColor.placeholderText))
+                                .padding(.top, 8)
+                            Spacer()
+                        }
+                        
+                        
+                        TextEditor(text: $descripcion)
+                            .frame(minHeight: 100, maxHeight: 200)
+                            .onChange(of: descripcion) { newValue in
+                                if newValue.count > maxDescripcionLength {
+                                    descripcion = String(newValue.prefix(maxDescripcionLength))
+                                }
+                            }
+                            .background(Color(UIColor.secondarySystemBackground))
+                            .cornerRadius(8)
+                    }
+                    .padding(.bottom, 8)
+                    
+                    
                 }
-        
                 
+                // Sección 2: Detalles del proyecto
                 Section("Detalles del proyecto") {
                     ProjectLanguageSelectionView(seleccionLenguajes: $lenguajesSeleccionados)
                     
@@ -33,15 +67,22 @@ struct CrearProyectoView: View {
                         .autocorrectionDisabled(true)
                         .textInputAutocapitalization(.never)
                     
-                    TextField("Tipo de colaboración", text: $tipoColaboracion)
+                    // Campo para el tipo de colaboración con límite en el placeholder
+                    TextField("Tipo de colaboración (máx. \(maxTipoColaboracionLength) caracteres)", text: $tipoColaboracion)
                         .autocorrectionDisabled(true)
                         .textInputAutocapitalization(.never)
+                        .onChange(of: tipoColaboracion) { newValue in
+                            if newValue.count > maxTipoColaboracionLength {
+                                tipoColaboracion = String(newValue.prefix(maxTipoColaboracionLength))
+                            }
+                        }
                 }
                 
+                // Sección 3: Botón para crear el proyecto
                 Section {
                     Button(action: crearProyecto) {
                         Text("Crear Proyecto")
-                            .frame(maxWidth: .infinity)
+                            .frame(maxWidth: .infinity, alignment: .center)
                             .foregroundColor(.white)
                     }
                     .listRowBackground(Color.blue)
@@ -54,8 +95,6 @@ struct CrearProyectoView: View {
                     }
                 }
             }
-            .listStyle(InsetGroupedListStyle())
-            .listSectionSpacing(20)
         }
     }
     
@@ -76,80 +115,5 @@ struct CrearProyectoView: View {
             creadorID: userID
         )
         viewModel.crearProyecto(proyecto: proyecto)
-    }
-}
-
-// MARK: - Vista de Selección de Lenguajes (renombrada)
-struct ProjectLanguageSelectionView: View {
-    @Binding var seleccionLenguajes: [LenguajeProgramacion]
-    @State private var showLanguageSheet = false
-
-    var body: some View {
-        Button(action: {
-            showLanguageSheet = true
-        }) {
-            HStack {
-                Text(seleccionLenguajes.isEmpty
-                     ? "Seleccionar lenguajes"
-                     : seleccionLenguajes.map { $0.rawValue }.joined(separator: ", "))
-                    .foregroundColor(seleccionLenguajes.isEmpty ? .gray : .primary)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .foregroundColor(.gray)
-            }
-            .padding(8)
-            .background(Color(UIColor.secondarySystemBackground))
-            .cornerRadius(8)
-        }
-        .sheet(isPresented: $showLanguageSheet) {
-            NavigationView {
-                List {
-                    ForEach(LenguajeProgramacion.allCases, id: \.self) { lenguaje in
-                        ProjectMultipleSelectionRow(
-                            lenguaje: lenguaje,
-                            isSelected: seleccionLenguajes.contains(lenguaje),
-                            action: {
-                                if seleccionLenguajes.contains(lenguaje) {
-                                    seleccionLenguajes.removeAll { $0 == lenguaje }
-                                } else {
-                                    seleccionLenguajes.append(lenguaje)
-                                }
-                            }
-                        )
-                    }
-                }
-                .navigationTitle("Lenguajes de Programación")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Hecho") {
-                            showLanguageSheet = false
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Fila de Selección Múltiple (renombrada)
-struct ProjectMultipleSelectionRow: View {
-    var lenguaje: LenguajeProgramacion
-    var isSelected: Bool
-    var action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack {
-                Text(lenguaje.rawValue)
-                    .foregroundColor(.primary)
-                Spacer()
-                if isSelected {
-                    Image(systemName: "checkmark")
-                        .foregroundColor(.blue)
-                }
-            }
-            .padding(.vertical, 8)
-        }
     }
 }

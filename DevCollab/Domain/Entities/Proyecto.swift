@@ -1,4 +1,4 @@
-struct Proyecto {
+struct Proyecto: Equatable {
     let id: String
     let nombre: String
     let descripcion: String
