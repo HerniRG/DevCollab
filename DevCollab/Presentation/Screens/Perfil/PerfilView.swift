@@ -1,7 +1,11 @@
 import SwiftUI
+import FirebaseAuth
 
 struct PerfilView: View {
     @ObservedObject var viewModel: PerfilViewModel
+    
+    // Estado para navegación programática a EditarPerfilView
+    @State private var isEditing = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -9,22 +13,36 @@ struct PerfilView: View {
                 List {
                     // Sección de Perfil
                     Section("Perfil") {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(usuario.nombre)
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
-                                .foregroundColor(.primary)
-                            
-                            if let descripcion = usuario.descripcion {
-                                Text(descripcion)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                        ZStack(alignment: .topTrailing) {
+                            // Contenido principal: Info del usuario
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(usuario.nombre)
+                                    .font(.largeTitle)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.primary)
+                                
+                                if let descripcion = usuario.descripcion {
+                                    Text(descripcion)
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                if !usuario.lenguajes.isEmpty {
+                                    Text("Lenguajes: \(usuario.lenguajes.map { $0.rawValue }.joined(separator: ", "))")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.vertical, 4)
                             
-                            if !usuario.lenguajes.isEmpty {
-                                Text("Lenguajes: \(usuario.lenguajes.map { $0.rawValue }.joined(separator: ", "))")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                            // Botón para editar que activa la navegación programática
+                            Button {
+                                isEditing = true
+                            } label: {
+                                Image(systemName: "square.and.pencil")
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .padding(8)
                             }
                         }
                     }
@@ -37,7 +55,6 @@ struct PerfilView: View {
                         } else {
                             ForEach(viewModel.proyectosCreados, id: \.id) { proyecto in
                                 if proyecto.estado == "Cerrado" {
-                                    // Se pasa la función onDelete para poder borrar el proyecto
                                     ProyectoRowView(proyecto: proyecto, onDelete: {
                                         viewModel.deleteProject(proyecto: proyecto)
                                     })
@@ -62,6 +79,17 @@ struct PerfilView: View {
                 }
                 .listStyle(InsetGroupedListStyle())
                 .listSectionSpacing(20)
+                
+                // NavigationLink "oculto" para presentar EditarPerfilView mediante push
+                .background(
+                    NavigationLink(
+                        destination: EditarPerfilView(usuario: usuario, viewModel: viewModel),
+                        isActive: $isEditing
+                    ) {
+                        EmptyView()
+                    }
+                    .hidden()
+                )
             } else {
                 Spacer()
                 HStack {
@@ -74,7 +102,6 @@ struct PerfilView: View {
         }
         .onAppear {
             viewModel.fetchUserProfile()
-            // Se asume que fetchUserProfile encadena la carga de proyectos y solicitudes
         }
     }
 }

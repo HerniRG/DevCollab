@@ -2,8 +2,11 @@ import SwiftUI
 import FirebaseAuth
 
 struct CrearProyectoView: View {
-    @ObservedObject var viewModel: CrearProyectoViewModel
-    @Environment(\.colorScheme) var colorScheme  // Para detectar modo oscuro/claro
+    // 1. ObservedObject para el view model
+    @ObservedObject var viewModel = ViewModelProvider.shared.crearProyectoViewModel
+
+    // 2. Estados locales para los campos
+    @Environment(\.colorScheme) var colorScheme
 
     @State private var nombre: String = ""
     @State private var descripcion: String = ""
@@ -36,7 +39,7 @@ struct CrearProyectoView: View {
                                     nombre = String(newValue.prefix(maxNombreLength))
                                 }
                             }
-                            .id(Field.nombre)  // Asigna un ID único para desplazamiento
+                            .id(Field.nombre)
 
                         ZStack(alignment: .topLeading) {
                             TextEditor(text: $descripcion)
@@ -50,7 +53,7 @@ struct CrearProyectoView: View {
                                 }
                                 .background(colorScheme == .dark ? Color(UIColor.systemGray5) : Color(UIColor.secondarySystemBackground))
                                 .cornerRadius(8)
-                                .id(Field.descripcion)  // Asigna un ID único para desplazamiento
+                                .id(Field.descripcion)
                             if descripcion.isEmpty {
                                 Text("Descripción")
                                     .foregroundColor(Color(UIColor.placeholderText))
@@ -94,12 +97,14 @@ struct CrearProyectoView: View {
                                 print("Error: No hay usuario autenticado")
                                 return
                             }
-                            viewModel.crearProyecto(nombre: nombre,
-                                                    descripcion: descripcion,
-                                                    lenguajes: lenguajesSeleccionados,
-                                                    horasSemanales: horasSemanales,
-                                                    tipoColaboracion: tipoColaboracion,
-                                                    creadorID: userID)
+                            viewModel.crearProyecto(
+                                nombre: nombre,
+                                descripcion: descripcion,
+                                lenguajes: lenguajesSeleccionados,
+                                horasSemanales: horasSemanales,
+                                tipoColaboracion: tipoColaboracion,
+                                creadorID: userID
+                            )
                         }) {
                             Text("Crear Proyecto")
                                 .frame(maxWidth: .infinity, alignment: .center)
@@ -108,6 +113,7 @@ struct CrearProyectoView: View {
                         .listRowBackground(Color.blue)
                     }
                     
+                    // Sección para mostrar error o éxito
                     if let error = viewModel.errorMessage {
                         Section {
                             Text(error)
@@ -127,6 +133,7 @@ struct CrearProyectoView: View {
                 }
             }
         }
+        // Limpiar campos tras éxito
         .onChange(of: viewModel.isSuccess) { success in
             if success {
                 nombre = ""
@@ -134,11 +141,14 @@ struct CrearProyectoView: View {
                 horasSemanales = ""
                 tipoColaboracion = ""
                 lenguajesSeleccionados = []
+                
+                // Quitar el mensaje de éxito después de 2 segundos
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                     viewModel.isSuccess = false
                 }
             }
         }
+        // Limpiar error al salir
         .onDisappear {
             viewModel.errorMessage = nil
         }
