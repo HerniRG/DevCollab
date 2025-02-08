@@ -101,11 +101,11 @@ struct EditarPerfilView: View {
 
 struct LanguageSelectionWithReturnView: View {
     @Binding var seleccionLenguajes: [LenguajeProgramacion]
-    @State private var showLanguageSheet = false
+    @State private var showLanguageModal = false
     
     var body: some View {
         Button(action: {
-            showLanguageSheet = true
+            showLanguageModal = true
         }) {
             HStack {
                 Text(seleccionLenguajes.isEmpty
@@ -120,7 +120,7 @@ struct LanguageSelectionWithReturnView: View {
             .background(Color(UIColor.secondarySystemBackground))
             .cornerRadius(8)
         }
-        .sheet(isPresented: $showLanguageSheet) {
+        .fullScreenCover(isPresented: $showLanguageModal) {
             NavigationView {
                 List {
                     ForEach(LenguajeProgramacion.allCases, id: \.self) { lenguaje in
@@ -142,11 +142,12 @@ struct LanguageSelectionWithReturnView: View {
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Hecho") {
-                            showLanguageSheet = false
+                            showLanguageModal = false
                         }
                     }
                 }
             }
+            // Con fullScreenCover no se permite el dismiss interactivo si no pulsas "Hecho"
             .interactiveDismissDisabled(true)
         }
     }

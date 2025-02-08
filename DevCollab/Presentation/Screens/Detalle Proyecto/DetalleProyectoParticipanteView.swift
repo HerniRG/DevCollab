@@ -102,7 +102,26 @@ struct DetalleProyectoParticipanteView: View {
                         }
                     }
                     
-                    // Sección 4: Mensaje de error (solo si hay error)
+                    // Sección 4: Lista de Participantes (nuevamente)
+                    Section("Participantes") {
+                        if viewModel.participantes.isEmpty {
+                            Text("No hay participantes aprobados.")
+                                .foregroundColor(.gray)
+                        } else {
+                            ForEach(viewModel.participantes, id: \.id) { participante in
+                                HStack {
+                                    Text(participante.nombre)
+                                        .fontWeight(.semibold)
+                                    if !participante.lenguajes.isEmpty {
+                                        Text("(\(participante.lenguajes.map { $0.rawValue }.joined(separator: ", ")))")
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Sección 5: Mensaje de error (solo si hay error)
                     if let error = viewModel.errorMessage, !error.isEmpty {
                         Section {
                             Text(error)
@@ -118,6 +137,7 @@ struct DetalleProyectoParticipanteView: View {
         }
         .task {
             await viewModel.obtenerDatosAdicionales(proyectoID: proyecto.id)
+            await viewModel.fetchParticipantes(proyectoID: proyecto.id)
         }
     }
 }
