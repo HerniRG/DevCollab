@@ -4,6 +4,7 @@ import FirebaseAuth
 struct DetalleProyectoCreadorView: View {
     let proyecto: Proyecto
     @StateObject private var viewModel: DetalleProyectoViewModel
+    @Environment(\.presentationMode) var presentationMode
     
     init(proyecto: Proyecto) {
         self.proyecto = proyecto
@@ -84,9 +85,9 @@ struct DetalleProyectoCreadorView: View {
                         .padding(.vertical, 4)
                     }
                     
-                    // Sección 3: Botón de acción
-                    
+                    // Sección 3: Botones de acción
                     Section {
+                        // Botón para alternar estado (abrir/cerrar)
                         Button(action: {
                             Task {
                                 await viewModel.alternarEstadoProyecto(proyectoID: proyecto.id)
@@ -97,6 +98,36 @@ struct DetalleProyectoCreadorView: View {
                                 .foregroundColor(.white)
                         }
                         .listRowBackground(viewModel.estadoProyecto == "Abierto" ? Color.red : Color.green)
+                    }
+                    
+                    // Sección 4 eliminar proyecto si está cerrado
+                    Section {
+                        // Si el proyecto está cerrado, mostrar botón Eliminar
+                        if viewModel.estadoProyecto == "Cerrado" {
+                            Button(action: {
+                                Task {
+                                    await viewModel.eliminarProyecto(proyecto: proyecto)
+                                    if viewModel.errorMessage == nil {
+                                        // Significa que se eliminó sin error
+                                        presentationMode.wrappedValue.dismiss()
+                                    }
+                                }
+                            }) {
+                                Text("Eliminar Proyecto")
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .foregroundColor(.white)
+                            }
+                            .listRowBackground(Color.red)
+                        }
+                    }
+                    
+                    // Sección 5 (opcional): Mensaje de error
+                    if let error = viewModel.errorMessage, !error.isEmpty {
+                        Section {
+                            Text(error)
+                                .foregroundColor(.red)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        }
                     }
                 }
                 .listStyle(InsetGroupedListStyle())

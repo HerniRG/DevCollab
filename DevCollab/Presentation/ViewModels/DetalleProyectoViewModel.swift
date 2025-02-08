@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import SwiftUI
 
 class DetalleProyectoViewModel: ObservableObject {
     @Published var nombreCreador: String = ""
@@ -11,10 +12,12 @@ class DetalleProyectoViewModel: ObservableObject {
     @Published var soyParticipante: Bool = false
     @Published var solicitudesPendientes: [Solicitud] = []
     @Published var isLoading: Bool = true   // Indicador de carga
+    @Published var errorMessage: String? = nil  // Propiedad para manejar error en la vista
     
     private let obtenerDetallesProyectoUseCase: ObtenerDetallesProyectoUseCaseProtocol
     private let gestionarSolicitudesUseCase: GestionarSolicitudesUseCaseProtocol
     private let obtenerSolicitudesUseCase: ObtenerSolicitudesUseCase
+    private let proyectoRepository: ProyectoRepository
     private let userID: String
     
     init(userID: String) {
@@ -24,6 +27,7 @@ class DetalleProyectoViewModel: ObservableObject {
         self.obtenerDetallesProyectoUseCase = ObtenerDetallesProyectoUseCaseImpl(repository: proyectoRepository)
         self.gestionarSolicitudesUseCase = GestionarSolicitudesUseCaseImpl(repository: solicitudRepository)
         self.obtenerSolicitudesUseCase = ObtenerSolicitudesUseCaseImpl(repository: solicitudRepository)
+        self.proyectoRepository = proyectoRepository
         self.userID = userID
     }
     
@@ -70,18 +74,20 @@ class DetalleProyectoViewModel: ObservableObject {
     /// 🔥 Alterna el estado del proyecto entre "Abierto" y "Cerrado"
     func alternarEstadoProyecto(proyectoID: String) async {
         do {
-            // 1️⃣ Obtener el estado actual del proyecto
+            // 1. Obtener el estado actual del proyecto
             let estadoActual = try await gestionarSolicitudesUseCase.obtenerEstadoProyecto(proyectoID: proyectoID)
             let nuevoEstado = (estadoActual == "Abierto") ? "Cerrado" : "Abierto"
 
             print("🔥 Intentando cambiar estado a: \(nuevoEstado)")
 
-            // 2️⃣ Cambiar el estado en Firestore
+            // 2. Cambiar el estado en Firestore
             try await gestionarSolicitudesUseCase.cambiarEstadoProyecto(proyectoID: proyectoID, nuevoEstado: nuevoEstado)
 
-            // 3️⃣ Actualizar estado en la UI
+            // 3. Actualizar estado en la UI con animación
             DispatchQueue.main.async {
-                self.estadoProyecto = nuevoEstado
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    self.estadoProyecto = nuevoEstado
+                }
             }
 
             print("✅ Proyecto cambiado a estado: \(nuevoEstado)")
@@ -90,12 +96,36 @@ class DetalleProyectoViewModel: ObservableObject {
             print("❌ Error al cambiar estado del proyecto: \(error.localizedDescription)")
         }
     }
-    
+
     func solicitarParticipacion(proyectoID: String) async {
         do {
+            // 1. Obtener todas las solicitudes del usuario
+            let solicitudesUsuario = try await obtenerSolicitudesUseCase.execute(usuarioID: userID)
+            
+            // 2. Filtrar las aceptadas
+            let aceptadas = solicitudesUsuario.filter { $0.estado == "Aceptada" }
+            
+            // 3. Revisar cuántas hay aceptadas
+            if aceptadas.count >= 2 {
+                DispatchQueue.main.async {
+                    self.errorMessage = "Ya estás aprobado en 2 proyectos. No puedes solicitar más."
+                }
+                return
+            }
+            
+            // 4. Si no supera el límite, se envía la solicitud
             try await gestionarSolicitudesUseCase.enviarSolicitud(proyectoID: proyectoID, usuarioID: userID)
+            
+            // 5. Actualizar el estado local para que la vista sepa que ya se ha solicitado
+            DispatchQueue.main.async { [weak self] in
+                self?.yaSolicitado = true
+                self?.errorMessage = nil
+            }
+            
         } catch {
-            print("❌ Error al enviar solicitud: \(error.localizedDescription)")
+            DispatchQueue.main.async {
+                self.errorMessage = "Error al enviar la solicitud: \(error.localizedDescription)"
+            }
         }
     }
     
@@ -112,6 +142,20 @@ class DetalleProyectoViewModel: ObservableObject {
             try await gestionarSolicitudesUseCase.abandonarProyecto(proyectoID: proyectoID, usuarioID: userID)
         } catch {
             print("❌ Error al abandonar proyecto: \(error.localizedDescription)")
+        }
+    }
+    
+    func eliminarProyecto(proyecto: Proyecto) async {
+        do {
+            try await proyectoRepository.eliminarProyecto(proyectoID: proyecto.id)
+            // Éxito
+            DispatchQueue.main.async {
+                self.errorMessage = nil
+            }
+        } catch {
+            DispatchQueue.main.async {
+                self.errorMessage = "Error al eliminar proyecto: \(error.localizedDescription)"
+            }
         }
     }
 }

@@ -14,7 +14,6 @@ struct DetalleProyectoParticipanteView: View {
     var body: some View {
         VStack {
             if viewModel.isLoading {
-                // Vista de carga
                 VStack {
                     Spacer()
                     ProgressView("Cargando información...")
@@ -23,7 +22,6 @@ struct DetalleProyectoParticipanteView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                // Vista principal (cuando ya está la información cargada)
                 List {
                     // Sección 1: Información del Proyecto
                     Section("Información del Proyecto") {
@@ -44,7 +42,6 @@ struct DetalleProyectoParticipanteView: View {
                             Text("Tipo de colaboración:")
                                 .fontWeight(.semibold)
                             Text("\(proyecto.tipoColaboracion)")
-                            
                             
                             Text("Estado:")
                                 .fontWeight(.semibold)
@@ -97,10 +94,19 @@ struct DetalleProyectoParticipanteView: View {
                                     .frame(maxWidth: .infinity, alignment: .center)
                                     .foregroundColor(.white)
                             }
-                            .listRowBackground(Color.blue)  // Fondo de la fila completo
+                            .listRowBackground(Color.blue)
                         } else {
                             Text("Solicitud Pendiente o Aprobada")
                                 .foregroundColor(.gray)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        }
+                    }
+                    
+                    // Sección 4: Mensaje de error (solo si hay error)
+                    if let error = viewModel.errorMessage, !error.isEmpty {
+                        Section {
+                            Text(error)
+                                .foregroundColor(.red)
                                 .frame(maxWidth: .infinity, alignment: .center)
                         }
                     }
