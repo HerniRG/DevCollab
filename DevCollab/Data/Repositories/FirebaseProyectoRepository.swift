@@ -53,23 +53,40 @@ class FirebaseProyectoRepository: ProyectoRepository {
         try await db.collection("proyectos").document(proyectoID).delete()
     }
     
-    func obtenerDetallesProyecto(proyectoID: String, userID: String) async throws -> (nombreCreador: String, yaSolicitado: Bool, esCreador: Bool, soyParticipante: Bool) {
-        let document = try await db.collection("proyectos").document(proyectoID).getDocument()
-        guard let data = document.data() else {
+    func obtenerDetallesProyecto(proyectoID: String, userID: String) async throws -> (nombreCreador: String, descripcionCreador: String, lenguajesCreador: [String], yaSolicitado: Bool, esCreador: Bool, soyParticipante: Bool) {
+        // Obtener el documento del proyecto
+        let proyectoDoc = try await db.collection("proyectos").document(proyectoID).getDocument()
+        guard let data = proyectoDoc.data() else {
             throw NSError(domain: "FirebaseProyectoRepository", code: 404, userInfo: [NSLocalizedDescriptionKey: "Proyecto no encontrado"])
         }
-        let nombreCreador = data["creadorID"] as? String ?? "Desconocido"
-        let yaSolicitado = try await db.collection("solicitudes")
+        
+        // Extraer el creadorID
+        let creadorID = data["creadorID"] as? String ?? ""
+        
+        // Consultar la colección "usuarios" para obtener la información del creador
+        let usuarioDoc = try await db.collection("usuarios").document(creadorID).getDocument()
+        let userData = usuarioDoc.data() ?? [:]
+        let nombreCreador = userData["nombre"] as? String ?? "Desconocido"
+        let descripcionCreador = userData["descripcion"] as? String ?? ""
+        let lenguajesCreador = userData["lenguajes"] as? [String] ?? []
+        
+        // Consultar solicitudes para determinar yaSolicitado
+        let solicitudesSnapshot = try await db.collection("solicitudes")
             .whereField("proyectoID", isEqualTo: proyectoID)
             .whereField("usuarioID", isEqualTo: userID)
             .getDocuments()
-            .documents.count > 0
-        let esCreador = nombreCreador == userID
-        let soyParticipante = try await db.collection("participantes")
+        let yaSolicitado = solicitudesSnapshot.documents.count > 0
+        
+        // Determinar si el usuario es el creador
+        let esCreador = (creadorID == userID)
+        
+        // Consultar participantes para determinar si el usuario es participante
+        let participantesSnapshot = try await db.collection("participantes")
             .whereField("proyectoID", isEqualTo: proyectoID)
             .whereField("usuarioID", isEqualTo: userID)
             .getDocuments()
-            .documents.count > 0
-        return (nombreCreador, yaSolicitado, esCreador, soyParticipante)
+        let soyParticipante = participantesSnapshot.documents.count > 0
+        
+        return (nombreCreador, descripcionCreador, lenguajesCreador, yaSolicitado, esCreador, soyParticipante)
     }
 }

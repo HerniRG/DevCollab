@@ -1,5 +1,12 @@
 protocol ObtenerDetallesProyectoUseCaseProtocol {
-    func ejecutar(proyectoID: String, userID: String) async throws -> (String, Bool, Bool, Bool)
+    /// Retorna una tupla con:
+    /// - nombreCreador: String
+    /// - descripcionCreador: String
+    /// - lenguajesCreador: [String]
+    /// - yaSolicitado: Bool
+    /// - esCreador: Bool
+    /// - soyParticipante: Bool
+    func ejecutar(proyectoID: String, userID: String) async throws -> (nombreCreador: String, descripcionCreador: String, lenguajesCreador: [String], yaSolicitado: Bool, esCreador: Bool, soyParticipante: Bool)
 }
 
 class ObtenerDetallesProyectoUseCaseImpl: ObtenerDetallesProyectoUseCaseProtocol {
@@ -9,11 +16,7 @@ class ObtenerDetallesProyectoUseCaseImpl: ObtenerDetallesProyectoUseCaseProtocol
         self.repository = repository
     }
     
-    func ejecutar(proyectoID: String, userID: String) async throws -> (String, Bool, Bool, Bool) {
-        do {
-            return try await repository.obtenerDetallesProyecto(proyectoID: proyectoID, userID: userID)
-        } catch {
-            return ("Desconocido", false, false, false)
-        }
+    func ejecutar(proyectoID: String, userID: String) async throws -> (nombreCreador: String, descripcionCreador: String, lenguajesCreador: [String], yaSolicitado: Bool, esCreador: Bool, soyParticipante: Bool) {
+        return try await repository.obtenerDetallesProyecto(proyectoID: proyectoID, userID: userID)
     }
 }

@@ -3,11 +3,14 @@ import Combine
 
 class DetalleProyectoViewModel: ObservableObject {
     @Published var nombreCreador: String = ""
+    @Published var descripcionCreador: String = ""
+    @Published var lenguajesCreador: [String] = []  // O [LenguajeProgramacion], formateados como cadena
     @Published var estadoProyecto: String = ""
     @Published var yaSolicitado: Bool = false
     @Published var esMiProyecto: Bool = false
     @Published var soyParticipante: Bool = false
     @Published var solicitudesPendientes: [Solicitud] = []
+    @Published var isLoading: Bool = true   // Indicador de carga
     
     private let obtenerDetallesProyectoUseCase: ObtenerDetallesProyectoUseCaseProtocol
     private let gestionarSolicitudesUseCase: GestionarSolicitudesUseCaseProtocol
@@ -17,33 +20,41 @@ class DetalleProyectoViewModel: ObservableObject {
     init(userID: String) {
         let proyectoRepository = FirebaseProyectoRepository()
         let solicitudRepository = FirebaseSolicitudRepository()
-
+        
         self.obtenerDetallesProyectoUseCase = ObtenerDetallesProyectoUseCaseImpl(repository: proyectoRepository)
         self.gestionarSolicitudesUseCase = GestionarSolicitudesUseCaseImpl(repository: solicitudRepository)
         self.obtenerSolicitudesUseCase = ObtenerSolicitudesUseCaseImpl(repository: solicitudRepository)
         self.userID = userID
     }
     
-    /// 🔥 Carga los datos del proyecto y actualiza el estado en la UI
-    func obtenerDatosAdicionales(proyectoID: String) {
+    func obtenerDatosAdicionales(proyectoID: String) async {
+        DispatchQueue.main.async {
+            self.isLoading = true
+        }
         Task {
             do {
+                // Suponemos que el use case se ha extendido para devolver también información del creador:
+                // (nombreCreador, descripcionCreador, lenguajesCreador, yaSolicitado, esMiProyecto, soyParticipante)
                 let detalles = try await obtenerDetallesProyectoUseCase.ejecutar(proyectoID: proyectoID, userID: userID)
-                let estadoActual = try await gestionarSolicitudesUseCase.obtenerEstadoProyecto(proyectoID: proyectoID) // ✅ Obtiene el estado real desde Firestore
-                
+                let estadoActual = try await gestionarSolicitudesUseCase.obtenerEstadoProyecto(proyectoID: proyectoID)
                 DispatchQueue.main.async { [weak self] in
                     self?.nombreCreador = detalles.0
-                    self?.yaSolicitado = detalles.1
-                    self?.esMiProyecto = detalles.2
-                    self?.soyParticipante = detalles.3
-                    self?.estadoProyecto = estadoActual // ✅ Se asegura de mostrar el estado correcto
+                    self?.descripcionCreador = detalles.1
+                    self?.lenguajesCreador = detalles.2
+                    self?.yaSolicitado = detalles.3
+                    self?.esMiProyecto = detalles.4
+                    self?.soyParticipante = detalles.5
+                    self?.estadoProyecto = estadoActual
+                    self?.isLoading = false
                 }
             } catch {
-                print("❌ Error al obtener datos del proyecto: \(error.localizedDescription)")
+                DispatchQueue.main.async { [weak self] in
+                    self?.isLoading = false
+                }
+                print("Error al obtener datos del proyecto: \(error.localizedDescription)")
             }
         }
     }
-    
     /// 🔥 Obtiene las solicitudes pendientes del proyecto
     func fetchSolicitudes() async {
         do {
