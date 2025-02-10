@@ -7,16 +7,14 @@ import SwiftUI
 class DetalleProyectoViewModel: ObservableObject {
     @Published var nombreCreador: String = ""
     @Published var descripcionCreador: String = ""
-    @Published var lenguajesCreador: [String] = []  // Cadena para mostrar los lenguajes del creador
+    @Published var lenguajesCreador: [String] = []
     @Published var estadoProyecto: String = ""
     @Published var yaSolicitado: Bool = false
     @Published var esMiProyecto: Bool = false
     @Published var soyParticipante: Bool = false
     @Published var solicitudesPendientes: [Solicitud] = []
-    @Published var isLoading: Bool = true   // Indicador de carga
-    @Published var errorMessage: String? = nil  // Para manejar errores en la vista
-    
-    // Nueva propiedad para participantes aprobados
+    @Published var isLoading: Bool = true
+    @Published var errorMessage: String? = nil
     @Published var participantes: [Usuario] = []
     
     private let obtenerDetallesProyectoUseCase: ObtenerDetallesProyectoUseCaseProtocol
@@ -24,12 +22,11 @@ class DetalleProyectoViewModel: ObservableObject {
     private let obtenerSolicitudesUseCase: ObtenerSolicitudesUseCase
     private let proyectoRepository: ProyectoRepository
     private let userID: String
-    private let db = Firestore.firestore()  // Para consultas directas si es necesario
+    private let db = Firestore.firestore()
     
     init(userID: String) {
         let proyectoRepository = FirebaseProyectoRepository()
         let solicitudRepository = FirebaseSolicitudRepository()
-        
         self.obtenerDetallesProyectoUseCase = ObtenerDetallesProyectoUseCaseImpl(repository: proyectoRepository)
         self.gestionarSolicitudesUseCase = GestionarSolicitudesUseCaseImpl(repository: solicitudRepository)
         self.obtenerSolicitudesUseCase = ObtenerSolicitudesUseCaseImpl(repository: solicitudRepository)
@@ -38,34 +35,28 @@ class DetalleProyectoViewModel: ObservableObject {
     }
     
     func obtenerDatosAdicionales(proyectoID: String) async {
-        DispatchQueue.main.async {
-            self.isLoading = true
-        }
+        DispatchQueue.main.async { self.isLoading = true }
         Task {
             do {
-                // Se espera que el use case retorne: (nombreCreador, descripcionCreador, lenguajesCreador, yaSolicitado, esMiProyecto, soyParticipante)
                 let detalles = try await obtenerDetallesProyectoUseCase.ejecutar(proyectoID: proyectoID, userID: userID)
                 let estadoActual = try await gestionarSolicitudesUseCase.obtenerEstadoProyecto(proyectoID: proyectoID)
                 DispatchQueue.main.async { [weak self] in
-                    self?.nombreCreador = detalles.0
-                    self?.descripcionCreador = detalles.1
-                    self?.lenguajesCreador = detalles.2
-                    self?.yaSolicitado = detalles.3
-                    self?.esMiProyecto = detalles.4
-                    self?.soyParticipante = detalles.5
+                    self?.nombreCreador = detalles.nombreCreador
+                    self?.descripcionCreador = detalles.descripcionCreador
+                    self?.lenguajesCreador = detalles.lenguajesCreador
+                    self?.yaSolicitado = detalles.yaSolicitado
+                    self?.esMiProyecto = detalles.esCreador
+                    self?.soyParticipante = detalles.soyParticipante
                     self?.estadoProyecto = estadoActual
                     self?.isLoading = false
                 }
             } catch {
-                DispatchQueue.main.async { [weak self] in
-                    self?.isLoading = false
-                }
+                DispatchQueue.main.async { [weak self] in self?.isLoading = false }
                 print("Error al obtener datos del proyecto: \(error.localizedDescription)")
             }
         }
     }
     
-    /// Nueva función para obtener participantes aprobados en el proyecto.
     func fetchParticipantes(proyectoID: String) async {
         do {
             let snapshot = try await db.collection("participantes")
@@ -94,8 +85,6 @@ class DetalleProyectoViewModel: ObservableObject {
         }
     }
     
-    /// Resto de funciones existentes (fetchSolicitudes, alternarEstadoProyecto, solicitarParticipacion, actualizarEstadoSolicitud, abandonarProyecto, eliminarProyecto) se mantienen igual.
-    
     func fetchSolicitudes() async {
         do {
             let solicitudes = try await obtenerSolicitudesUseCase.execute(usuarioID: userID)
@@ -103,7 +92,7 @@ class DetalleProyectoViewModel: ObservableObject {
                 self?.solicitudesPendientes = solicitudes
             }
         } catch {
-            print("❌ Error al obtener solicitudes: \(error.localizedDescription)")
+            print("Error al obtener solicitudes: \(error.localizedDescription)")
         }
     }
     
@@ -111,20 +100,20 @@ class DetalleProyectoViewModel: ObservableObject {
         do {
             let estadoActual = try await gestionarSolicitudesUseCase.obtenerEstadoProyecto(proyectoID: proyectoID)
             let nuevoEstado = (estadoActual == "Abierto") ? "Cerrado" : "Abierto"
-            print("🔥 Intentando cambiar estado a: \(nuevoEstado)")
+            print("Intentando cambiar estado a: \(nuevoEstado)")
             try await gestionarSolicitudesUseCase.cambiarEstadoProyecto(proyectoID: proyectoID, nuevoEstado: nuevoEstado)
             DispatchQueue.main.async {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     self.estadoProyecto = nuevoEstado
                 }
             }
-            print("✅ Proyecto cambiado a estado: \(nuevoEstado)")
+            print("Proyecto cambiado a estado: \(nuevoEstado)")
         } catch {
-            print("❌ Error al cambiar estado del proyecto: \(error.localizedDescription)")
+            print("Error al cambiar estado del proyecto: \(error.localizedDescription)")
         }
     }
     
-    func solicitarParticipacion(proyectoID: String) async {
+    func solicitarParticipacion(proyectoID: String, mensaje: String) async {
         do {
             let solicitudesUsuario = try await obtenerSolicitudesUseCase.execute(usuarioID: userID)
             let aceptadas = solicitudesUsuario.filter { $0.estado == "Aceptada" }
@@ -134,7 +123,7 @@ class DetalleProyectoViewModel: ObservableObject {
                 }
                 return
             }
-            try await gestionarSolicitudesUseCase.enviarSolicitud(proyectoID: proyectoID, usuarioID: userID)
+            try await gestionarSolicitudesUseCase.enviarSolicitud(proyectoID: proyectoID, usuarioID: userID, mensaje: mensaje)
             DispatchQueue.main.async { [weak self] in
                 self?.yaSolicitado = true
                 self?.errorMessage = nil
@@ -150,7 +139,7 @@ class DetalleProyectoViewModel: ObservableObject {
         do {
             try await gestionarSolicitudesUseCase.actualizarEstadoSolicitud(solicitudID: solicitudID, estado: estado)
         } catch {
-            print("❌ Error al actualizar estado de solicitud: \(error.localizedDescription)")
+            print("Error al actualizar estado de solicitud: \(error.localizedDescription)")
         }
     }
     
@@ -158,7 +147,7 @@ class DetalleProyectoViewModel: ObservableObject {
         do {
             try await gestionarSolicitudesUseCase.abandonarProyecto(proyectoID: proyectoID, usuarioID: userID)
         } catch {
-            print("❌ Error al abandonar proyecto: \(error.localizedDescription)")
+            print("Error al abandonar proyecto: \(error.localizedDescription)")
         }
     }
     

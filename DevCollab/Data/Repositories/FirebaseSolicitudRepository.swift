@@ -4,14 +4,16 @@ class FirebaseSolicitudRepository: SolicitudRepository {
     
     private let db = Firestore.firestore()
     
-    func enviarSolicitud(proyectoID: String, usuarioID: String) async throws {
-        let data: [String: Any] = [
-            "usuarioID": usuarioID,
-            "proyectoID": proyectoID,
-            "estado": "Pendiente"
-        ]
-        try await db.collection("solicitudes").addDocument(data: data)
-    }
+    func enviarSolicitud(proyectoID: String, usuarioID: String, mensaje: String) async throws {
+            let data: [String: Any] = [
+                "usuarioID": usuarioID,
+                "proyectoID": proyectoID,
+                "estado": "Pendiente",
+                "mensaje": mensaje
+            ]
+            try await db.collection("solicitudes").addDocument(data: data)
+        }
+        
     
     func actualizarEstadoSolicitud(solicitudID: String, estado: String) async throws {
         try await db.collection("solicitudes").document(solicitudID).updateData(["estado": estado])

@@ -4,13 +4,14 @@ import FirebaseAuth
 struct DetalleProyectoParticipanteView: View {
     let proyecto: Proyecto
     @StateObject private var viewModel: DetalleProyectoViewModel
-
+    @State private var showSolicitudModal = false
+    
     init(proyecto: Proyecto) {
         self.proyecto = proyecto
         let userID = Auth.auth().currentUser?.uid ?? ""
         _viewModel = StateObject(wrappedValue: DetalleProyectoViewModel(userID: userID))
     }
-
+    
     var body: some View {
         VStack {
             if viewModel.isLoading {
@@ -86,9 +87,7 @@ struct DetalleProyectoParticipanteView: View {
                     Section {
                         if !viewModel.yaSolicitado {
                             Button(action: {
-                                Task {
-                                    await viewModel.solicitarParticipacion(proyectoID: proyecto.id)
-                                }
+                                showSolicitudModal = true
                             }) {
                                 Text("Solicitar Participación")
                                     .frame(maxWidth: .infinity, alignment: .center)
@@ -102,7 +101,7 @@ struct DetalleProyectoParticipanteView: View {
                         }
                     }
                     
-                    // Sección 4: Lista de Participantes (nuevamente)
+                    // Sección 4: Lista de Participantes
                     Section("Participantes") {
                         if viewModel.participantes.isEmpty {
                             Text("No hay participantes aprobados.")
@@ -121,7 +120,7 @@ struct DetalleProyectoParticipanteView: View {
                         }
                     }
                     
-                    // Sección 5: Mensaje de error (solo si hay error)
+                    // Sección 5: Mensaje de error
                     if let error = viewModel.errorMessage, !error.isEmpty {
                         Section {
                             Text(error)
@@ -133,6 +132,14 @@ struct DetalleProyectoParticipanteView: View {
                 .listStyle(InsetGroupedListStyle())
                 .listSectionSpacing(20)
                 .navigationBarTitleDisplayMode(.inline)
+            }
+        }
+        // Presentamos el modal de solicitud con fullScreenCover
+        .fullScreenCover(isPresented: $showSolicitudModal) {
+            SolicitudModalView(proyectoID: proyecto.id) { mensaje in
+                Task {
+                    await viewModel.solicitarParticipacion(proyectoID: proyecto.id, mensaje: mensaje)
+                }
             }
         }
         .task {

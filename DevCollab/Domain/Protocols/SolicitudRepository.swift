@@ -1,5 +1,5 @@
 protocol SolicitudRepository {
-    func enviarSolicitud(proyectoID: String, usuarioID: String) async throws
+    func enviarSolicitud(proyectoID: String, usuarioID: String, mensaje: String) async throws
     func actualizarEstadoSolicitud(solicitudID: String, estado: String) async throws
     func cambiarEstadoProyecto(proyectoID: String, nuevoEstado: String) async throws
     func abandonarProyecto(proyectoID: String, usuarioID: String) async throws
