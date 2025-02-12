@@ -7,20 +7,23 @@ import SwiftUI
 class DetalleProyectoViewModel: ObservableObject {
     @Published var nombreCreador: String = ""
     @Published var descripcionCreador: String = ""
-    @Published var lenguajesCreador: [String] = []
+    @Published var lenguajesCreador: [String] = []  // Para mostrar los lenguajes del creador
     @Published var estadoProyecto: String = ""
     @Published var yaSolicitado: Bool = false
     @Published var esMiProyecto: Bool = false
     @Published var soyParticipante: Bool = false
     @Published var solicitudesPendientes: [Solicitud] = []
-    @Published var isLoading: Bool = true
-    @Published var errorMessage: String? = nil
-    @Published var participantes: [Usuario] = []
+    @Published var isLoading: Bool = true   // Indicador de carga
+    @Published var errorMessage: String? = nil  // Para manejar errores en la vista
+    @Published var participantes: [Usuario] = []  // Participantes aprobados
     
     private let obtenerDetallesProyectoUseCase: ObtenerDetallesProyectoUseCaseProtocol
     private let gestionarSolicitudesUseCase: GestionarSolicitudesUseCaseProtocol
     private let obtenerSolicitudesUseCase: ObtenerSolicitudesUseCase
+    private let obtenerSolicitudesPorProyectoUseCase: ObtenerSolicitudesPorProyectoUseCase
     private let proyectoRepository: ProyectoRepository
+    private let usuarioRepository: UserRepository
+    
     private let userID: String
     private let db = Firestore.firestore()
     
@@ -30,12 +33,27 @@ class DetalleProyectoViewModel: ObservableObject {
         self.obtenerDetallesProyectoUseCase = ObtenerDetallesProyectoUseCaseImpl(repository: proyectoRepository)
         self.gestionarSolicitudesUseCase = GestionarSolicitudesUseCaseImpl(repository: solicitudRepository)
         self.obtenerSolicitudesUseCase = ObtenerSolicitudesUseCaseImpl(repository: solicitudRepository)
+        self.obtenerSolicitudesPorProyectoUseCase = ObtenerSolicitudesPorProyectoUseCaseImpl(repository: solicitudRepository)
         self.proyectoRepository = proyectoRepository
+        self.usuarioRepository = FirebaseUserRepository()
         self.userID = userID
     }
     
+    // Función para obtener los datos del usuario utilizando el UserRepository
+    func fetchUsuario(for solicitud: Solicitud) async -> Usuario? {
+        do {
+            let usuario = try await usuarioRepository.obtenerUsuario(usuarioID: solicitud.usuarioID)
+            return usuario
+        } catch {
+            print("Error al obtener usuario: \(error.localizedDescription)")
+            return nil
+        }
+    }
+    
     func obtenerDatosAdicionales(proyectoID: String) async {
-        DispatchQueue.main.async { self.isLoading = true }
+        DispatchQueue.main.async {
+            self.isLoading = true
+        }
         Task {
             do {
                 let detalles = try await obtenerDetallesProyectoUseCase.ejecutar(proyectoID: proyectoID, userID: userID)
@@ -51,7 +69,9 @@ class DetalleProyectoViewModel: ObservableObject {
                     self?.isLoading = false
                 }
             } catch {
-                DispatchQueue.main.async { [weak self] in self?.isLoading = false }
+                DispatchQueue.main.async { [weak self] in
+                    self?.isLoading = false
+                }
                 print("Error al obtener datos del proyecto: \(error.localizedDescription)")
             }
         }
@@ -85,6 +105,7 @@ class DetalleProyectoViewModel: ObservableObject {
         }
     }
     
+    // Función actual (filtra por usuarioID)
     func fetchSolicitudes() async {
         do {
             let solicitudes = try await obtenerSolicitudesUseCase.execute(usuarioID: userID)
@@ -93,6 +114,18 @@ class DetalleProyectoViewModel: ObservableObject {
             }
         } catch {
             print("Error al obtener solicitudes: \(error.localizedDescription)")
+        }
+    }
+    
+    // NUEVA FUNCIÓN: Filtra solicitudes por proyectoID
+    func fetchSolicitudesPorProyecto(proyectoID: String) async {
+        do {
+            let solicitudes = try await obtenerSolicitudesPorProyectoUseCase.execute(proyectoID: proyectoID)
+            DispatchQueue.main.async { [weak self] in
+                self?.solicitudesPendientes = solicitudes
+            }
+        } catch {
+            print("Error al obtener solicitudes por proyecto: \(error.localizedDescription)")
         }
     }
     

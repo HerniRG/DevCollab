@@ -50,6 +50,23 @@ class FirebaseSolicitudRepository: SolicitudRepository {
         }
     }
     
+    func obtenerSolicitudesPorProyecto(proyectoID: String) async throws -> [Solicitud] {
+        let snapshot = try await db.collection("solicitudes")
+            .whereField("proyectoID", isEqualTo: proyectoID)
+            .whereField("estado", isEqualTo: "Pendiente") // Filtra solo las solicitudes pendientes
+            .getDocuments()
+        return snapshot.documents.compactMap { doc in
+            let data = doc.data()
+            return Solicitud(
+                id: doc.documentID,
+                usuarioID: data["usuarioID"] as? String ?? "",
+                proyectoID: data["proyectoID"] as? String ?? "",
+                mensaje: data["mensaje"] as? String,
+                estado: data["estado"] as? String ?? "Pendiente"
+            )
+        }
+    }
+    
     func obtenerEstadoProyecto(proyectoID: String) async throws -> String {
         let docRef = db.collection("proyectos").document(proyectoID)
         
