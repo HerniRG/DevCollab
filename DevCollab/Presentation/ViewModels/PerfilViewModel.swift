@@ -116,13 +116,28 @@ class PerfilViewModel: ObservableObject {
     func deleteProject(proyecto: Proyecto) {
         Task {
             do {
+                // Primero, eliminar todos los participantes asociados al proyecto en batch
+                let snapshot = try await db.collection("participantes")
+                    .whereField("proyectoID", isEqualTo: proyecto.id)
+                    .getDocuments()
+                let batch = db.batch()
+                for document in snapshot.documents {
+                    batch.deleteDocument(document.reference)
+                }
+                try await batch.commit()
+                
+                // Luego, eliminar el proyecto
                 try await proyectoRepository.eliminarProyecto(proyectoID: proyecto.id)
+                
                 DispatchQueue.main.async {
                     self.proyectosCreados.removeAll { $0.id == proyecto.id }
                     self.proyectosParticipando.removeAll { $0.id == proyecto.id }
+                    self.errorMessage = nil
                 }
             } catch {
-                print("Error al borrar proyecto: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    self.errorMessage = "Error al eliminar proyecto: \(error.localizedDescription)"
+                }
             }
         }
     }

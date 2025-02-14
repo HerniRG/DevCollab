@@ -6,10 +6,10 @@ struct ExploracionProyectosView: View {
     @State private var userID: String = Auth.auth().currentUser?.uid ?? ""
     // Estado para filtrar proyectos abiertos por lenguaje; nil = sin filtro.
     @State private var selectedLanguage: LenguajeProgramacion? = nil
-    
+
     var body: some View {
         List {
-            // Sección 1: Mis proyectos (creados por el usuario)
+            // Sección 1: Mis proyectos creados
             Section("Mis proyectos creados") {
                 let misProyectos = viewModel.proyectos.filter { $0.creadorID == userID }
                 if misProyectos.isEmpty {
@@ -63,7 +63,6 @@ struct ExploracionProyectosView: View {
                 }
                 .padding(.vertical, 4)
                 
-                // Lista de proyectos abiertos filtrados
                 let proyectosAbiertos = viewModel.proyectos.filter { proyecto in
                     proyecto.creadorID != userID &&
                     proyecto.estado == "Abierto" &&
@@ -88,12 +87,6 @@ struct ExploracionProyectosView: View {
         .refreshable {
             viewModel.fetchProyectos()
             viewModel.fetchSolicitudes()
-        }
-        .overlay {
-            if viewModel.proyectos.isEmpty {
-                ProgressView("Cargando proyectos...")
-                    .padding()
-            }
         }
         .onAppear {
             viewModel.fetchProyectos()

@@ -232,7 +232,20 @@ class DetalleProyectoViewModel: ObservableObject {
     
     func eliminarProyecto(proyecto: Proyecto) async {
         do {
+            // Primero, eliminar todos los participantes asociados al proyecto
+            let snapshot = try await db.collection("participantes")
+                .whereField("proyectoID", isEqualTo: proyecto.id)
+                .getDocuments()
+            
+            let batch = db.batch()
+            for document in snapshot.documents {
+                batch.deleteDocument(document.reference)
+            }
+            try await batch.commit()
+            
+            // Luego, eliminar el proyecto
             try await proyectoRepository.eliminarProyecto(proyectoID: proyecto.id)
+            
             DispatchQueue.main.async {
                 self.errorMessage = nil
             }

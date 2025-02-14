@@ -79,7 +79,6 @@ struct PerfilView: View {
                 }
                 .listStyle(InsetGroupedListStyle())
                 .listSectionSpacing(20)
-                
                 // NavigationLink "oculto" para presentar EditarPerfilView mediante push
                 .background(
                     NavigationLink(
