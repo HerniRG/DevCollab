@@ -66,6 +66,15 @@ class FirebaseSolicitudRepository: SolicitudRepository {
             )
         }
     }
+    func eliminarSolicitud(proyectoID: String, usuarioID: String) async throws {
+        let snapshot = try await db.collection("solicitudes")
+            .whereField("proyectoID", isEqualTo: proyectoID)
+            .whereField("usuarioID", isEqualTo: usuarioID)
+            .getDocuments()
+        for document in snapshot.documents {
+            try await document.reference.delete()
+        }
+    }
     
     func obtenerEstadoProyecto(proyectoID: String) async throws -> String {
         let docRef = db.collection("proyectos").document(proyectoID)

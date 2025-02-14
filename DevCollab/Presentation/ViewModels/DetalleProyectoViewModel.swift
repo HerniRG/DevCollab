@@ -16,6 +16,7 @@ class DetalleProyectoViewModel: ObservableObject {
     @Published var isLoading: Bool = true   // Indicador de carga
     @Published var errorMessage: String? = nil  // Para manejar errores en la vista
     @Published var participantes: [Usuario] = []  // Participantes aprobados
+    @Published var estadoSolicitud: String = ""
     
     private let obtenerDetallesProyectoUseCase: ObtenerDetallesProyectoUseCaseProtocol
     private let gestionarSolicitudesUseCase: GestionarSolicitudesUseCaseProtocol
@@ -23,6 +24,7 @@ class DetalleProyectoViewModel: ObservableObject {
     private let obtenerSolicitudesPorProyectoUseCase: ObtenerSolicitudesPorProyectoUseCase
     private let proyectoRepository: ProyectoRepository
     private let usuarioRepository: UserRepository
+    private let solicitudRepository: SolicitudRepository
     
     private let userID: String
     private let db = Firestore.firestore()
@@ -36,6 +38,7 @@ class DetalleProyectoViewModel: ObservableObject {
         self.obtenerSolicitudesPorProyectoUseCase = ObtenerSolicitudesPorProyectoUseCaseImpl(repository: solicitudRepository)
         self.proyectoRepository = proyectoRepository
         self.usuarioRepository = FirebaseUserRepository()
+        self.solicitudRepository = solicitudRepository
         self.userID = userID
     }
     
@@ -47,6 +50,42 @@ class DetalleProyectoViewModel: ObservableObject {
         } catch {
             print("Error al obtener usuario: \(error.localizedDescription)")
             return nil
+        }
+    }
+    
+    func fetchSolicitudEstado(proyectoID: String) async {
+        do {
+            let snapshot = try await db.collection("solicitudes")
+                .whereField("proyectoID", isEqualTo: proyectoID)
+                .whereField("usuarioID", isEqualTo: userID)
+                .getDocuments()
+            if let doc = snapshot.documents.first {
+                let data = doc.data()
+                let estado = data["estado"] as? String ?? ""
+                DispatchQueue.main.async {
+                    self.estadoSolicitud = estado
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.estadoSolicitud = ""
+                }
+            }
+        } catch {
+            print("Error al obtener estado de solicitud: \(error.localizedDescription)")
+        }
+    }
+    
+    // Función para agregar participante tras aprobar una solicitud
+    func agregarParticipante(solicitud: Solicitud) async {
+        do {
+            let data: [String: Any] = [
+                "proyectoID": solicitud.proyectoID,
+                "usuarioID": solicitud.usuarioID
+            ]
+            try await db.collection("participantes").addDocument(data: data)
+            print("Participante agregado correctamente")
+        } catch {
+            print("Error al agregar participante: \(error.localizedDescription)")
         }
     }
     
@@ -178,7 +217,14 @@ class DetalleProyectoViewModel: ObservableObject {
     
     func abandonarProyecto(proyectoID: String) async {
         do {
+            // Elimina de la colección "participantes"
             try await gestionarSolicitudesUseCase.abandonarProyecto(proyectoID: proyectoID, usuarioID: userID)
+            // Elimina la solicitud correspondiente de la colección "solicitudes"
+            try await solicitudRepository.eliminarSolicitud(proyectoID: proyectoID, usuarioID: userID) // O si defines esta función en otro use case/repository, úsalo
+            DispatchQueue.main.async {
+                self.soyParticipante = false
+                self.yaSolicitado = false
+            }
         } catch {
             print("Error al abandonar proyecto: \(error.localizedDescription)")
         }

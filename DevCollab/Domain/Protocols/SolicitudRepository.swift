@@ -5,5 +5,6 @@ protocol SolicitudRepository {
     func abandonarProyecto(proyectoID: String, usuarioID: String) async throws
     func obtenerSolicitudes(usuarioID: String) async throws -> [Solicitud]
     func obtenerSolicitudesPorProyecto(proyectoID: String) async throws -> [Solicitud]
+    func eliminarSolicitud(proyectoID: String, usuarioID: String) async throws
     func obtenerEstadoProyecto(proyectoID: String) async throws -> String
 }

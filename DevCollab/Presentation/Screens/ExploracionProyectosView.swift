@@ -6,7 +6,7 @@ struct ExploracionProyectosView: View {
     @State private var userID: String = Auth.auth().currentUser?.uid ?? ""
     // Estado para filtrar proyectos abiertos por lenguaje; nil = sin filtro.
     @State private var selectedLanguage: LenguajeProgramacion? = nil
-
+    
     var body: some View {
         List {
             // Sección 1: Mis proyectos (creados por el usuario)
@@ -94,6 +94,10 @@ struct ExploracionProyectosView: View {
                 ProgressView("Cargando proyectos...")
                     .padding()
             }
+        }
+        .onAppear {
+            viewModel.fetchProyectos()
+            viewModel.fetchSolicitudes()
         }
         .task {
             viewModel.fetchProyectos()

@@ -29,6 +29,14 @@ struct DetalleProyectoCreadorView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List {
+                    // Nueva sección: Título del Proyecto
+                    Section {
+                        Text(proyecto.nombre)
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    }
+                    
                     // Sección 1: Información del Proyecto
                     Section("Información del Proyecto") {
                         VStack(alignment: .leading, spacing: 8) {
@@ -57,38 +65,7 @@ struct DetalleProyectoCreadorView: View {
                         .padding(.vertical, 4)
                     }
                     
-                    // Sección 2: Información del Creador
-                    Section("Información del Creador") {
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack {
-                                Text("Nombre:")
-                                    .fontWeight(.semibold)
-                                Spacer()
-                                Text(viewModel.nombreCreador)
-                                    .foregroundColor(.primary)
-                            }
-                            if !viewModel.descripcionCreador.isEmpty {
-                                HStack {
-                                    Text("Descripción:")
-                                        .fontWeight(.semibold)
-                                    Spacer()
-                                    Text(viewModel.descripcionCreador)
-                                        .multilineTextAlignment(.trailing)
-                                }
-                            }
-                            if !viewModel.lenguajesCreador.isEmpty {
-                                HStack {
-                                    Text("Lenguajes:")
-                                        .fontWeight(.semibold)
-                                    Spacer()
-                                    Text(viewModel.lenguajesCreador.joined(separator: ", "))
-                                }
-                            }
-                        }
-                        .padding(.vertical, 4)
-                    }
-                    
-                    // Sección 3: Gestión del estado del proyecto
+                    // Sección 2: Gestión del estado del proyecto
                     Section {
                         Button(action: {
                             Task {
@@ -102,7 +79,7 @@ struct DetalleProyectoCreadorView: View {
                         .listRowBackground(viewModel.estadoProyecto == "Abierto" ? Color.red : Color.green)
                     }
                     
-                    // Sección 4: Gestión de solicitudes
+                    // Sección 3: Gestión de solicitudes
                     Section("Solicitudes de Participación") {
                         if viewModel.solicitudesPendientes.isEmpty {
                             Text("No hay solicitudes pendientes.")
@@ -126,7 +103,6 @@ struct DetalleProyectoCreadorView: View {
                                             HStack {
                                                 Text("Usuario:")
                                                     .fontWeight(.semibold)
-                                                // Usamos UserNameView para mostrar el nombre en vez del userID
                                                 UserNameView(userID: solicitud.usuarioID)
                                             }
                                             Text("Mensaje: \(solicitud.mensaje ?? "Sin mensaje")")
@@ -134,11 +110,29 @@ struct DetalleProyectoCreadorView: View {
                                                 .foregroundColor(.secondary)
                                         }
                                         Spacer()
-                                        // Agregamos un chevron para indicar que es clickable
                                         Image(systemName: "chevron.right")
                                             .foregroundColor(.secondary)
                                     }
                                     .padding(.vertical, 4)
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Sección 4: Participantes aprobados
+                    Section("Participantes") {
+                        if viewModel.participantes.isEmpty {
+                            Text("No hay participantes aprobados.")
+                                .foregroundColor(.gray)
+                        } else {
+                            ForEach(viewModel.participantes, id: \.id) { participante in
+                                HStack {
+                                    Text(participante.nombre)
+                                        .fontWeight(.semibold)
+                                    if !participante.lenguajes.isEmpty {
+                                        Text("(\(participante.lenguajes.map { $0.rawValue }.joined(separator: ", ")))")
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
                             }
                         }
@@ -187,11 +181,17 @@ struct DetalleProyectoCreadorView: View {
                                               selectedUsuario: $selectedUsuario) { decision in
                 print("onDecision llamado con decision: \(decision)")
                 Task {
-                    let nuevoEstado = decision ? "Aceptada" : "Rechazada"
                     if let solicitud = selectedSolicitud {
-                        await viewModel.actualizarEstadoSolicitud(solicitudID: solicitud.id, estado: nuevoEstado)
-                        // Refrescar la lista si es necesario:
+                        if decision {
+                            let nuevoEstado = "Aceptada"
+                            await viewModel.actualizarEstadoSolicitud(solicitudID: solicitud.id, estado: nuevoEstado)
+                            await viewModel.agregarParticipante(solicitud: solicitud)
+                        } else {
+                            let nuevoEstado = "Rechazada"
+                            await viewModel.actualizarEstadoSolicitud(solicitudID: solicitud.id, estado: nuevoEstado)
+                        }
                         await viewModel.fetchSolicitudesPorProyecto(proyectoID: proyecto.id)
+                        await viewModel.fetchParticipantes(proyectoID: proyecto.id)
                     }
                 }
             }
@@ -240,4 +240,3 @@ struct UserNameView: View {
     }
 }
 
-ahora falta mostrar al creador participantes del proyecto

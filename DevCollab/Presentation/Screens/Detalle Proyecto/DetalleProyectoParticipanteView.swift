@@ -24,6 +24,13 @@ struct DetalleProyectoParticipanteView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List {
+                    // Nueva sección: Título del Proyecto
+                    Section {
+                        Text(proyecto.nombre)
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    }
                     // Sección 1: Información del Proyecto
                     Section("Información del Proyecto") {
                         VStack(alignment: .leading, spacing: 8) {
@@ -95,9 +102,39 @@ struct DetalleProyectoParticipanteView: View {
                             }
                             .listRowBackground(Color.blue)
                         } else {
-                            Text("Solicitud Pendiente o Aprobada")
-                                .foregroundColor(.gray)
-                                .frame(maxWidth: .infinity, alignment: .center)
+                            if viewModel.soyParticipante {
+                                VStack(spacing: 8) {
+                                    Text("Solicitud Aprobada")
+                                        .foregroundColor(.green)
+                                        .frame(maxWidth: .infinity, alignment: .center)
+                                    Button(action: {
+                                        Task {
+                                            await viewModel.abandonarProyecto(proyectoID: proyecto.id)
+                                            await viewModel.obtenerDatosAdicionales(proyectoID: proyecto.id)
+                                            await viewModel.fetchParticipantes(proyectoID: proyecto.id)
+                                            await viewModel.fetchSolicitudEstado(proyectoID: proyecto.id)
+                                        }
+                                    }) {
+                                        Text("Abandonar Proyecto")
+                                            .font(.headline)
+                                            .padding()
+                                            .frame(maxWidth: .infinity)
+                                            .background(Color.red)
+                                            .foregroundColor(.white)
+                                            .cornerRadius(8)
+                                    }
+                                }
+                            } else {
+                                if viewModel.estadoSolicitud == "Rechazada" {
+                                    Text("Solicitud Rechazada")
+                                        .foregroundColor(.red)
+                                        .frame(maxWidth: .infinity, alignment: .center)
+                                } else {
+                                    Text("Solicitud Pendiente")
+                                        .foregroundColor(.gray)
+                                        .frame(maxWidth: .infinity, alignment: .center)
+                                }
+                            }
                         }
                     }
                     
@@ -134,7 +171,6 @@ struct DetalleProyectoParticipanteView: View {
                 .navigationBarTitleDisplayMode(.inline)
             }
         }
-        // Presentamos el modal de solicitud con fullScreenCover
         .fullScreenCover(isPresented: $showSolicitudModal) {
             SolicitudModalView(proyectoID: proyecto.id) { mensaje in
                 Task {
@@ -145,6 +181,7 @@ struct DetalleProyectoParticipanteView: View {
         .task {
             await viewModel.obtenerDatosAdicionales(proyectoID: proyecto.id)
             await viewModel.fetchParticipantes(proyectoID: proyecto.id)
+            await viewModel.fetchSolicitudEstado(proyectoID: proyecto.id)
         }
     }
 }

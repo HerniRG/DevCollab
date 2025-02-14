@@ -18,7 +18,7 @@ class PerfilViewModel: ObservableObject {
     private let solicitudRepository: SolicitudRepository
     private let updatePerfilUseCase: UpdatePerfilUseCase
     
-    // Para operaciones directas en Firestore (si fuera necesario)
+    // Para operaciones directas en Firestore
     private let db = Firestore.firestore()
     
     init(authRepository: AuthRepository,
@@ -43,6 +43,8 @@ class PerfilViewModel: ObservableObject {
                     }
                     fetchUserProjects(userID: user.id)
                     fetchSolicitudes(usuarioID: user.id)
+                    // Nuevo: obtenemos directamente los proyectos en los que participa el usuario
+                    await fetchParticipandoProjects(userID: user.id)
                 }
             } catch {
                 print("Error al obtener perfil: \(error.localizedDescription)")
@@ -56,7 +58,7 @@ class PerfilViewModel: ObservableObject {
                 let proyectos = try await proyectoRepository.obtenerProyectos()
                 DispatchQueue.main.async {
                     self.proyectosCreados = proyectos.filter { $0.creadorID == userID }
-                    self.updateProyectosParticipando(userID: userID, allProjects: proyectos)
+                    // Opcional: si antes usabas updateProyectosParticipando, ahora lo obtendrás directamente
                 }
             } catch {
                 print("Error al obtener proyectos: \(error.localizedDescription)")
@@ -70,10 +72,6 @@ class PerfilViewModel: ObservableObject {
                 let solicitudes = try await solicitudRepository.obtenerSolicitudes(usuarioID: usuarioID)
                 DispatchQueue.main.async {
                     self.solicitudes = solicitudes
-                    if let userID = self.usuario?.id {
-                        let proyectos = self.proyectosCreados + self.proyectosParticipando
-                        self.updateProyectosParticipando(userID: userID, allProjects: proyectos)
-                    }
                 }
             } catch {
                 print("Error al obtener solicitudes: \(error.localizedDescription)")
@@ -81,15 +79,36 @@ class PerfilViewModel: ObservableObject {
         }
     }
     
-    private func updateProyectosParticipando(userID: String, allProjects: [Proyecto]) {
-        let participando = allProjects.filter { proyecto in
-            proyecto.creadorID != userID &&
-            self.solicitudes.contains { solicitud in
-                solicitud.proyectoID == proyecto.id && solicitud.estado == "Aceptada"
+    /// Nueva función: obtiene los proyectos en los que participa el usuario a partir de la colección "participantes"
+    func fetchParticipandoProjects(userID: String) async {
+        do {
+            let snapshot = try await db.collection("participantes")
+                .whereField("usuarioID", isEqualTo: userID)
+                .getDocuments()
+            var proyectos: [Proyecto] = []
+            for document in snapshot.documents {
+                let data = document.data()
+                let proyectoID = data["proyectoID"] as? String ?? ""
+                let proyectoDoc = try await db.collection("proyectos").document(proyectoID).getDocument()
+                if let projectData = proyectoDoc.data() {
+                    let proyecto = Proyecto(
+                        id: proyectoID,
+                        nombre: projectData["nombre"] as? String ?? "",
+                        descripcion: projectData["descripcion"] as? String ?? "",
+                        lenguajes: (projectData["lenguajes"] as? [String])?.compactMap { LenguajeProgramacion(rawValue: $0) } ?? [],
+                        horasSemanales: projectData["horasSemanales"] as? Int ?? 0,
+                        tipoColaboracion: projectData["tipoColaboracion"] as? String ?? "",
+                        estado: projectData["estado"] as? String ?? "Abierto",
+                        creadorID: projectData["creadorID"] as? String ?? ""
+                    )
+                    proyectos.append(proyecto)
+                }
             }
-        }
-        DispatchQueue.main.async {
-            self.proyectosParticipando = participando
+            DispatchQueue.main.async {
+                self.proyectosParticipando = proyectos
+            }
+        } catch {
+            print("Error al obtener proyectos participando: \(error.localizedDescription)")
         }
     }
     
