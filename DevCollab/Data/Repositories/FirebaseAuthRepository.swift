@@ -12,7 +12,8 @@ class FirebaseAuthRepository: AuthRepository {
                 id: result.user.uid,
                 nombre: nombre,
                 lenguajes: lenguajes,
-                descripcion: descripcion
+                descripcion: descripcion,
+                correo: email
             )
             try await saveUserData(usuario: usuario, email: email)
             return usuario
@@ -40,14 +41,15 @@ class FirebaseAuthRepository: AuthRepository {
             id: user.uid,
             nombre: data["nombre"] as? String ?? "",
             lenguajes: (data["lenguajes"] as? [String])?.compactMap { LenguajeProgramacion(rawValue: $0) } ?? [],
-            descripcion: data["descripcion"] as? String
+            descripcion: data["descripcion"] as? String,
+            correo: data["correo"] as? String ?? ""
         )
     }
     
     func login(email: String, password: String) async throws -> Usuario {
         do {
             let result = try await auth.signIn(withEmail: email, password: password)
-            return try await getCurrentUser() ?? Usuario(id: result.user.uid, nombre: "", lenguajes: [], descripcion: nil)
+            return try await getCurrentUser() ?? Usuario(id: result.user.uid, nombre: "", lenguajes: [], descripcion: nil, correo: email)
         } catch {
             throw (error as NSError).toAuthRepositoryError()
         }

@@ -134,7 +134,8 @@ class DetalleProyectoViewModel: ObservableObject {
                         id: usuarioID,
                         nombre: userData["nombre"] as? String ?? "",
                         lenguajes: (userData["lenguajes"] as? [String])?.compactMap { LenguajeProgramacion(rawValue: $0) } ?? [],
-                        descripcion: userData["descripcion"] as? String
+                        descripcion: userData["descripcion"] as? String,
+                        correo: userData["correo"] as? String ?? ""
                     )
                     participantes.append(usuario)
                 }

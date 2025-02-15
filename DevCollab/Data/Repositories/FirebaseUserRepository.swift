@@ -25,7 +25,8 @@ class FirebaseUserRepository: UserRepository {
             id: usuarioID,
             nombre: data["nombre"] as? String ?? "",
             lenguajes: (data["lenguajes"] as? [String])?.compactMap { LenguajeProgramacion(rawValue: $0) } ?? [],
-            descripcion: data["descripcion"] as? String
+            descripcion: data["descripcion"] as? String,
+            correo: data["correo"] as? String ?? ""  // Se agrega el correo
         )
     }
 }

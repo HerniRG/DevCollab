@@ -198,7 +198,8 @@ class PerfilViewModel: ObservableObject {
                         id: userID,
                         nombre: nombre,
                         lenguajes: lenguajes,
-                        descripcion: descripcion.isEmpty ? nil : descripcion
+                        descripcion: descripcion.isEmpty ? nil : descripcion,
+                        correo: self.usuario?.correo ?? ""
                     )
                     self.errorMessage = nil
                     self.isProfileUpdated = true

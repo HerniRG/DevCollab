@@ -186,13 +186,6 @@ struct DetalleProyectoCreadorView: View {
                             let nuevoEstado = "Aceptada"
                             await viewModel.actualizarEstadoSolicitud(solicitudID: solicitud.id, estado: nuevoEstado)
                             await viewModel.agregarParticipante(solicitud: solicitud)
-                            
-                            // Usamos el correo del creador (correoCreador) y el del solicitante (de selectedUsuario)
-                            
-                            openMailto(creadorEmail: viewModel.correoCreador,
-                                       solicitanteEmail: viewModel.correoCreador,
-                                       proyectoNombre: proyecto.nombre)
-                            
                         } else {
                             let nuevoEstado = "Rechazada"
                             await viewModel.actualizarEstadoSolicitud(solicitudID: solicitud.id, estado: nuevoEstado)
