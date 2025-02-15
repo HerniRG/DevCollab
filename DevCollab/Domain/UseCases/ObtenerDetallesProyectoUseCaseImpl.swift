@@ -3,12 +3,20 @@ protocol ObtenerDetallesProyectoUseCaseProtocol {
     /// - nombreCreador: String
     /// - descripcionCreador: String
     /// - lenguajesCreador: [String]
+    /// - correoCreador: String
     /// - yaSolicitado: Bool
     /// - esCreador: Bool
     /// - soyParticipante: Bool
-    func ejecutar(proyectoID: String, userID: String) async throws -> (nombreCreador: String, descripcionCreador: String, lenguajesCreador: [String], yaSolicitado: Bool, esCreador: Bool, soyParticipante: Bool)
+    func ejecutar(proyectoID: String, userID: String) async throws -> (
+        nombreCreador: String,
+        descripcionCreador: String,
+        lenguajesCreador: [String],
+        correoCreador: String,
+        yaSolicitado: Bool,
+        esCreador: Bool,
+        soyParticipante: Bool
+    )
 }
-
 class ObtenerDetallesProyectoUseCaseImpl: ObtenerDetallesProyectoUseCaseProtocol {
     private let repository: ProyectoRepository
     
@@ -16,7 +24,15 @@ class ObtenerDetallesProyectoUseCaseImpl: ObtenerDetallesProyectoUseCaseProtocol
         self.repository = repository
     }
     
-    func ejecutar(proyectoID: String, userID: String) async throws -> (nombreCreador: String, descripcionCreador: String, lenguajesCreador: [String], yaSolicitado: Bool, esCreador: Bool, soyParticipante: Bool) {
+    func ejecutar(proyectoID: String, userID: String) async throws -> (
+        nombreCreador: String,
+        descripcionCreador: String,
+        lenguajesCreador: [String],
+        correoCreador: String,
+        yaSolicitado: Bool,
+        esCreador: Bool,
+        soyParticipante: Bool
+    ) {
         return try await repository.obtenerDetallesProyecto(proyectoID: proyectoID, userID: userID)
     }
 }

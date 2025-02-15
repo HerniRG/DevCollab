@@ -14,19 +14,19 @@ class FirebaseAuthRepository: AuthRepository {
                 lenguajes: lenguajes,
                 descripcion: descripcion
             )
-            try await saveUserData(usuario: usuario)
+            try await saveUserData(usuario: usuario, email: email)
             return usuario
         } catch {
-            // Convierte el error a NSError y mapea el error personalizado
             throw (error as NSError).toAuthRepositoryError()
         }
     }
     
-    private func saveUserData(usuario: Usuario) async throws {
+    private func saveUserData(usuario: Usuario, email: String) async throws {
         let userData: [String: Any] = [
             "nombre": usuario.nombre,
             "lenguajes": usuario.lenguajes.map { $0.rawValue },
-            "descripcion": usuario.descripcion ?? ""
+            "descripcion": usuario.descripcion ?? "",
+            "correo": email  // Guardamos el correo también
         ]
         try await db.collection("usuarios").document(usuario.id).setData(userData)
     }

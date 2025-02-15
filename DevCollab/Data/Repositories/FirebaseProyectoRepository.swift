@@ -53,7 +53,7 @@ class FirebaseProyectoRepository: ProyectoRepository {
         try await db.collection("proyectos").document(proyectoID).delete()
     }
     
-    func obtenerDetallesProyecto(proyectoID: String, userID: String) async throws -> (nombreCreador: String, descripcionCreador: String, lenguajesCreador: [String], yaSolicitado: Bool, esCreador: Bool, soyParticipante: Bool) {
+    func obtenerDetallesProyecto(proyectoID: String, userID: String) async throws -> (nombreCreador: String, descripcionCreador: String, lenguajesCreador: [String], correoCreador: String, yaSolicitado: Bool, esCreador: Bool, soyParticipante: Bool) {
         // Obtener el documento del proyecto
         let proyectoDoc = try await db.collection("proyectos").document(proyectoID).getDocument()
         guard let data = proyectoDoc.data() else {
@@ -69,6 +69,7 @@ class FirebaseProyectoRepository: ProyectoRepository {
         let nombreCreador = userData["nombre"] as? String ?? "Desconocido"
         let descripcionCreador = userData["descripcion"] as? String ?? ""
         let lenguajesCreador = userData["lenguajes"] as? [String] ?? []
+        let correoCreador = userData["correo"] as? String ?? ""  // Obtenemos el correo
         
         // Consultar solicitudes para determinar yaSolicitado
         let solicitudesSnapshot = try await db.collection("solicitudes")
@@ -87,6 +88,6 @@ class FirebaseProyectoRepository: ProyectoRepository {
             .getDocuments()
         let soyParticipante = participantesSnapshot.documents.count > 0
         
-        return (nombreCreador, descripcionCreador, lenguajesCreador, yaSolicitado, esCreador, soyParticipante)
+        return (nombreCreador, descripcionCreador, lenguajesCreador, correoCreador, yaSolicitado, esCreador, soyParticipante)
     }
 }

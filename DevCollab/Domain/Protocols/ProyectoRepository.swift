@@ -4,5 +4,13 @@ protocol ProyectoRepository {
     func actualizarProyecto(proyecto: Proyecto) async throws
     func cerrarProyecto(proyectoID: String) async throws
     func eliminarProyecto(proyectoID: String) async throws
-    func obtenerDetallesProyecto(proyectoID: String, userID: String) async throws -> (nombreCreador: String, descripcionCreador: String, lenguajesCreador: [String], yaSolicitado: Bool, esCreador: Bool, soyParticipante: Bool)
+    func obtenerDetallesProyecto(proyectoID: String, userID: String) async throws -> (
+        nombreCreador: String,
+        descripcionCreador: String,
+        lenguajesCreador: [String],
+        correoCreador: String,
+        yaSolicitado: Bool,
+        esCreador: Bool,
+        soyParticipante: Bool
+    )
 }

@@ -17,6 +17,7 @@ class DetalleProyectoViewModel: ObservableObject {
     @Published var errorMessage: String? = nil  // Para manejar errores en la vista
     @Published var participantes: [Usuario] = []  // Participantes aprobados
     @Published var estadoSolicitud: String = ""
+    @Published var correoCreador: String = ""
     
     private let obtenerDetallesProyectoUseCase: ObtenerDetallesProyectoUseCaseProtocol
     private let gestionarSolicitudesUseCase: GestionarSolicitudesUseCaseProtocol
@@ -95,12 +96,14 @@ class DetalleProyectoViewModel: ObservableObject {
         }
         Task {
             do {
+                // Ahora el tuple incluye 'correoCreador'
                 let detalles = try await obtenerDetallesProyectoUseCase.ejecutar(proyectoID: proyectoID, userID: userID)
                 let estadoActual = try await gestionarSolicitudesUseCase.obtenerEstadoProyecto(proyectoID: proyectoID)
                 DispatchQueue.main.async { [weak self] in
                     self?.nombreCreador = detalles.nombreCreador
                     self?.descripcionCreador = detalles.descripcionCreador
                     self?.lenguajesCreador = detalles.lenguajesCreador
+                    self?.correoCreador = detalles.correoCreador  // Asigna el correo del creador
                     self?.yaSolicitado = detalles.yaSolicitado
                     self?.esMiProyecto = detalles.esCreador
                     self?.soyParticipante = detalles.soyParticipante
