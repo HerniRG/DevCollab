@@ -3,7 +3,6 @@ import SwiftUI
 struct EditarPerfilView: View {
     @State private var nombre: String
     @State private var descripcion: String
-    
     @State private var oldDescripcion: String = ""
     @State private var lenguajesSeleccionados: [LenguajeProgramacion]
     
@@ -12,7 +11,6 @@ struct EditarPerfilView: View {
     
     @ObservedObject var viewModel: PerfilViewModel
     
-    // Sin cerrar la vista completa al pulsar “Hecho” en lenguajes
     @Environment(\.presentationMode) var presentationMode
     
     init(usuario: Usuario, viewModel: PerfilViewModel) {
@@ -23,82 +21,85 @@ struct EditarPerfilView: View {
     }
     
     var body: some View {
-        Form {
-            Section("Editar Perfil") {
-                TextField("Nombre (máx. \(maxNombreLength) caracteres)", text: $nombre)
-                    .onChange(of: nombre) { newValue in
-                        if newValue.count > maxNombreLength {
-                            nombre = String(newValue.prefix(maxNombreLength))
-                        }
-                    }
-                
-                // Descripción
-                VStack(alignment: .leading) {
-                    Text("Descripción (máx. \(maxDescripcionLength) caracteres)")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                    
-                    ZStack(alignment: .topLeading) {
-                        TextEditor(text: $descripcion)
-                            .frame(minHeight: 80)
-                            .onChange(of: descripcion) { newValue in
-                                if newValue.count > maxDescripcionLength {
-                                    descripcion = oldDescripcion
-                                } else {
-                                    oldDescripcion = descripcion
-                                }
+        ZStack(alignment: .top) {
+            // Main Form
+            Form {
+                Section("Editar Perfil") {
+                    // Nombre
+                    TextField("Nombre (máx. \(maxNombreLength) caracteres)", text: $nombre)
+                        .onChange(of: nombre) { newValue in
+                            if newValue.count > maxNombreLength {
+                                nombre = String(newValue.prefix(maxNombreLength))
                             }
+                        }
+                    
+                    // Descripción
+                    VStack(alignment: .leading) {
+                        Text("Descripción (máx. \(maxDescripcionLength) caracteres)")
+                            .font(.caption)
+                            .foregroundColor(.gray)
                         
-                        if descripcion.isEmpty {
-                            Text("Ej. Mobile Developer, Backend, Diseño UX/UI...")
-                                .foregroundColor(.gray)
-                                .padding(.top, 8)
-                                .padding(.leading, 4)
-                                .allowsHitTesting(false)
+                        ZStack(alignment: .topLeading) {
+                            TextEditor(text: $descripcion)
+                                .frame(minHeight: 80)
+                                .onChange(of: descripcion) { newValue in
+                                    if newValue.count > maxDescripcionLength {
+                                        descripcion = oldDescripcion
+                                    } else {
+                                        oldDescripcion = descripcion
+                                    }
+                                }
+                            
+                            if descripcion.isEmpty {
+                                Text("Ej. Mobile Developer, Backend, Diseño UX/UI...")
+                                    .foregroundColor(.gray)
+                                    .padding(.top, 8)
+                                    .padding(.leading, 4)
+                                    .allowsHitTesting(false)
+                            }
+                        }
+                        HStack {
+                            Spacer()
+                            Text("\(descripcion.count)/\(maxDescripcionLength)")
+                                .font(.caption)
+                                .foregroundColor(descripcion.count >= maxDescripcionLength ? .red : .gray)
                         }
                     }
-                    // Contador
-                    HStack {
-                        Spacer()
-                        Text("\(descripcion.count)/\(maxDescripcionLength)")
-                            .font(.caption)
-                            .foregroundColor(descripcion.count >= maxDescripcionLength ? .red : .gray)
-                    }
+                    
+                    // Selector de lenguajes
+                    LanguageSelectionWithReturnView(seleccionLenguajes: $lenguajesSeleccionados)
                 }
                 
-                // Selector de lenguajes con el nuevo componente
-                LanguageSelectionWithReturnView(seleccionLenguajes: $lenguajesSeleccionados)
-            }
-            
-            Section {
-                Button("Guardar Cambios") {
-                    viewModel.updateUserProfile(
-                        nombre: nombre,
-                        descripcion: descripcion,
-                        lenguajes: lenguajesSeleccionados
-                    )
-                }
-            }
-            
-            if let error = viewModel.errorMessage {
                 Section {
-                    Text(error)
-                        .foregroundColor(.red)
+                    Button("Guardar Cambios") {
+                        viewModel.updateUserProfile(
+                            nombre: nombre,
+                            descripcion: descripcion,
+                            lenguajes: lenguajesSeleccionados
+                        )
+                        // Optionally dismiss after success:
+                        // But better to do it after the toast
+                    }
                 }
             }
             
-            if viewModel.isProfileUpdated {
-                Section {
-                    Text("Perfil actualizado con éxito")
-                        .foregroundColor(.green)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                }
+            // Toast overlay
+            if let toastMsg = viewModel.toastMessage {
+                ToastView(message: toastMsg)
+                    .padding(.top, 50)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(1)
             }
         }
+        .animation(.easeInOut, value: viewModel.toastMessage)
         .navigationTitle("Editar Perfil")
+        .onDisappear {
+            viewModel.toastMessage = nil
+        }
     }
 }
 
+// For language selection - unchanged
 struct LanguageSelectionWithReturnView: View {
     @Binding var seleccionLenguajes: [LenguajeProgramacion]
     @State private var showLanguageModal = false
@@ -147,7 +148,6 @@ struct LanguageSelectionWithReturnView: View {
                     }
                 }
             }
-            // Con fullScreenCover no se permite el dismiss interactivo si no pulsas "Hecho"
             .interactiveDismissDisabled(true)
         }
     }

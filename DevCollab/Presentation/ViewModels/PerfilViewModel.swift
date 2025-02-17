@@ -9,16 +9,16 @@ class PerfilViewModel: ObservableObject {
     @Published var proyectosParticipando: [Proyecto] = []
     @Published var solicitudes: [Solicitud] = []
     
-    // Para feedback (errores y éxito) en la edición del perfil
-    @Published var errorMessage: String? = nil
-    @Published var isProfileUpdated: Bool = false
+    // Eliminated the separate error message & success booleans
+    // and replaced them with a single toast message for quick feedback:
+    @Published var toastMessage: String? = nil
     
+    // Dependencies
     private let authRepository: AuthRepository
     private let proyectoRepository: ProyectoRepository
     private let solicitudRepository: SolicitudRepository
     private let updatePerfilUseCase: UpdatePerfilUseCase
     
-    // Para operaciones directas en Firestore
     private let db = Firestore.firestore()
     
     init(authRepository: AuthRepository,
@@ -33,7 +33,31 @@ class PerfilViewModel: ObservableObject {
         fetchUserProfile()
     }
     
-    // MARK: - Cargar Perfil y Proyectos
+    // MARK: - Toast Helpers
+    private func showToast(_ message: String) {
+        DispatchQueue.main.async {
+            self.toastMessage = message
+            // Clear after 2 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                // Only clear if it's still the same message
+                if self.toastMessage == message {
+                    self.toastMessage = nil
+                }
+            }
+        }
+    }
+    
+    private func showError(_ message: String) {
+        // Optional distinct styling if you want error vs. success
+        // but we'll just do the same toast.
+        showToast("❌ \(message)")
+    }
+    
+    private func showSuccess(_ message: String) {
+        showToast("✅ \(message)")
+    }
+    
+    // MARK: - Perfil y Proyectos
     func fetchUserProfile() {
         Task {
             do {
@@ -43,11 +67,10 @@ class PerfilViewModel: ObservableObject {
                     }
                     fetchUserProjects(userID: user.id)
                     fetchSolicitudes(usuarioID: user.id)
-                    // Nuevo: obtenemos directamente los proyectos en los que participa el usuario
                     await fetchParticipandoProjects(userID: user.id)
                 }
             } catch {
-                print("Error al obtener perfil: \(error.localizedDescription)")
+                showError("Error al obtener perfil: \(error.localizedDescription)")
             }
         }
     }
@@ -58,10 +81,9 @@ class PerfilViewModel: ObservableObject {
                 let proyectos = try await proyectoRepository.obtenerProyectos()
                 DispatchQueue.main.async {
                     self.proyectosCreados = proyectos.filter { $0.creadorID == userID }
-                    // Opcional: si antes usabas updateProyectosParticipando, ahora lo obtendrás directamente
                 }
             } catch {
-                print("Error al obtener proyectos: \(error.localizedDescription)")
+                showError("Error al obtener proyectos: \(error.localizedDescription)")
             }
         }
     }
@@ -74,12 +96,11 @@ class PerfilViewModel: ObservableObject {
                     self.solicitudes = solicitudes
                 }
             } catch {
-                print("Error al obtener solicitudes: \(error.localizedDescription)")
+                showError("Error al obtener solicitudes: \(error.localizedDescription)")
             }
         }
     }
     
-    /// Nueva función: obtiene los proyectos en los que participa el usuario a partir de la colección "participantes"
     func fetchParticipandoProjects(userID: String) async {
         do {
             let snapshot = try await db.collection("participantes")
@@ -108,15 +129,14 @@ class PerfilViewModel: ObservableObject {
                 self.proyectosParticipando = proyectos
             }
         } catch {
-            print("Error al obtener proyectos participando: \(error.localizedDescription)")
+            showError("Error al obtener proyectos participando: \(error.localizedDescription)")
         }
     }
     
-    // MARK: - Borrar Proyecto
+    // MARK: - Eliminar Proyecto
     func deleteProject(proyecto: Proyecto) {
         Task {
             do {
-                // Primero, eliminar todos los participantes asociados al proyecto en batch
                 let snapshot = try await db.collection("participantes")
                     .whereField("proyectoID", isEqualTo: proyecto.id)
                     .getDocuments()
@@ -126,23 +146,20 @@ class PerfilViewModel: ObservableObject {
                 }
                 try await batch.commit()
                 
-                // Luego, eliminar el proyecto
                 try await proyectoRepository.eliminarProyecto(proyectoID: proyecto.id)
                 
                 DispatchQueue.main.async {
                     self.proyectosCreados.removeAll { $0.id == proyecto.id }
                     self.proyectosParticipando.removeAll { $0.id == proyecto.id }
-                    self.errorMessage = nil
                 }
+                showSuccess("Proyecto eliminado correctamente.")
             } catch {
-                DispatchQueue.main.async {
-                    self.errorMessage = "Error al eliminar proyecto: \(error.localizedDescription)"
-                }
+                showError("Error al eliminar proyecto: \(error.localizedDescription)")
             }
         }
     }
     
-    // MARK: - Actualizar Perfil usando UpdatePerfilUseCase
+    // MARK: - Actualizar Perfil
     func updateUserProfile(nombre: String,
                            descripcion: String,
                            lenguajes: [LenguajeProgramacion]) {
@@ -150,38 +167,28 @@ class PerfilViewModel: ObservableObject {
         let maxDescripcionLength = 150
         
         if nombre.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            DispatchQueue.main.async {
-                self.errorMessage = "El nombre no puede estar vacío."
-            }
+            showError("El nombre no puede estar vacío.")
             return
         }
         if nombre.count > maxNombreLength {
-            DispatchQueue.main.async {
-                self.errorMessage = "El nombre excede los \(maxNombreLength) caracteres."
-            }
+            showError("El nombre excede los \(maxNombreLength) caracteres.")
             return
         }
         if descripcion.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            DispatchQueue.main.async {
-                self.errorMessage = "La descripción no puede estar vacía."
-            }
+            showError("La descripción no puede estar vacía.")
             return
         }
         if descripcion.count > maxDescripcionLength {
-            DispatchQueue.main.async {
-                self.errorMessage = "La descripción excede los \(maxDescripcionLength) caracteres."
-            }
+            showError("La descripción excede los \(maxDescripcionLength) caracteres.")
             return
         }
         if lenguajes.isEmpty {
-            DispatchQueue.main.async {
-                self.errorMessage = "Selecciona al menos un lenguaje."
-            }
+            showError("Selecciona al menos un lenguaje.")
             return
         }
         
         guard let userID = usuario?.id else {
-            print("No hay usuario para actualizar")
+            showError("No hay usuario para actualizar")
             return
         }
         
@@ -193,7 +200,9 @@ class PerfilViewModel: ObservableObject {
                     descripcion: descripcion,
                     lenguajes: lenguajes
                 )
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    // Actualiza el usuario
                     self.usuario = Usuario(
                         id: userID,
                         nombre: nombre,
@@ -201,16 +210,10 @@ class PerfilViewModel: ObservableObject {
                         descripcion: descripcion.isEmpty ? nil : descripcion,
                         correo: self.usuario?.correo ?? ""
                     )
-                    self.errorMessage = nil
-                    self.isProfileUpdated = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                        self.isProfileUpdated = false
-                    }
                 }
+                showSuccess("Perfil actualizado con éxito.")
             } catch {
-                DispatchQueue.main.async {
-                    self.errorMessage = "Error al actualizar el perfil: \(error.localizedDescription)"
-                }
+                showError("Error al actualizar el perfil: \(error.localizedDescription)")
             }
         }
     }

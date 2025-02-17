@@ -2,8 +2,8 @@ import Foundation
 import Combine
 
 class CrearProyectoViewModel: ObservableObject {
-    @Published var isSuccess: Bool = false
-    @Published var errorMessage: String? = nil
+    // Toast-like short-lived message
+    @Published var toastMessage: String? = nil
     
     private let crearProyectoUseCase: CrearProyectoUseCase
     private let proyectoRepository: ProyectoRepository
@@ -14,6 +14,28 @@ class CrearProyectoViewModel: ObservableObject {
         self.proyectoRepository = proyectoRepository
     }
     
+    // MARK: - Toast Helpers
+    private func showToast(_ message: String) {
+        DispatchQueue.main.async {
+            self.toastMessage = message
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            // Only clear if it's still the same message
+            if self.toastMessage == message {
+                self.toastMessage = nil
+            }
+        }
+    }
+    
+    private func showSuccess(_ message: String) {
+        showToast("✅ " + message)
+    }
+    
+    private func showError(_ message: String) {
+        showToast("❌ " + message)
+    }
+    
+    // MARK: - Crear Proyecto
     func crearProyecto(nombre: String,
                        descripcion: String,
                        lenguajes: [LenguajeProgramacion],
@@ -22,14 +44,12 @@ class CrearProyectoViewModel: ObservableObject {
                        creadorID: String) {
         // Validación de campos obligatorios
         if nombre.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-            descripcion.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-            horasSemanales.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-            tipoColaboracion.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-            lenguajes.isEmpty {
-            DispatchQueue.main.async {
-                self.errorMessage = "Faltan campos por rellenar"
-                self.isSuccess = false
-            }
+           descripcion.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+           horasSemanales.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+           tipoColaboracion.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+           lenguajes.isEmpty
+        {
+            showError("Faltan campos por rellenar")
             return
         }
         
@@ -44,14 +64,11 @@ class CrearProyectoViewModel: ObservableObject {
                 // 3. Comprobar cuántos proyectos tiene
                 if misProyectos.count >= 2 {
                     // Mostrar error y salir
-                    DispatchQueue.main.async {
-                        self.errorMessage = "Ya tienes 2 proyectos creados. No puedes crear más."
-                        self.isSuccess = false
-                    }
+                    showError("Ya tienes 2 proyectos creados. No puedes crear más.")
                     return
                 }
                 
-                // 4. Crear el proyecto
+                // 4. Crear el objeto proyecto
                 let proyecto = Proyecto(
                     id: UUID().uuidString,
                     nombre: nombre,
@@ -67,16 +84,9 @@ class CrearProyectoViewModel: ObservableObject {
                 try await crearProyectoUseCase.execute(proyecto: proyecto)
                 
                 // 6. Éxito
-                DispatchQueue.main.async {
-                    self.isSuccess = true
-                    self.errorMessage = nil
-                }
-                
+                showSuccess("Proyecto creado exitosamente.")
             } catch {
-                DispatchQueue.main.async {
-                    self.errorMessage = error.localizedDescription
-                    self.isSuccess = false
-                }
+                showError(error.localizedDescription)
             }
         }
     }

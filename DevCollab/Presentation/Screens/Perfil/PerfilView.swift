@@ -3,30 +3,25 @@ import FirebaseAuth
 
 struct PerfilView: View {
     @ObservedObject var viewModel: PerfilViewModel
-    
-    // Estado para navegación programática a EditarPerfilView
     @State private var isEditing = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        ZStack(alignment: .top) {
+            // Content
             if let usuario = viewModel.usuario {
                 List {
-                    // Sección de Perfil
                     Section("Perfil") {
                         ZStack(alignment: .topTrailing) {
-                            // Contenido principal: Info del usuario
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(usuario.nombre)
                                     .font(.largeTitle)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.primary)
                                 
                                 if let descripcion = usuario.descripcion {
                                     Text(descripcion)
                                         .font(.subheadline)
                                         .foregroundColor(.secondary)
                                 }
-                                
                                 if !usuario.lenguajes.isEmpty {
                                     Text("Lenguajes: \(usuario.lenguajes.map { $0.rawValue }.joined(separator: ", "))")
                                         .font(.subheadline)
@@ -36,7 +31,6 @@ struct PerfilView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.vertical, 4)
                             
-                            // Botón para editar que activa la navegación programática
                             Button {
                                 isEditing = true
                             } label: {
@@ -47,7 +41,6 @@ struct PerfilView: View {
                         }
                     }
                     
-                    // Sección de Proyectos Creados
                     Section("Mis proyectos creados") {
                         if viewModel.proyectosCreados.isEmpty {
                             Text("No tienes proyectos creados.")
@@ -65,7 +58,6 @@ struct PerfilView: View {
                         }
                     }
                     
-                    // Sección de Proyectos en los que participas
                     Section("Proyectos en los que participas") {
                         if viewModel.proyectosParticipando.isEmpty {
                             Text("No participas en ningún proyecto.")
@@ -77,9 +69,6 @@ struct PerfilView: View {
                         }
                     }
                 }
-                .listStyle(InsetGroupedListStyle())
-                .listSectionSpacing(20)
-                // NavigationLink "oculto" para presentar EditarPerfilView mediante push
                 .background(
                     NavigationLink(
                         destination: EditarPerfilView(usuario: usuario, viewModel: viewModel),
@@ -90,17 +79,29 @@ struct PerfilView: View {
                     .hidden()
                 )
             } else {
-                Spacer()
-                HStack {
+                // Loading
+                VStack {
                     Spacer()
                     ProgressView("Cargando perfil...")
                     Spacer()
                 }
-                Spacer()
+            }
+            
+            // Toast overlay
+            if let toastMsg = viewModel.toastMessage {
+                ToastView(message: toastMsg)
+                    .padding(.top, 50)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(1)
             }
         }
+        .animation(.easeInOut, value: viewModel.toastMessage)
         .onAppear {
             viewModel.fetchUserProfile()
+            if viewModel.toastMessage != nil {
+                            // For example:
+                            viewModel.toastMessage = nil
+                        }
         }
     }
 }

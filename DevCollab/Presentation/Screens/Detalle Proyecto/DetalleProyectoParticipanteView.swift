@@ -13,7 +13,8 @@ struct DetalleProyectoParticipanteView: View {
     }
     
     var body: some View {
-        VStack {
+        ZStack(alignment: .top) {
+            // 1) Main content
             if viewModel.isLoading {
                 VStack {
                     Spacer()
@@ -24,55 +25,46 @@ struct DetalleProyectoParticipanteView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List {
-                    // Nueva sección: Título del Proyecto
                     Section {
                         Text(proyecto.nombre)
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             .frame(maxWidth: .infinity, alignment: .center)
                     }
-                    // Sección 1: Información del Proyecto
+                    
                     Section("Información del Proyecto") {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Descripción:")
-                                .fontWeight(.semibold)
+                            Text("Descripción:").fontWeight(.semibold)
                             Text(proyecto.descripcion)
                                 .fixedSize(horizontal: false, vertical: true)
                             
-                            Text("Lenguajes:")
-                                .fontWeight(.semibold)
+                            Text("Lenguajes:").fontWeight(.semibold)
                             Text(proyecto.lenguajes.map { $0.rawValue }.joined(separator: ", "))
                             
-                            Text("Horas semanales:")
-                                .fontWeight(.semibold)
+                            Text("Horas semanales:").fontWeight(.semibold)
                             Text("\(proyecto.horasSemanales)")
                             
-                            Text("Tipo de colaboración:")
-                                .fontWeight(.semibold)
-                            Text("\(proyecto.tipoColaboracion)")
+                            Text("Tipo de colaboración:").fontWeight(.semibold)
+                            Text(proyecto.tipoColaboracion)
                             
-                            Text("Estado:")
-                                .fontWeight(.semibold)
+                            Text("Estado:").fontWeight(.semibold)
                             Text(viewModel.estadoProyecto)
                                 .foregroundColor(viewModel.estadoProyecto == "Abierto" ? .green : .red)
                         }
                         .padding(.vertical, 4)
                     }
                     
-                    // Sección 2: Información del Creador
                     Section("Información del Creador") {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
-                                Text("Nombre:")
-                                    .fontWeight(.semibold)
+                                Text("Nombre:").fontWeight(.semibold)
                                 Spacer()
                                 Text(viewModel.nombreCreador)
                                     .foregroundColor(.primary)
                             }
                             if !viewModel.descripcionCreador.isEmpty {
                                 HStack {
-                                    Text("Descripción:")
-                                        .fontWeight(.semibold)
+                                    Text("Descripción:").fontWeight(.semibold)
                                     Spacer()
                                     Text(viewModel.descripcionCreador)
                                         .multilineTextAlignment(.trailing)
@@ -80,8 +72,7 @@ struct DetalleProyectoParticipanteView: View {
                             }
                             if !viewModel.lenguajesCreador.isEmpty {
                                 HStack {
-                                    Text("Lenguajes:")
-                                        .fontWeight(.semibold)
+                                    Text("Lenguajes:").fontWeight(.semibold)
                                     Spacer()
                                     Text(viewModel.lenguajesCreador.joined(separator: ", "))
                                 }
@@ -97,7 +88,7 @@ struct DetalleProyectoParticipanteView: View {
                                 showSolicitudModal = true
                             }) {
                                 Text("Solicitar Participación")
-                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .frame(maxWidth: .infinity)
                                     .foregroundColor(.white)
                             }
                             .listRowBackground(Color.blue)
@@ -107,6 +98,7 @@ struct DetalleProyectoParticipanteView: View {
                                     Text("Solicitud Aprobada")
                                         .foregroundColor(.green)
                                         .frame(maxWidth: .infinity, alignment: .center)
+                                    
                                     Button(action: {
                                         Task {
                                             await viewModel.abandonarProyecto(proyectoID: proyecto.id)
@@ -170,7 +162,16 @@ struct DetalleProyectoParticipanteView: View {
                 .listSectionSpacing(20)
                 .navigationBarTitleDisplayMode(.inline)
             }
+            
+            // 2) Toast overlay for short success/info messages
+            if let toastMsg = viewModel.toastMessage {
+                ToastView(message: toastMsg)
+                    .padding(.top, 80)  // how far from top edge
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(1)
+            }
         }
+        .animation(.easeInOut, value: viewModel.toastMessage)
         .fullScreenCover(isPresented: $showSolicitudModal) {
             SolicitudModalView(proyectoID: proyecto.id) { mensaje in
                 Task {
