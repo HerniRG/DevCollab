@@ -1,4 +1,4 @@
-struct Usuario {
+struct Usuario: Equatable {
     let id: String
     let nombre: String
     let lenguajes: [LenguajeProgramacion]

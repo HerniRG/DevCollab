@@ -1,5 +1,4 @@
 import SwiftUI
-import FirebaseAuth
 
 struct PerfilView: View {
     @ObservedObject var viewModel: PerfilViewModel
@@ -7,9 +6,10 @@ struct PerfilView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            // Content
+            // Contenido principal:
             if let usuario = viewModel.usuario {
                 List {
+                    // Sección: Datos del perfil
                     Section("Perfil") {
                         ZStack(alignment: .topTrailing) {
                             VStack(alignment: .leading, spacing: 4) {
@@ -31,6 +31,7 @@ struct PerfilView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.vertical, 4)
                             
+                            // Botón para editar el perfil
                             Button {
                                 isEditing = true
                             } label: {
@@ -41,6 +42,7 @@ struct PerfilView: View {
                         }
                     }
                     
+                    // Sección: Proyectos creados
                     Section("Mis proyectos creados") {
                         if viewModel.proyectosCreados.isEmpty {
                             Text("No tienes proyectos creados.")
@@ -58,6 +60,7 @@ struct PerfilView: View {
                         }
                     }
                     
+                    // Sección: Proyectos en los que participas
                     Section("Proyectos en los que participas") {
                         if viewModel.proyectosParticipando.isEmpty {
                             Text("No participas en ningún proyecto.")
@@ -68,7 +71,23 @@ struct PerfilView: View {
                             }
                         }
                     }
+                    
+                    // Sección: Cerrar sesión
+                    Section {
+                        Button(role: .destructive) {
+                            // Llamada a logout de tu AuthViewModel o AuthRepository.
+                            // Por ejemplo:
+                            Task {
+                                ViewModelProvider.shared.authViewModel.logout()
+                            }
+                        } label: {
+                            Text("Cerrar sesión")
+                        }
+                    }
                 }
+                .listStyle(InsetGroupedListStyle())
+                
+                // Navegación a EditarPerfilView
                 .background(
                     NavigationLink(
                         destination: EditarPerfilView(usuario: usuario, viewModel: viewModel),
@@ -87,7 +106,7 @@ struct PerfilView: View {
                 }
             }
             
-            // Toast overlay
+            // Toast overlay para mostrar mensajes (success/error)
             if let toastMsg = viewModel.toastMessage {
                 ToastView(message: toastMsg)
                     .padding(.top, 50)
@@ -95,13 +114,16 @@ struct PerfilView: View {
                     .zIndex(1)
             }
         }
+        // Suaviza la aparición/desaparición del toast
         .animation(.easeInOut, value: viewModel.toastMessage)
+        .navigationTitle("Perfil")
+        .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             viewModel.fetchUserProfile()
+            // Si hubieras dejado un toast previo, lo puedes limpiar:
             if viewModel.toastMessage != nil {
-                            // For example:
-                            viewModel.toastMessage = nil
-                        }
+                viewModel.toastMessage = nil
+            }
         }
     }
 }

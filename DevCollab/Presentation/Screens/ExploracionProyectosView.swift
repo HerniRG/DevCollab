@@ -2,9 +2,9 @@ import SwiftUI
 import FirebaseAuth
 
 struct ExploracionProyectosView: View {
-    @StateObject private var viewModel = ProyectosViewModel()
+    // Usa el shared ProyectosViewModel en lugar de crear uno nuevo
+    @StateObject private var viewModel = ViewModelProvider.shared.proyectosViewModel
     @State private var userID: String = Auth.auth().currentUser?.uid ?? ""
-    // Estado para filtrar proyectos abiertos por lenguaje; nil = sin filtro.
     @State private var selectedLanguage: LenguajeProgramacion? = nil
 
     var body: some View {
@@ -41,9 +41,8 @@ struct ExploracionProyectosView: View {
                 }
             }
             
-            // Sección 3: Proyectos Abiertos (no creados por el usuario, estado "Abierto", sin participación)
+            // Sección 3: Proyectos Abiertos
             Section("Proyectos Abiertos") {
-                // Fila de filtro interno en la sección
                 HStack {
                     Text("Filtrar por Lenguaje:")
                         .font(.caption)
@@ -98,7 +97,6 @@ struct ExploracionProyectosView: View {
         }
     }
     
-    /// Función auxiliar para determinar si el usuario participa en un proyecto (tiene solicitud aceptada).
     private func userEstaParticipando(proyecto: Proyecto) -> Bool {
         return viewModel.solicitudes.contains { solicitud in
             solicitud.proyectoID == proyecto.id && solicitud.estado == "Aceptada"
