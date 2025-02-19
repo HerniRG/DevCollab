@@ -21,7 +21,16 @@ struct SolicitudModalView: View {
                     .padding()
                 Spacer()
             }
-            .navigationTitle("Solicitud de Participación")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Solicitud de Participación")
+                        .font(.headline)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.5)
+                }
+            }
             .navigationBarItems(leading: Button("Cancelar") {
                 presentationMode.wrappedValue.dismiss()
             }, trailing: Button("Enviar") {

@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseAuth
 
 struct EditarPerfilView: View {
     @State private var nombre: String
@@ -10,7 +11,6 @@ struct EditarPerfilView: View {
     private let maxDescripcionLength = 150
     
     @ObservedObject var viewModel: PerfilViewModel
-    
     @Environment(\.presentationMode) var presentationMode
     
     init(usuario: Usuario, viewModel: PerfilViewModel) {
@@ -21,11 +21,10 @@ struct EditarPerfilView: View {
     }
     
     var body: some View {
-        ZStack(alignment: .top) {
-            // Main Form
+        NavigationView {
             Form {
                 Section("Editar Perfil") {
-                    // Nombre
+                    // Campo Nombre
                     TextField("Nombre (máx. \(maxNombreLength) caracteres)", text: $nombre)
                         .onChange(of: nombre) { newValue in
                             if newValue.count > maxNombreLength {
@@ -33,7 +32,7 @@ struct EditarPerfilView: View {
                             }
                         }
                     
-                    // Descripción
+                    // Campo Descripción con contador
                     VStack(alignment: .leading) {
                         Text("Descripción (máx. \(maxDescripcionLength) caracteres)")
                             .font(.caption)
@@ -49,7 +48,6 @@ struct EditarPerfilView: View {
                                         oldDescripcion = descripcion
                                     }
                                 }
-                            
                             if descripcion.isEmpty {
                                 Text("Ej. Mobile Developer, Backend, Diseño UX/UI...")
                                     .foregroundColor(.gray)
@@ -77,29 +75,15 @@ struct EditarPerfilView: View {
                             descripcion: descripcion,
                             lenguajes: lenguajesSeleccionados
                         )
-                        // Optionally dismiss after success:
-                        // But better to do it after the toast
+                        // Se recomienda que la vista principal (MainView) se encargue de mostrar el toast globalmente.
                     }
                 }
             }
-            
-            // Toast overlay
-            if let toastMsg = viewModel.toastMessage {
-                ToastView(message: toastMsg)
-                    .padding(.top, 50)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .zIndex(1)
-            }
-        }
-        .animation(.easeInOut, value: viewModel.toastMessage)
-        .navigationTitle("Editar Perfil")
-        .onDisappear {
-            viewModel.toastMessage = nil
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
 
-// For language selection - unchanged
 struct LanguageSelectionWithReturnView: View {
     @Binding var seleccionLenguajes: [LenguajeProgramacion]
     @State private var showLanguageModal = false

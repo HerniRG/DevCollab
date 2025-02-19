@@ -9,13 +9,18 @@ class ProyectosViewModel: ObservableObject {
 
     private let obtenerProyectosUseCase: ObtenerProyectosUseCase
     private let obtenerSolicitudesUseCase: ObtenerSolicitudesUseCase
+    
+    // ToastManager para mostrar mensajes (inyectado)
+    var toastManager: ToastManager
 
-    init() {
+    init(toastManager: ToastManager = ToastManager()) {
         let proyectoRepository = FirebaseProyectoRepository()  // Suponiendo que este repositorio implementa el protocolo para proyectos
         self.obtenerProyectosUseCase = ObtenerProyectosUseCaseImpl(repository: proyectoRepository)
         
         let solicitudRepository = FirebaseSolicitudRepository()
         self.obtenerSolicitudesUseCase = ObtenerSolicitudesUseCaseImpl(repository: solicitudRepository)
+        
+        self.toastManager = toastManager
         
         fetchProyectos()
         fetchSolicitudes()
@@ -31,15 +36,16 @@ class ProyectosViewModel: ObservableObject {
                     self?.isLoading = false
                 }
             } catch {
-                print("Error al obtener proyectos: \(error.localizedDescription)")
-                DispatchQueue.main.async { self.isLoading = false }
+                DispatchQueue.main.async { [weak self] in
+                    self?.isLoading = false
+                    debugPrint("❌ Error al obtener proyectos: \(error.localizedDescription)")
+                }
             }
         }
     }
     
     func fetchSolicitudes() {
         Task {
-            // Si lo deseas, puedes activar isLoading aquí también, o gestionarlo de forma independiente.
             do {
                 let currentUserID = Auth.auth().currentUser?.uid ?? ""
                 let solicitudes = try await obtenerSolicitudesUseCase.execute(usuarioID: currentUserID)
@@ -47,7 +53,9 @@ class ProyectosViewModel: ObservableObject {
                     self?.solicitudes = solicitudes
                 }
             } catch {
-                print("Error al obtener solicitudes: \(error.localizedDescription)")
+                DispatchQueue.main.async { [weak self] in
+                    debugPrint("❌ Error al obtener solicitudes: \(error.localizedDescription)")
+                }
             }
         }
     }

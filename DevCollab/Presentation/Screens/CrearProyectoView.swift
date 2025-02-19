@@ -3,8 +3,6 @@ import FirebaseAuth
 
 struct CrearProyectoView: View {
     @Environment(\.colorScheme) var colorScheme
-    
-    // ObservedObject para el ViewModel (usamos el shared desde el provider)
     @ObservedObject var viewModel = ViewModelProvider.shared.crearProyectoViewModel
     @Binding var isPresented: Bool  // Permite cerrar la vista desde dentro
     
@@ -31,27 +29,37 @@ struct CrearProyectoView: View {
                 ScrollViewReader { proxy in
                     Form {
                         // Sección: Información principal
-                        InformacionPrincipalSection(nombre: $nombre,
-                                                    descripcion: $descripcion,
-                                                    maxNombreLength: maxNombreLength,
-                                                    maxDescripcionLength: maxDescripcionLength,
-                                                    focusedField: $focusedField)
+                        InformacionPrincipalSection(
+                            nombre: $nombre,
+                            descripcion: $descripcion,
+                            maxNombreLength: maxNombreLength,
+                            maxDescripcionLength: maxDescripcionLength,
+                            focusedField: $focusedField
+                        )
                         
                         // Sección: Detalles del proyecto
-                        DetallesProyectoSection(lenguajesSeleccionados: $lenguajesSeleccionados,
-                                                horasSemanales: $horasSemanales,
-                                                tipoColaboracion: $tipoColaboracion,
-                                                maxTipoColaboracionLength: maxTipoColaboracionLength,
-                                                focusedField: $focusedField)
+                        DetallesProyectoSection(
+                            lenguajesSeleccionados: $lenguajesSeleccionados,
+                            horasSemanales: $horasSemanales,
+                            tipoColaboracion: $tipoColaboracion,
+                            maxTipoColaboracionLength: maxTipoColaboracionLength,
+                            focusedField: $focusedField
+                        )
                         
                         // Sección: Botón de creación
-                        CrearProyectoButtonSection(isPresented: $isPresented,
-                                                   viewModel: viewModel,
-                                                   nombre: nombre,
-                                                   descripcion: descripcion,
-                                                   lenguajesSeleccionados: lenguajesSeleccionados,
-                                                   horasSemanales: horasSemanales,
-                                                   tipoColaboracion: tipoColaboracion)
+                        CrearProyectoButtonSection(
+                            isPresented: $isPresented,
+                            viewModel: viewModel,
+                            nombre: nombre,
+                            descripcion: descripcion,
+                            lenguajesSeleccionados: lenguajesSeleccionados,
+                            horasSemanales: horasSemanales,
+                            tipoColaboracion: tipoColaboracion,
+                            onSuccess: {
+                                clearFields()
+                                isPresented = false
+                            }
+                        )
                     }
                     .onChange(of: focusedField) { field in
                         withAnimation {
@@ -68,34 +76,19 @@ struct CrearProyectoView: View {
                     }
                 }
             }
-            
-            // Toast Overlay
-            if let toastMsg = viewModel.toastMessage {
-                ToastView(message: toastMsg)
-                    .padding(.top, 50)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .zIndex(1)
-            }
         }
-        .animation(.easeInOut, value: viewModel.toastMessage)
-        .onChange(of: viewModel.toastMessage) { msg in
-            if let m = msg, m.contains("✅ Proyecto creado exitosamente.") {
-                // Resetea los campos tras el éxito
-                nombre = ""
-                descripcion = ""
-                horasSemanales = ""
-                tipoColaboracion = ""
-                lenguajesSeleccionados = []
-            }
-        }
-        .onDisappear {
-            viewModel.toastMessage = nil
-        }
+    }
+    
+    private func clearFields() {
+        nombre = ""
+        descripcion = ""
+        lenguajesSeleccionados = []
+        horasSemanales = ""
+        tipoColaboracion = ""
     }
 }
 
 // MARK: - Subvista: Información Principal
-
 private struct InformacionPrincipalSection: View {
     @Binding var nombre: String
     @Binding var descripcion: String
@@ -135,9 +128,7 @@ private struct InformacionPrincipalSection: View {
                             descripcion = String(newValue.prefix(maxDescripcionLength))
                         }
                     }
-                    .background(
-                        Color(UIColor.secondarySystemBackground)
-                    )
+                    .background(Color(UIColor.secondarySystemBackground))
                     .cornerRadius(8)
                     .id(CrearProyectoView.Field.descripcion)
                 if descripcion.isEmpty {
@@ -154,7 +145,6 @@ private struct InformacionPrincipalSection: View {
 }
 
 // MARK: - Subvista: Detalles del Proyecto
-
 private struct DetallesProyectoSection: View {
     @Binding var lenguajesSeleccionados: [LenguajeProgramacion]
     @Binding var horasSemanales: String
@@ -194,7 +184,6 @@ private struct DetallesProyectoSection: View {
 }
 
 // MARK: - Subvista: Botón de Crear Proyecto
-
 private struct CrearProyectoButtonSection: View {
     @Binding var isPresented: Bool
     var viewModel: CrearProyectoViewModel
@@ -203,11 +192,11 @@ private struct CrearProyectoButtonSection: View {
     let lenguajesSeleccionados: [LenguajeProgramacion]
     let horasSemanales: String
     let tipoColaboracion: String
+    let onSuccess: () -> Void
     
     var body: some View {
         Section {
             Button(action: {
-                
                 guard let userID = Auth.auth().currentUser?.uid else {
                     print("Error: No hay usuario autenticado")
                     return
@@ -218,9 +207,13 @@ private struct CrearProyectoButtonSection: View {
                     lenguajes: lenguajesSeleccionados,
                     horasSemanales: horasSemanales,
                     tipoColaboracion: tipoColaboracion,
-                    creadorID: userID
+                    creadorID: userID,
+                    completion: { success in
+                        if success {
+                            onSuccess()
+                        }
+                    }
                 )
-                // No se pasa trailing closure aquí, ya que el método no la espera.
             }) {
                 Text("Crear Proyecto")
                     .frame(maxWidth: .infinity, alignment: .center)

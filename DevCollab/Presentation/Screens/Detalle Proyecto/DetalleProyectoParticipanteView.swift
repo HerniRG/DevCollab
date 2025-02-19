@@ -5,6 +5,7 @@ struct DetalleProyectoParticipanteView: View {
     let proyecto: Proyecto
     @StateObject private var viewModel: DetalleProyectoViewModel
     @State private var showSolicitudModal = false
+    @State private var showAbandonConfirmation = false  // Nueva variable para confirmar abandono
     
     init(proyecto: Proyecto) {
         self.proyecto = proyecto
@@ -14,7 +15,6 @@ struct DetalleProyectoParticipanteView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            // 1) Main content
             if viewModel.isLoading {
                 VStack {
                     Spacer()
@@ -25,6 +25,7 @@ struct DetalleProyectoParticipanteView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List {
+                    // Sección 1: Nombre del Proyecto
                     Section {
                         Text(proyecto.nombre)
                             .font(.largeTitle)
@@ -32,39 +33,48 @@ struct DetalleProyectoParticipanteView: View {
                             .frame(maxWidth: .infinity, alignment: .center)
                     }
                     
+                    // Sección 2: Información del Proyecto
                     Section("Información del Proyecto") {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Descripción:").fontWeight(.semibold)
+                            Text("Descripción:")
+                                .fontWeight(.semibold)
                             Text(proyecto.descripcion)
                                 .fixedSize(horizontal: false, vertical: true)
                             
-                            Text("Lenguajes:").fontWeight(.semibold)
+                            Text("Lenguajes:")
+                                .fontWeight(.semibold)
                             Text(proyecto.lenguajes.map { $0.rawValue }.joined(separator: ", "))
                             
-                            Text("Horas semanales:").fontWeight(.semibold)
+                            Text("Horas semanales:")
+                                .fontWeight(.semibold)
                             Text("\(proyecto.horasSemanales)")
                             
-                            Text("Tipo de colaboración:").fontWeight(.semibold)
+                            Text("Tipo de colaboración:")
+                                .fontWeight(.semibold)
                             Text(proyecto.tipoColaboracion)
                             
-                            Text("Estado:").fontWeight(.semibold)
+                            Text("Estado:")
+                                .fontWeight(.semibold)
                             Text(viewModel.estadoProyecto)
                                 .foregroundColor(viewModel.estadoProyecto == "Abierto" ? .green : .red)
                         }
                         .padding(.vertical, 4)
                     }
                     
+                    // Sección 3: Información del Creador
                     Section("Información del Creador") {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
-                                Text("Nombre:").fontWeight(.semibold)
+                                Text("Nombre:")
+                                    .fontWeight(.semibold)
                                 Spacer()
                                 Text(viewModel.nombreCreador)
                                     .foregroundColor(.primary)
                             }
                             if !viewModel.descripcionCreador.isEmpty {
                                 HStack {
-                                    Text("Descripción:").fontWeight(.semibold)
+                                    Text("Descripción:")
+                                        .fontWeight(.semibold)
                                     Spacer()
                                     Text(viewModel.descripcionCreador)
                                         .multilineTextAlignment(.trailing)
@@ -72,7 +82,8 @@ struct DetalleProyectoParticipanteView: View {
                             }
                             if !viewModel.lenguajesCreador.isEmpty {
                                 HStack {
-                                    Text("Lenguajes:").fontWeight(.semibold)
+                                    Text("Lenguajes:")
+                                        .fontWeight(.semibold)
                                     Spacer()
                                     Text(viewModel.lenguajesCreador.joined(separator: ", "))
                                 }
@@ -81,7 +92,7 @@ struct DetalleProyectoParticipanteView: View {
                         .padding(.vertical, 4)
                     }
                     
-                    // Sección 3: Botón para solicitar participación o mostrar estado
+                    // Sección 4: Acciones de Participación
                     Section {
                         if !viewModel.yaSolicitado {
                             Button(action: {
@@ -100,12 +111,8 @@ struct DetalleProyectoParticipanteView: View {
                                         .frame(maxWidth: .infinity, alignment: .center)
                                     
                                     Button(action: {
-                                        Task {
-                                            await viewModel.abandonarProyecto(proyectoID: proyecto.id)
-                                            await viewModel.obtenerDatosAdicionales(proyectoID: proyecto.id)
-                                            await viewModel.fetchParticipantes(proyectoID: proyecto.id)
-                                            await viewModel.fetchSolicitudEstado(proyectoID: proyecto.id)
-                                        }
+                                        // En lugar de ejecutar directamente, mostramos el alert de confirmación
+                                        showAbandonConfirmation = true
                                     }) {
                                         Text("Abandonar Proyecto")
                                             .font(.headline)
@@ -130,7 +137,7 @@ struct DetalleProyectoParticipanteView: View {
                         }
                     }
                     
-                    // Sección 4: Lista de Participantes
+                    // Sección 5: Lista de Participantes
                     Section("Participantes") {
                         if viewModel.participantes.isEmpty {
                             Text("No hay participantes aprobados.")
@@ -149,7 +156,7 @@ struct DetalleProyectoParticipanteView: View {
                         }
                     }
                     
-                    // Sección 5: Mensaje de error
+                    // Sección 6: Mensaje de error (si existe)
                     if let error = viewModel.errorMessage, !error.isEmpty {
                         Section {
                             Text(error)
@@ -162,22 +169,26 @@ struct DetalleProyectoParticipanteView: View {
                 .listSectionSpacing(20)
                 .navigationBarTitleDisplayMode(.inline)
             }
-            
-            // 2) Toast overlay for short success/info messages
-            if let toastMsg = viewModel.toastMessage {
-                ToastView(message: toastMsg)
-                    .padding(.top, 80)  // how far from top edge
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .zIndex(1)
-            }
         }
-        .animation(.easeInOut, value: viewModel.toastMessage)
         .fullScreenCover(isPresented: $showSolicitudModal) {
             SolicitudModalView(proyectoID: proyecto.id) { mensaje in
                 Task {
                     await viewModel.solicitarParticipacion(proyectoID: proyecto.id, mensaje: mensaje)
                 }
             }
+        }
+        .alert("Confirmar abandono", isPresented: $showAbandonConfirmation) {
+            Button("Abandonar", role: .destructive) {
+                Task {
+                    await viewModel.abandonarProyecto(proyectoID: proyecto.id)
+                    await viewModel.obtenerDatosAdicionales(proyectoID: proyecto.id)
+                    await viewModel.fetchParticipantes(proyectoID: proyecto.id)
+                    await viewModel.fetchSolicitudEstado(proyectoID: proyecto.id)
+                }
+            }
+            Button("Cancelar", role: .cancel) { }
+        } message: {
+            Text("¿Estás seguro de que deseas abandonar este proyecto?")
         }
         .task {
             await viewModel.obtenerDatosAdicionales(proyectoID: proyecto.id)

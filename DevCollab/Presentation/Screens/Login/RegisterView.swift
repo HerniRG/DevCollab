@@ -1,11 +1,10 @@
 import SwiftUI
 
-// MARK: - Vista de Registro
 struct RegisterView: View {
     @Binding var email: String
     @Binding var password: String
     @Binding var nombre: String
-    @Binding var descripcion: String  // Nuevo campo para la descripción
+    @Binding var descripcion: String
     @Binding var seleccionLenguajes: [LenguajeProgramacion]
     @Binding var isPasswordVisible: Bool
     @Binding var showSuccessResetAlert: Bool
@@ -14,12 +13,9 @@ struct RegisterView: View {
     // Número máximo de caracteres para la descripción
     let maxDescriptionLength = 25
     
-    // Enumeración para gestionar el enfoque de los campos en registro
+    // Enumeración para gestionar el enfoque de los campos
     enum RegisterField: Hashable {
-        case email
-        case password
-        case nombre
-        case descripcion  // Nuevo caso para el campo descripción
+        case email, password, nombre, descripcion
     }
     @FocusState private var focusedField: RegisterField?
     
@@ -64,8 +60,7 @@ struct RegisterView: View {
             }
             .accessibilityLabel("Nombre")
             
-            // Nuevo campo: Descripción breve del usuario
-            // Nuevo campo: Descripción breve del usuario con contador
+            // Campo de descripción con contador de caracteres
             VStack(alignment: .trailing, spacing: 4) {
                 CustomTextField(
                     placeholder: "Descripción (ej. Mobile Developer, Backend, Diseño UX/UI)",
@@ -75,9 +70,7 @@ struct RegisterView: View {
                 .textInputAutocapitalization(.never)
                 .focused($focusedField, equals: .descripcion)
                 .submitLabel(.done)
-                .onSubmit {
-                    focusedField = nil
-                }
+                .onSubmit { focusedField = nil }
                 .onChange(of: descripcion) { newValue in
                     if newValue.count > maxDescriptionLength {
                         descripcion = String(newValue.prefix(maxDescriptionLength))
@@ -85,13 +78,12 @@ struct RegisterView: View {
                 }
                 .accessibilityLabel("Descripción")
                 
-                // Contador de caracteres: se muestra en rojo si se alcanza el máximo
                 Text("\(descripcion.count)/\(maxDescriptionLength)")
                     .font(.caption)
                     .foregroundColor(descripcion.count >= maxDescriptionLength ? .red : .gray)
             }
             
-            // Vista de selección de lenguajes
+            // Vista para la selección de lenguajes
             LanguageSelectionView(seleccionLenguajes: $seleccionLenguajes)
         }
         .padding(.horizontal, 30)

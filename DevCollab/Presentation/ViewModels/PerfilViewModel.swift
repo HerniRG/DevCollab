@@ -2,18 +2,15 @@ import Foundation
 import Combine
 import FirebaseAuth
 import FirebaseFirestore
+import SwiftUI
 
-class PerfilViewModel: ObservableObject {
+final class PerfilViewModel: ObservableObject {
     @Published var usuario: Usuario?
     @Published var proyectosCreados: [Proyecto] = []
     @Published var proyectosParticipando: [Proyecto] = []
     @Published var solicitudes: [Solicitud] = []
-    
-    // Eliminated the separate error message & success booleans
-    // and replaced them with a single toast message for quick feedback:
-    @Published var toastMessage: String? = nil
-    
-    // Dependencies
+        
+    // Dependencias
     private let authRepository: AuthRepository
     private let proyectoRepository: ProyectoRepository
     private let solicitudRepository: SolicitudRepository
@@ -21,35 +18,29 @@ class PerfilViewModel: ObservableObject {
     
     private let db = Firestore.firestore()
     
+    // ToastManager centralizado
+    var toastManager: ToastManager
+
     init(authRepository: AuthRepository,
          proyectoRepository: ProyectoRepository,
          solicitudRepository: SolicitudRepository,
-         updatePerfilUseCase: UpdatePerfilUseCase) {
+         updatePerfilUseCase: UpdatePerfilUseCase,
+         toastManager: ToastManager = ToastManager()) {
         self.authRepository = authRepository
         self.proyectoRepository = proyectoRepository
         self.solicitudRepository = solicitudRepository
         self.updatePerfilUseCase = updatePerfilUseCase
+        self.toastManager = toastManager
         
         fetchUserProfile()
     }
     
-    // MARK: - Toast Helpers
+    // MARK: - Toast Helpers (delegados al ToastManager)
     private func showToast(_ message: String) {
-        DispatchQueue.main.async {
-            self.toastMessage = message
-            // Clear after 2 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                // Only clear if it's still the same message
-                if self.toastMessage == message {
-                    self.toastMessage = nil
-                }
-            }
-        }
+        toastManager.showToast(message)
     }
     
     private func showError(_ message: String) {
-        // Optional distinct styling if you want error vs. success
-        // but we'll just do the same toast.
         showToast("❌ \(message)")
     }
     
@@ -70,7 +61,7 @@ class PerfilViewModel: ObservableObject {
                     await fetchParticipandoProjects(userID: user.id)
                 }
             } catch {
-                showError("Error al obtener perfil: \(error.localizedDescription)")
+                debugPrint("Error al obtener perfil: \(error.localizedDescription)")
             }
         }
     }
@@ -83,7 +74,7 @@ class PerfilViewModel: ObservableObject {
                     self.proyectosCreados = proyectos.filter { $0.creadorID == userID }
                 }
             } catch {
-                showError("Error al obtener proyectos: \(error.localizedDescription)")
+                debugPrint("Error al obtener proyectos: \(error.localizedDescription)")
             }
         }
     }
@@ -96,7 +87,7 @@ class PerfilViewModel: ObservableObject {
                     self.solicitudes = solicitudes
                 }
             } catch {
-                showError("Error al obtener solicitudes: \(error.localizedDescription)")
+                debugPrint("Error al obtener solicitudes: \(error.localizedDescription)")
             }
         }
     }
@@ -129,7 +120,7 @@ class PerfilViewModel: ObservableObject {
                 self.proyectosParticipando = proyectos
             }
         } catch {
-            showError("Error al obtener proyectos participando: \(error.localizedDescription)")
+            debugPrint("Error al obtener proyectos participando: \(error.localizedDescription)")
         }
     }
     
@@ -202,7 +193,6 @@ class PerfilViewModel: ObservableObject {
                 )
                 DispatchQueue.main.async { [weak self] in
                     guard let self = self else { return }
-                    // Actualiza el usuario
                     self.usuario = Usuario(
                         id: userID,
                         nombre: nombre,

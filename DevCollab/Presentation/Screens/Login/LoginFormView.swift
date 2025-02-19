@@ -1,6 +1,5 @@
 import SwiftUI
 
-// MARK: - Vista de Login
 struct LoginFormView: View {
     @Binding var email: String
     @Binding var password: String
@@ -8,10 +7,9 @@ struct LoginFormView: View {
     @Binding var showSuccessResetAlert: Bool
     let viewModel: AuthViewModel
     
-    // Enumeración para gestionar el enfoque de los campos en login
+    // Enumeración para gestionar el foco en los campos
     enum LoginField: Hashable {
-        case email
-        case password
+        case email, password
     }
     @FocusState private var focusedField: LoginField?
     
@@ -39,19 +37,19 @@ struct LoginFormView: View {
             .focused($focusedField, equals: .password)
             .submitLabel(.go)
             .onSubmit {
-                // Se puede optar por cerrar el teclado o ejecutar alguna acción adicional
+                // Se cierra el teclado al terminar
                 focusedField = nil
             }
             .accessibilityLabel("Contraseña")
             
-            // Botón para resetear contraseña (solo en login)
+            // Botón para resetear contraseña
             Button(action: {
                 Task {
                     do {
                         try await viewModel.resetPassword(email: email)
                         showSuccessResetAlert = true
                     } catch {
-                        viewModel.errorMessage = "No se pudo enviar el correo de recuperación."
+                        // En esta versión, el ViewModel se encarga de mostrar el Toast de error
                     }
                 }
             }) {

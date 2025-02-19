@@ -10,6 +10,9 @@ struct DetalleProyectoCreadorView: View {
     @State private var selectedUsuario: Usuario? = nil
     @State private var showSolicitudDetail = false
     
+    // Nuevo estado para controlar la alerta de confirmación de eliminación
+    @State private var showingDeleteConfirmation = false
+    
     init(proyecto: Proyecto) {
         self.proyecto = proyecto
         let userID = Auth.auth().currentUser?.uid ?? ""
@@ -18,7 +21,6 @@ struct DetalleProyectoCreadorView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            // 1) Main Content
             if viewModel.isLoading {
                 VStack {
                     Spacer()
@@ -99,7 +101,8 @@ struct DetalleProyectoCreadorView: View {
                                                 .foregroundColor(.secondary)
                                         }
                                         Spacer()
-                                        Image(systemName: "chevron.right").foregroundColor(.secondary)
+                                        Image(systemName: "chevron.right")
+                                            .foregroundColor(.secondary)
                                     }
                                     .padding(.vertical, 4)
                                 }
@@ -127,12 +130,8 @@ struct DetalleProyectoCreadorView: View {
                     if viewModel.estadoProyecto == "Cerrado" {
                         Section {
                             Button(action: {
-                                Task {
-                                    await viewModel.eliminarProyecto(proyecto: proyecto)
-                                    if viewModel.errorMessage == nil {
-                                        presentationMode.wrappedValue.dismiss()
-                                    }
-                                }
+                                // Mostrar la alerta de confirmación
+                                showingDeleteConfirmation = true
                             }) {
                                 Text("Eliminar Proyecto")
                                     .frame(maxWidth: .infinity, alignment: .center)
@@ -142,7 +141,7 @@ struct DetalleProyectoCreadorView: View {
                         }
                     }
                     
-                    // Error Section
+                    // Sección para mostrar errores (si los hay)
                     if let error = viewModel.errorMessage, !error.isEmpty {
                         Section {
                             Text(error)
@@ -155,24 +154,17 @@ struct DetalleProyectoCreadorView: View {
                 .listSectionSpacing(20)
                 .navigationBarTitleDisplayMode(.inline)
             }
-            
-            // 2) Toast Overlay
-            if let toastMsg = viewModel.toastMessage {
-                ToastView(message: toastMsg)
-                    .padding(.top, 80)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .zIndex(1)
-            }
         }
-        .animation(.easeInOut, value: viewModel.toastMessage)
         .task {
             await viewModel.obtenerDatosAdicionales(proyectoID: proyecto.id)
             await viewModel.fetchParticipantes(proyectoID: proyecto.id)
             await viewModel.fetchSolicitudesPorProyecto(proyectoID: proyecto.id)
         }
         .fullScreenCover(isPresented: $showSolicitudDetail) {
-            SolicitudDetailModalContainerView(selectedSolicitud: $selectedSolicitud,
-                                              selectedUsuario: $selectedUsuario) { decision in
+            SolicitudDetailModalContainerView(
+                selectedSolicitud: $selectedSolicitud,
+                selectedUsuario: $selectedUsuario
+            ) { decision in
                 Task {
                     if let solicitud = selectedSolicitud {
                         let nuevoEstado = decision ? "Aceptada" : "Rechazada"
@@ -185,6 +177,19 @@ struct DetalleProyectoCreadorView: View {
                     }
                 }
             }
+        }
+        .alert("Confirmar eliminación", isPresented: $showingDeleteConfirmation) {
+            Button("Eliminar", role: .destructive) {
+                Task {
+                    await viewModel.eliminarProyecto(proyecto: proyecto)
+                    if viewModel.errorMessage == nil {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }
+            }
+            Button("Cancelar", role: .cancel) {}
+        } message: {
+            Text("¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer.")
         }
     }
 }

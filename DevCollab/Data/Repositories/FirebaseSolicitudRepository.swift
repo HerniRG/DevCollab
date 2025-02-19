@@ -21,7 +21,7 @@ class FirebaseSolicitudRepository: SolicitudRepository {
     
     func cambiarEstadoProyecto(proyectoID: String, nuevoEstado: String) async throws {
         try await db.collection("proyectos").document(proyectoID).updateData(["estado": nuevoEstado])
-        print("🔥 Estado cambiado en Firestore a: \(nuevoEstado)")
+        debugPrint("🔥 Estado cambiado en Firestore a: \(nuevoEstado)")
     }
     
     func abandonarProyecto(proyectoID: String, usuarioID: String) async throws {

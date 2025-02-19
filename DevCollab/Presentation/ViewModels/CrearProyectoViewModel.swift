@@ -1,55 +1,44 @@
 import Foundation
 import Combine
+import FirebaseAuth
+import SwiftUI
 
-class CrearProyectoViewModel: ObservableObject {
-    // Toast-like short-lived message
-    @Published var toastMessage: String? = nil
-    
+final class CrearProyectoViewModel: ObservableObject {
+    var toastManager: ToastManager
     private let crearProyectoUseCase: CrearProyectoUseCase
     private let proyectoRepository: ProyectoRepository
     
     init(crearProyectoUseCase: CrearProyectoUseCase,
-         proyectoRepository: ProyectoRepository) {
+         proyectoRepository: ProyectoRepository,
+         toastManager: ToastManager = ToastManager()) {
         self.crearProyectoUseCase = crearProyectoUseCase
         self.proyectoRepository = proyectoRepository
+        self.toastManager = toastManager
     }
     
-    // MARK: - Toast Helpers
-    private func showToast(_ message: String) {
-        DispatchQueue.main.async {
-            self.toastMessage = message
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-            // Only clear if it's still the same message
-            if self.toastMessage == message {
-                self.toastMessage = nil
-            }
-        }
-    }
-    
-    private func showSuccess(_ message: String) {
-        showToast("✅ " + message)
-    }
-    
-    private func showError(_ message: String) {
-        showToast("❌ " + message)
-    }
-    
-    // MARK: - Crear Proyecto
+    // MARK: - Crear Proyecto con completion
     func crearProyecto(nombre: String,
                        descripcion: String,
                        lenguajes: [LenguajeProgramacion],
                        horasSemanales: String,
                        tipoColaboracion: String,
-                       creadorID: String) {
+                       creadorID: String,
+                       completion: @escaping (Bool) -> Void) {
         // Validación de campos obligatorios
-        if nombre.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-           descripcion.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-           horasSemanales.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-           tipoColaboracion.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-           lenguajes.isEmpty
-        {
-            showError("Faltan campos por rellenar")
+        guard !nombre.isEmpty,
+              !descripcion.isEmpty,
+              !horasSemanales.isEmpty,
+              !tipoColaboracion.isEmpty,
+              !lenguajes.isEmpty else {
+            toastManager.showToast("❌ Faltan campos por rellenar")
+            completion(false)
+            return
+        }
+        
+        // Validación de horas semanales como número válido
+        guard let horas = Int(horasSemanales), horas > 0 else {
+            toastManager.showToast("❌ Las horas semanales deben ser un número válido mayor que 0.")
+            completion(false)
             return
         }
         
@@ -58,13 +47,13 @@ class CrearProyectoViewModel: ObservableObject {
                 // 1. Obtener todos los proyectos
                 let proyectos = try await proyectoRepository.obtenerProyectos()
                 
-                // 2. Filtrar los que ha creado el usuario actual
+                // 2. Filtrar los proyectos del usuario
                 let misProyectos = proyectos.filter { $0.creadorID == creadorID }
                 
                 // 3. Comprobar cuántos proyectos tiene
                 if misProyectos.count >= 2 {
-                    // Mostrar error y salir
-                    showError("Ya tienes 2 proyectos creados. No puedes crear más.")
+                    toastManager.showToast("❌ Ya tienes 2 proyectos creados. No puedes crear más.")
+                    completion(false)
                     return
                 }
                 
@@ -74,19 +63,21 @@ class CrearProyectoViewModel: ObservableObject {
                     nombre: nombre,
                     descripcion: descripcion,
                     lenguajes: lenguajes,
-                    horasSemanales: Int(horasSemanales) ?? 0,
+                    horasSemanales: horas,
                     tipoColaboracion: tipoColaboracion,
                     estado: "Abierto",
                     creadorID: creadorID
                 )
                 
-                // 5. Llamar al use case
+                // 5. Guardar el proyecto en Firebase
                 try await crearProyectoUseCase.execute(proyecto: proyecto)
                 
                 // 6. Éxito
-                showSuccess("Proyecto creado exitosamente.")
+                toastManager.showToast("✅ Proyecto creado exitosamente.")
+                completion(true)
             } catch {
-                showError(error.localizedDescription)
+                toastManager.showToast("❌ \(error.localizedDescription)")
+                completion(false)
             }
         }
     }

@@ -4,9 +4,11 @@ import Combine
 class SolicitudesViewModel: ObservableObject {
     @Published var solicitudes: [Solicitud] = []
     private let obtenerSolicitudesUseCase: ObtenerSolicitudesUseCase
-    
-    init(obtenerSolicitudesUseCase: ObtenerSolicitudesUseCase) {
+    var toastManager: ToastManager
+
+    init(obtenerSolicitudesUseCase: ObtenerSolicitudesUseCase, toastManager: ToastManager = ToastManager()) {
         self.obtenerSolicitudesUseCase = obtenerSolicitudesUseCase
+        self.toastManager = toastManager
     }
     
     func fetchSolicitudes(usuarioID: String) {
@@ -17,7 +19,9 @@ class SolicitudesViewModel: ObservableObject {
                     self?.solicitudes = solicitudes
                 }
             } catch {
-                print("Error al obtener solicitudes: \(error.localizedDescription)")
+                DispatchQueue.main.async { [weak self] in
+                    debugPrint("❌ Error al obtener solicitudes: \(error.localizedDescription)")
+                }
             }
         }
     }
