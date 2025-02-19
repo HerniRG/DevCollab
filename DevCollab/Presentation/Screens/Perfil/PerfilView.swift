@@ -73,15 +73,17 @@ struct PerfilView: View {
                 
                 // Sección: Cerrar sesión
                 Section {
-                    Button(role: .destructive) {
-                        // Llamada a logout de tu AuthViewModel o AuthRepository.
-                        // Por ejemplo:
+                    Button(action: {
                         Task {
                             ViewModelProvider.shared.authViewModel.logout()
                         }
-                    } label: {
+                    }) {
                         Text("Cerrar sesión")
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .foregroundColor(.white)
                     }
+                    // Puedes elegir el color que desees para el fondo, en este ejemplo se usa rojo.
+                    .listRowBackground(Color.red)
                 }
             }
             .listStyle(InsetGroupedListStyle())

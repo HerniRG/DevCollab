@@ -6,6 +6,7 @@ class ProyectosViewModel: ObservableObject {
     @Published var proyectos: [Proyecto] = []
     @Published var solicitudes: [Solicitud] = []  // Solicitudes del usuario
     @Published var isLoading: Bool = false
+    @Published var solicitudesPendientesPorProyecto: [String: [Solicitud]] = [:] // Clave: proyectoID
 
     private let obtenerProyectosUseCase: ObtenerProyectosUseCase
     private let obtenerSolicitudesUseCase: ObtenerSolicitudesUseCase
@@ -40,6 +41,25 @@ class ProyectosViewModel: ObservableObject {
                     self?.isLoading = false
                     debugPrint("❌ Error al obtener proyectos: \(error.localizedDescription)")
                 }
+            }
+        }
+    }
+    
+    func fetchSolicitudesPendientesParaMisProyectos() {
+        Task {
+            let misProyectos = self.proyectos.filter { $0.creadorID == Auth.auth().currentUser?.uid }
+            var nuevasSolicitudes: [String: [Solicitud]] = [:]
+            for proyecto in misProyectos {
+                do {
+                    let solicitudes = try await ObtenerSolicitudesPorProyectoUseCaseImpl(repository: FirebaseSolicitudRepository()).execute(proyectoID: proyecto.id)
+                    // Solo nos interesan las que están pendientes
+                    nuevasSolicitudes[proyecto.id] = solicitudes.filter { $0.estado == "Pendiente" }
+                } catch {
+                    debugPrint("Error al obtener solicitudes para el proyecto \(proyecto.id): \(error.localizedDescription)")
+                }
+            }
+            DispatchQueue.main.async {
+                self.solicitudesPendientesPorProyecto = nuevasSolicitudes
             }
         }
     }

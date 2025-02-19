@@ -17,8 +17,9 @@ struct ExploracionProyectosView: View {
                         .foregroundColor(.gray)
                 } else {
                     ForEach(misProyectos, id: \.id) { proyecto in
+                        let tieneSolicitudPendiente = viewModel.solicitudesPendientesPorProyecto[proyecto.id]?.isEmpty == false
                         NavigationLink(destination: DetalleProyectoCreadorView(proyecto: proyecto)) {
-                            ProyectoRowView(proyecto: proyecto)
+                            ProyectoRowView(proyecto: proyecto, tieneSolicitudPendiente: tieneSolicitudPendiente)
                         }
                     }
                 }
@@ -86,14 +87,17 @@ struct ExploracionProyectosView: View {
         .refreshable {
             viewModel.fetchProyectos()
             viewModel.fetchSolicitudes()
+            viewModel.fetchSolicitudesPendientesParaMisProyectos()
         }
         .onAppear {
             viewModel.fetchProyectos()
             viewModel.fetchSolicitudes()
+            viewModel.fetchSolicitudesPendientesParaMisProyectos()
         }
         .task {
             viewModel.fetchProyectos()
             viewModel.fetchSolicitudes()
+            viewModel.fetchSolicitudesPendientesParaMisProyectos()
         }
     }
     
