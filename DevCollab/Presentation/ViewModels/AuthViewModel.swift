@@ -58,6 +58,21 @@ class AuthViewModel: ObservableObject {
         }
     }
     
+    func resendVerificationEmail() {
+        Task {
+            do {
+                try await authRepository.resendVerificationEmail()
+                DispatchQueue.main.async { [weak self] in
+                    self?.toastManager.showToast("✅ Correo de verificación reenviado.")
+                }
+            } catch {
+                DispatchQueue.main.async { [weak self] in
+                    self?.toastManager.showToast("❌ \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
     func logout() {
         Task {
             do {

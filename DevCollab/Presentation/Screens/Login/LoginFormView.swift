@@ -6,13 +6,13 @@ struct LoginFormView: View {
     @Binding var isPasswordVisible: Bool
     @Binding var showSuccessResetAlert: Bool
     let viewModel: AuthViewModel
-    
+
     // Enumeración para gestionar el foco en los campos
     enum LoginField: Hashable {
         case email, password
     }
     @FocusState private var focusedField: LoginField?
-    
+
     var body: some View {
         VStack(spacing: 16) {
             // Campo de Correo electrónico
@@ -65,7 +65,30 @@ struct LoginFormView: View {
             .disabled(!email.isValidEmail)
             .accessibilityLabel("Olvidé mi contraseña")
             .accessibilityHint("Envía un correo de restablecimiento si el email es válido")
+            .transition(.opacity)
+            
+            // Botón para reenviar el correo de verificación
+            if email.isValidEmail {
+                Button(action: {
+                    Task {
+                        do {
+                            try await viewModel.resendVerificationEmail()
+                        } catch {
+                            // Manejar el error (por ejemplo, mostrar un Toast)
+                        }
+                    }
+                }) {
+                    Text("Reenviar correo de verificación")
+                        .font(.footnote)
+                        .foregroundColor(.blue)
+                        .padding(.top, -5)
+                }
+                .accessibilityLabel("Reenviar correo de verificación")
+                .accessibilityHint("Solicita que se envíe nuevamente el correo para verificar tu dirección")
+                .transition(.opacity)
+            }
         }
         .padding(.horizontal, 30)
+        .animation(.easeInOut, value: email.isValidEmail)
     }
 }

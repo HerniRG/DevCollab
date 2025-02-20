@@ -6,6 +6,7 @@ enum AuthRepositoryError: LocalizedError {
     case emailAlreadyInUse
     case userNotFound
     case wrongPassword
+    case emailNotVerified  // Nuevo caso
     case unknown(Error)
     
     var errorDescription: String? {
@@ -19,8 +20,9 @@ enum AuthRepositoryError: LocalizedError {
         case .userNotFound:
             return "No se encontró un usuario con ese correo."
         case .wrongPassword:
-            // Se devuelve un mensaje más genérico para cubrir ambos casos
             return "Usuario o contraseña incorrectos."
+        case .emailNotVerified:
+            return "El correo electrónico no ha sido verificado. Por favor, revisa tu bandeja de entrada."
         case .unknown(let error):
             return error.localizedDescription
         }

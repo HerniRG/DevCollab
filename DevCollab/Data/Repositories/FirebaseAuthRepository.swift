@@ -8,6 +8,10 @@ class FirebaseAuthRepository: AuthRepository {
     func register(email: String, password: String, nombre: String, lenguajes: [LenguajeProgramacion], descripcion: String?) async throws -> Usuario {
         do {
             let result = try await auth.createUser(withEmail: email, password: password)
+            
+            // Enviar email de verificación tras el registro
+            try await result.user.sendEmailVerification()
+            
             let usuario = Usuario(
                 id: result.user.uid,
                 nombre: nombre,
@@ -49,6 +53,12 @@ class FirebaseAuthRepository: AuthRepository {
     func login(email: String, password: String) async throws -> Usuario {
         do {
             let result = try await auth.signIn(withEmail: email, password: password)
+            
+            // Verificar que el email esté verificado
+            if !result.user.isEmailVerified {
+                throw AuthRepositoryError.emailNotVerified
+            }
+            
             return try await getCurrentUser() ?? Usuario(id: result.user.uid, nombre: "", lenguajes: [], descripcion: nil, correo: email)
         } catch {
             throw (error as NSError).toAuthRepositoryError()
@@ -63,13 +73,32 @@ class FirebaseAuthRepository: AuthRepository {
         }
     }
     
-    /// Método para restablecer contraseña
+    /// Método para restablecer la contraseña
     func resetPassword(email: String) async throws {
         do {
+            let emailExists = try await checkIfEmailExists(email)
+            if !emailExists {
+                throw AuthRepositoryError.userNotFound
+            }
             try await auth.sendPasswordReset(withEmail: email)
         } catch {
             throw (error as NSError).toAuthRepositoryError()
         }
+    }
+    
+    func checkIfEmailExists(_ email: String) async throws -> Bool {
+        let snapshot = try await db.collection("usuarios")
+            .whereField("correo", isEqualTo: email)
+            .getDocuments()
+        return !snapshot.documents.isEmpty
+    }
+    
+    /// Método opcional para reenviar el correo de verificación
+    func resendVerificationEmail() async throws {
+        guard let user = auth.currentUser else {
+            throw AuthRepositoryError.userNotFound
+        }
+        try await user.sendEmailVerification()
     }
 }
 
