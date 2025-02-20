@@ -4,8 +4,9 @@ import FirebaseAuth
 struct DetalleProyectoParticipanteView: View {
     let proyecto: Proyecto
     @StateObject private var viewModel: DetalleProyectoViewModel
+    
     @State private var showSolicitudModal = false
-    @State private var showAbandonConfirmation = false  // Nueva variable para confirmar abandono
+    @State private var showAbandonConfirmation = false  // Confirmar abandono
     
     init(proyecto: Proyecto) {
         self.proyecto = proyecto
@@ -15,6 +16,7 @@ struct DetalleProyectoParticipanteView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
+            // MARK: - Estado de carga
             if viewModel.isLoading {
                 VStack {
                     Spacer()
@@ -23,9 +25,11 @@ struct DetalleProyectoParticipanteView: View {
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
+            }
+            // MARK: - Contenido principal
+            else {
                 List {
-                    // Sección 1: Nombre del Proyecto
+                    // MARK: - Sección: Nombre del Proyecto
                     Section {
                         Text(proyecto.nombre)
                             .font(.largeTitle)
@@ -33,68 +37,57 @@ struct DetalleProyectoParticipanteView: View {
                             .frame(maxWidth: .infinity, alignment: .center)
                     }
                     
-                    // Sección 2: Información del Proyecto
-                    Section("Información del Proyecto") {
+                    // MARK: - Sección: Información del Proyecto
+                    Section {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Descripción:")
-                                .fontWeight(.semibold)
-                            Text(proyecto.descripcion)
-                                .fixedSize(horizontal: false, vertical: true)
+                            infoLabel("Descripción:", proyecto.descripcion)
+                            infoLabel(
+                                "Lenguajes:",
+                                proyecto.lenguajes.map { $0.rawValue }.joined(separator: ", ")
+                            )
+                            infoLabel("Horas semanales:", "\(proyecto.horasSemanales)")
+                            infoLabel("Tipo de colaboración:", proyecto.tipoColaboracion)
                             
-                            Text("Lenguajes:")
-                                .fontWeight(.semibold)
-                            Text(proyecto.lenguajes.map { $0.rawValue }.joined(separator: ", "))
-                            
-                            Text("Horas semanales:")
-                                .fontWeight(.semibold)
-                            Text("\(proyecto.horasSemanales)")
-                            
-                            Text("Tipo de colaboración:")
-                                .fontWeight(.semibold)
-                            Text(proyecto.tipoColaboracion)
-                            
-                            Text("Estado:")
-                                .fontWeight(.semibold)
-                            Text(viewModel.estadoProyecto)
-                                .foregroundColor(viewModel.estadoProyecto == "Abierto" ? .green : .red)
-                        }
-                        .padding(.vertical, 4)
-                    }
-                    
-                    // Sección 3: Información del Creador
-                    Section("Información del Creador") {
-                        VStack(alignment: .leading, spacing: 8) {
                             HStack {
-                                Text("Nombre:")
-                                    .fontWeight(.semibold)
-                                Spacer()
-                                Text(viewModel.nombreCreador)
-                                    .foregroundColor(.primary)
-                            }
-                            if !viewModel.descripcionCreador.isEmpty {
-                                HStack {
-                                    Text("Descripción:")
-                                        .fontWeight(.semibold)
-                                    Spacer()
-                                    Text(viewModel.descripcionCreador)
-                                        .multilineTextAlignment(.trailing)
-                                }
-                            }
-                            if !viewModel.lenguajesCreador.isEmpty {
-                                HStack {
-                                    Text("Lenguajes:")
-                                        .fontWeight(.semibold)
-                                    Spacer()
-                                    Text(viewModel.lenguajesCreador.joined(separator: ", "))
-                                }
+                                Text("Estado:").fontWeight(.semibold)
+                                Text(viewModel.estadoProyecto)
+                                    .foregroundColor(viewModel.estadoProyecto == "Abierto" ? .green : .red)
                             }
                         }
                         .padding(.vertical, 4)
+                    } header: {
+                        Text("Información del Proyecto")
+                            .font(.headline)
+                            .foregroundColor(.primary)
                     }
                     
-                    // Sección 4: Acciones de Participación
+                    // MARK: - Sección: Información del Creador
+                    Section {
+                        VStack(alignment: .leading, spacing: 8) {
+                            creadorRow(label: "Nombre:", value: viewModel.nombreCreador)
+                            
+                            if !viewModel.descripcionCreador.isEmpty {
+                                creadorRow(label: "Descripción:", value: viewModel.descripcionCreador)
+                            }
+                            
+                            if !viewModel.lenguajesCreador.isEmpty {
+                                creadorRow(
+                                    label: "Lenguajes:",
+                                    value: viewModel.lenguajesCreador.joined(separator: ", ")
+                                )
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    } header: {
+                        Text("Información del Creador")
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                    }
+                    
+                    // MARK: - Sección: Acciones de Participación
                     Section {
                         if !viewModel.yaSolicitado {
+                            // Botón para solicitar participación
                             Button(action: {
                                 showSolicitudModal = true
                             }) {
@@ -104,14 +97,15 @@ struct DetalleProyectoParticipanteView: View {
                             }
                             .listRowBackground(Color.blue)
                         } else {
+                            // Si ya se solicitó
                             if viewModel.soyParticipante {
+                                // Participante aprobado
                                 VStack(spacing: 8) {
                                     Text("Solicitud Aprobada")
                                         .foregroundColor(.green)
                                         .frame(maxWidth: .infinity, alignment: .center)
                                     
                                     Button(action: {
-                                        // En lugar de ejecutar directamente, mostramos el alert de confirmación
                                         showAbandonConfirmation = true
                                     }) {
                                         Text("Abandonar Proyecto")
@@ -124,6 +118,7 @@ struct DetalleProyectoParticipanteView: View {
                                     }
                                 }
                             } else {
+                                // Solicitud rechazada o pendiente
                                 if viewModel.estadoSolicitud == "Rechazada" {
                                     Text("Solicitud Rechazada")
                                         .foregroundColor(.red)
@@ -137,11 +132,22 @@ struct DetalleProyectoParticipanteView: View {
                         }
                     }
                     
-                    // Sección 5: Lista de Participantes
-                    Section("Participantes") {
+                    // MARK: - Sección: Lista de participantes
+                    Section {
                         if viewModel.participantes.isEmpty {
-                            Text("No hay participantes aprobados.")
-                                .foregroundColor(.gray)
+                            HStack {
+                                Spacer()
+                                VStack(spacing: 8) {
+                                    Image(systemName: "person.3")
+                                        .font(.largeTitle)
+                                        .foregroundColor(.gray)
+                                    Text("No hay participantes aprobados.")
+                                        .foregroundColor(.gray)
+                                        .multilineTextAlignment(.center)
+                                }
+                                Spacer()
+                            }
+                            .padding(.vertical, 8)
                         } else {
                             ForEach(viewModel.participantes, id: \.id) { participante in
                                 HStack {
@@ -154,9 +160,13 @@ struct DetalleProyectoParticipanteView: View {
                                 }
                             }
                         }
+                    } header: {
+                        Text("Participantes")
+                            .font(.headline)
+                            .foregroundColor(.primary)
                     }
                     
-                    // Sección 6: Mensaje de error (si existe)
+                    // MARK: - Sección: Mensaje de error (si existe)
                     if let error = viewModel.errorMessage, !error.isEmpty {
                         Section {
                             Text(error)
@@ -167,9 +177,9 @@ struct DetalleProyectoParticipanteView: View {
                 }
                 .listStyle(InsetGroupedListStyle())
                 .listSectionSpacing(20)
-                .navigationBarTitleDisplayMode(.inline)
             }
         }
+        // MARK: - Modal para solicitar participación
         .fullScreenCover(isPresented: $showSolicitudModal) {
             SolicitudModalView(proyectoID: proyecto.id) { mensaje in
                 Task {
@@ -177,6 +187,7 @@ struct DetalleProyectoParticipanteView: View {
                 }
             }
         }
+        // MARK: - Alerta para abandonar proyecto
         .alert("Confirmar abandono", isPresented: $showAbandonConfirmation) {
             Button("Abandonar", role: .destructive) {
                 Task {
@@ -190,10 +201,30 @@ struct DetalleProyectoParticipanteView: View {
         } message: {
             Text("¿Estás seguro de que deseas abandonar este proyecto?")
         }
+        // MARK: - Carga inicial de datos
         .task {
             await viewModel.obtenerDatosAdicionales(proyectoID: proyecto.id)
             await viewModel.fetchParticipantes(proyectoID: proyecto.id)
             await viewModel.fetchSolicitudEstado(proyectoID: proyecto.id)
         }
+    }
+}
+
+// MARK: - Helper genérico para mostrar campos con su etiqueta
+private func infoLabel(_ title: String, _ content: String) -> some View {
+    VStack(alignment: .leading, spacing: 2) {
+        Text(title).fontWeight(.semibold)
+        Text(content)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+// MARK: - Helper para presentar la info del creador con label + valor
+private func creadorRow(label: String, value: String) -> some View {
+    HStack(alignment: .top) {
+        Text(label).fontWeight(.semibold)
+        Spacer()
+        Text(value)
+            .multilineTextAlignment(.trailing)
     }
 }

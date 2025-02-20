@@ -2,32 +2,45 @@ import SwiftUI
 
 struct ProyectoRowView: View {
     let proyecto: Proyecto
-    // Flag para indicar si hay solicitudes pendientes (por ejemplo, de otros usuarios)
+    
+    /// Indica si hay solicitudes pendientes relacionadas con este proyecto
     var tieneSolicitudPendiente: Bool = false
-    // Closure opcional para borrar el proyecto
+    
+    /// Closure opcional para eliminar el proyecto (solo se muestra si el proyecto está cerrado)
     var onDelete: (() -> Void)? = nil
     
-    // Estado para controlar la animación del badge
+    /// Controla la animación del badge cuando hay solicitudes pendientes
     @State private var animateBadge: Bool = false
-
+    
     var body: some View {
-        HStack {
+        HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
+                // Nombre del proyecto
                 Text(proyecto.nombre)
                     .font(.headline)
+                
+                // Lenguajes del proyecto
                 Text("Lenguajes: \(proyecto.lenguajes.map { $0.rawValue }.joined(separator: ", "))")
                     .font(.subheadline)
-                    .foregroundColor(.gray)
-                Text("Estado: \(proyecto.estado)")
-                    .font(.subheadline)
-                    .foregroundColor(proyecto.estado == "Abierto" ? .green : .red)
+                    .foregroundColor(.secondary)
+                
+                // Estado (Abierto en verde, Cerrado en rojo)
+                HStack {
+                    Text("Estado:")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    Text(proyecto.estado)
+                        .font(.subheadline)
+                        .foregroundColor(proyecto.estado == "Abierto" ? .green : .red)
+                }
             }
-            Spacer()
-            // Botón de borrar, si procede
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
+            // Botón de borrar, solo si está cerrado y hay un handler
             if proyecto.estado == "Cerrado", let onDelete = onDelete {
-                Button(action: {
+                Button {
                     onDelete()
-                }) {
+                } label: {
                     Image(systemName: "trash")
                         .foregroundColor(.red)
                 }
@@ -36,8 +49,8 @@ struct ProyectoRowView: View {
                 .accessibilityHint("Elimina este proyecto de Firebase")
             }
         }
-        .padding()
-        // Overlay para posicionar el badge en la esquina superior derecha con animación
+        .padding(.vertical, 8)
+        // Overlay en la esquina superior derecha para la insignia
         .overlay(
             Group {
                 if tieneSolicitudPendiente {
@@ -52,7 +65,10 @@ struct ProyectoRowView: View {
                     .scaleEffect(animateBadge ? 1.0 : 0.0)
                     .opacity(animateBadge ? 1.0 : 0.0)
                     .onAppear {
-                        withAnimation(Animation.spring(response: 0.5, dampingFraction: 0.5).delay(0.1)) {
+                        withAnimation(
+                            .spring(response: 0.5, dampingFraction: 0.5)
+                                .delay(0.1)
+                        ) {
                             animateBadge = true
                         }
                     }

@@ -22,16 +22,21 @@ struct MainView: View {
     var body: some View {
         ZStack {
             Group {
+                // MARK: - Estado de carga
                 if isLoading {
                     LoadingView()
                         .transition(.opacity)
-                } else if authViewModel.user != nil {
+                }
+                // MARK: - Usuario autenticado
+                else if authViewModel.user != nil {
                     NavigationView {
                         ZStack(alignment: .bottomTrailing) {
+                            // Exploración de proyectos rediseñada
                             ExploracionProyectosView()
                                 .navigationBarTitle("DevCollab", displayMode: .inline)
                                 .toolbar {
                                     ToolbarItem(placement: .navigationBarTrailing) {
+                                        // Botón para ir al perfil
                                         Button {
                                             showingProfile = true
                                         } label: {
@@ -40,9 +45,11 @@ struct MainView: View {
                                     }
                                 }
                             
+                            // Botón flotante para Crear Proyecto
                             Button {
-                                // Activa la superposición personalizada con animación desde abajo
-                                withAnimation(.easeInOut) { showCrearProyectoOverlay = true }
+                                withAnimation(.easeInOut) {
+                                    showCrearProyectoOverlay = true
+                                }
                             } label: {
                                 Image(systemName: "plus")
                                     .font(.system(size: 24))
@@ -58,46 +65,56 @@ struct MainView: View {
                             .padding(.trailing, 24)
                             .padding(.bottom, 24)
                         }
+                        // Navegación al Perfil
                         .background(
                             NavigationLink(
                                 destination: PerfilView(viewModel: ViewModelProvider.shared.perfilViewModel),
                                 isActive: $showingProfile
-                            ) { EmptyView() }
+                            ) {
+                                EmptyView()
+                            }
                             .hidden()
                         )
                     }
                     .transition(.opacity)
-                } else {
+                }
+                // MARK: - Usuario no autenticado: Pantalla de login/registro
+                else {
                     AuthMainView(viewModel: authViewModel)
                         .transition(.opacity)
                 }
             }
             
-            
-            // Overlay personalizado para CrearProyectoView con animación desde abajo
+            // MARK: - Overlay para CrearProyectoView
             if showCrearProyectoOverlay {
-                CrearProyectoView(viewModel: ViewModelProvider.shared.crearProyectoViewModel, isPresented: Binding(
-                    get: { showCrearProyectoOverlay },
-                    set: { newValue in
-                        withAnimation(.easeInOut) {
-                            showCrearProyectoOverlay = newValue
-                            
-                            // Si se cierra la vista de creación, recargar proyectos
-                            if !newValue {
-                                ViewModelProvider.shared.proyectosViewModel.fetchProyectos()
+                CrearProyectoView(
+                    viewModel: ViewModelProvider.shared.crearProyectoViewModel,
+                    isPresented: Binding(
+                        get: { showCrearProyectoOverlay },
+                        set: { newValue in
+                            withAnimation(.easeInOut) {
+                                showCrearProyectoOverlay = newValue
+                                // Al cerrar la vista, recarga la lista de proyectos
+                                if !newValue {
+                                    ViewModelProvider.shared.proyectosViewModel.fetchProyectos()
+                                }
                             }
                         }
-                    }
-                ))
+                    )
+                )
                 .transition(.move(edge: .bottom))
                 .zIndex(2)
             }
         }
         .animation(.easeInOut, value: authViewModel.user)
+        // MARK: - Tarea asíncrona para verificar usuario al cargar la vista
         .task {
             await authViewModel.fetchCurrentUser()
+            // Simulación de espera para mostrar la pantalla de carga
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                withAnimation { isLoading = false }
+                withAnimation {
+                    isLoading = false
+                }
             }
         }
     }

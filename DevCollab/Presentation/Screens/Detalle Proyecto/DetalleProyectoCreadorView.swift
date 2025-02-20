@@ -10,7 +10,7 @@ struct DetalleProyectoCreadorView: View {
     @State private var selectedUsuario: Usuario? = nil
     @State private var showSolicitudDetail = false
     
-    // Nuevo estado para controlar la alerta de confirmación de eliminación
+    // Control para la alerta de confirmación de eliminación
     @State private var showingDeleteConfirmation = false
     
     init(proyecto: Proyecto) {
@@ -21,6 +21,7 @@ struct DetalleProyectoCreadorView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
+            // MARK: - Cargando datos
             if viewModel.isLoading {
                 VStack {
                     Spacer()
@@ -29,8 +30,11 @@ struct DetalleProyectoCreadorView: View {
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
+            }
+            // MARK: - Contenido principal
+            else {
                 List {
+                    // MARK: - Sección: Título del proyecto
                     Section {
                         Text(proyecto.nombre)
                             .font(.largeTitle)
@@ -38,28 +42,31 @@ struct DetalleProyectoCreadorView: View {
                             .frame(maxWidth: .infinity, alignment: .center)
                     }
                     
-                    Section("Información del Proyecto") {
+                    // MARK: - Sección: Información del proyecto
+                    Section {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Descripción:").fontWeight(.semibold)
-                            Text(proyecto.descripcion)
-                                .fixedSize(horizontal: false, vertical: true)
+                            infoLabel("Descripción:", proyecto.descripcion)
+                            infoLabel(
+                                "Lenguajes:",
+                                proyecto.lenguajes.map { $0.rawValue }.joined(separator: ", ")
+                            )
+                            infoLabel("Horas semanales:", "\(proyecto.horasSemanales)")
+                            infoLabel("Tipo de colaboración:", proyecto.tipoColaboracion)
                             
-                            Text("Lenguajes:").fontWeight(.semibold)
-                            Text(proyecto.lenguajes.map { $0.rawValue }.joined(separator: ", "))
-                            
-                            Text("Horas semanales:").fontWeight(.semibold)
-                            Text("\(proyecto.horasSemanales)")
-                            
-                            Text("Tipo de colaboración:").fontWeight(.semibold)
-                            Text(proyecto.tipoColaboracion)
-                            
-                            Text("Estado:").fontWeight(.semibold)
-                            Text(viewModel.estadoProyecto)
-                                .foregroundColor(viewModel.estadoProyecto == "Abierto" ? .green : .red)
+                            HStack {
+                                Text("Estado:").fontWeight(.semibold)
+                                Text(viewModel.estadoProyecto)
+                                    .foregroundColor(viewModel.estadoProyecto == "Abierto" ? .green : .red)
+                            }
                         }
                         .padding(.vertical, 4)
+                    } header: {
+                        Text("Información del Proyecto")
+                            .font(.headline)
+                            .foregroundColor(.primary)
                     }
                     
+                    // MARK: - Sección: Botón para abrir/cerrar proyecto
                     Section {
                         Button(action: {
                             Task {
@@ -70,13 +77,27 @@ struct DetalleProyectoCreadorView: View {
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .foregroundColor(.white)
                         }
-                        .listRowBackground(viewModel.estadoProyecto == "Abierto" ? Color.red : Color.green)
+                        .listRowBackground(
+                            viewModel.estadoProyecto == "Abierto" ? Color.red : Color.green
+                        )
                     }
                     
-                    Section("Solicitudes de Participación") {
+                    // MARK: - Sección: Solicitudes pendientes
+                    Section {
                         if viewModel.solicitudesPendientes.isEmpty {
-                            Text("No hay solicitudes pendientes.")
-                                .foregroundColor(.gray)
+                            HStack {
+                                Spacer()
+                                VStack(spacing: 8) {
+                                    Image(systemName: "envelope.badge")
+                                        .font(.largeTitle)
+                                        .foregroundColor(.gray)
+                                    Text("No hay solicitudes pendientes.")
+                                        .foregroundColor(.gray)
+                                        .multilineTextAlignment(.center)
+                                }
+                                Spacer()
+                            }
+                            .padding(.vertical, 8)
                         } else {
                             ForEach(viewModel.solicitudesPendientes, id: \.id) { solicitud in
                                 Button(action: {
@@ -108,16 +129,33 @@ struct DetalleProyectoCreadorView: View {
                                 }
                             }
                         }
+                    } header: {
+                        Text("Solicitudes de Participación")
+                            .font(.headline)
+                            .foregroundColor(.primary)
                     }
                     
-                    Section("Participantes") {
+                    // MARK: - Sección: Participantes
+                    Section {
                         if viewModel.participantes.isEmpty {
-                            Text("No hay participantes aprobados.")
-                                .foregroundColor(.gray)
+                            HStack {
+                                Spacer()
+                                VStack(spacing: 8) {
+                                    Image(systemName: "person.3")
+                                        .font(.largeTitle)
+                                        .foregroundColor(.gray)
+                                    Text("No hay participantes aprobados.")
+                                        .foregroundColor(.gray)
+                                        .multilineTextAlignment(.center)
+                                }
+                                Spacer()
+                            }
+                            .padding(.vertical, 8)
                         } else {
                             ForEach(viewModel.participantes, id: \.id) { participante in
                                 HStack {
-                                    Text(participante.nombre).fontWeight(.semibold)
+                                    Text(participante.nombre)
+                                        .fontWeight(.semibold)
                                     if !participante.lenguajes.isEmpty {
                                         Text("(\(participante.lenguajes.map { $0.rawValue }.joined(separator: ", ")))")
                                             .foregroundColor(.secondary)
@@ -125,12 +163,16 @@ struct DetalleProyectoCreadorView: View {
                                 }
                             }
                         }
+                    } header: {
+                        Text("Participantes")
+                            .font(.headline)
+                            .foregroundColor(.primary)
                     }
                     
+                    // MARK: - Sección: Eliminar proyecto si está cerrado
                     if viewModel.estadoProyecto == "Cerrado" {
                         Section {
                             Button(action: {
-                                // Mostrar la alerta de confirmación
                                 showingDeleteConfirmation = true
                             }) {
                                 Text("Eliminar Proyecto")
@@ -141,7 +183,7 @@ struct DetalleProyectoCreadorView: View {
                         }
                     }
                     
-                    // Sección para mostrar errores (si los hay)
+                    // MARK: - Sección: Errores (si los hay)
                     if let error = viewModel.errorMessage, !error.isEmpty {
                         Section {
                             Text(error)
@@ -152,14 +194,15 @@ struct DetalleProyectoCreadorView: View {
                 }
                 .listStyle(InsetGroupedListStyle())
                 .listSectionSpacing(20)
-                .navigationBarTitleDisplayMode(.inline)
             }
         }
+        // MARK: - Tareas async
         .task {
             await viewModel.obtenerDatosAdicionales(proyectoID: proyecto.id)
             await viewModel.fetchParticipantes(proyectoID: proyecto.id)
             await viewModel.fetchSolicitudesPorProyecto(proyectoID: proyecto.id)
         }
+        // MARK: - Modal para ver/gestionar solicitud
         .fullScreenCover(isPresented: $showSolicitudDetail) {
             SolicitudDetailModalContainerView(
                 selectedSolicitud: $selectedSolicitud,
@@ -168,7 +211,10 @@ struct DetalleProyectoCreadorView: View {
                 Task {
                     if let solicitud = selectedSolicitud {
                         let nuevoEstado = decision ? "Aceptada" : "Rechazada"
-                        await viewModel.actualizarEstadoSolicitud(solicitudID: solicitud.id, estado: nuevoEstado)
+                        await viewModel.actualizarEstadoSolicitud(
+                            solicitudID: solicitud.id,
+                            estado: nuevoEstado
+                        )
                         if decision {
                             await viewModel.agregarParticipante(solicitud: solicitud)
                         }
@@ -178,6 +224,7 @@ struct DetalleProyectoCreadorView: View {
                 }
             }
         }
+        // MARK: - Alerta de confirmación de eliminación
         .alert("Confirmar eliminación", isPresented: $showingDeleteConfirmation) {
             Button("Eliminar", role: .destructive) {
                 Task {
@@ -187,14 +234,23 @@ struct DetalleProyectoCreadorView: View {
                     }
                 }
             }
-            Button("Cancelar", role: .cancel) {}
+            Button("Cancelar", role: .cancel) { }
         } message: {
             Text("¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer.")
         }
     }
 }
 
-// MARK: - SolicitudDetailModalContainerView (sin cambios)
+// MARK: - Helper para mostrar un label con un título en negrita y el contenido
+private func infoLabel(_ title: String, _ content: String) -> some View {
+    VStack(alignment: .leading, spacing: 2) {
+        Text(title).fontWeight(.semibold)
+        Text(content)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+// MARK: - SolicitudDetailModalContainerView (igual que tu código original)
 struct SolicitudDetailModalContainerView: View {
     @Binding var selectedSolicitud: Solicitud?
     @Binding var selectedUsuario: Usuario?
@@ -213,7 +269,7 @@ struct SolicitudDetailModalContainerView: View {
     }
 }
 
-// MARK: - Simple UserNameView (sin cambios)
+// MARK: - UserNameView (igual que tu código original)
 struct UserNameView: View {
     let userID: String
     @State private var nombre: String = ""
