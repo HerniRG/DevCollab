@@ -5,12 +5,12 @@ struct LoadingView: View {
     
     var body: some View {
         ZStack {
-            // Fondo adaptado al sistema, para modo claro y oscuro
+            // Fondo adaptado al modo claro y oscuro
             Color(UIColor.systemBackground)
                 .edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 30) {
-                // Logo antiguo: parecido a "< / >"
+                // Logo animado
                 Image(systemName: "chevron.left.forwardslash.chevron.right")
                     .resizable()
                     .scaledToFit()
@@ -22,14 +22,17 @@ struct LoadingView: View {
                             .repeatForever(autoreverses: true),
                         value: pulsate
                     )
-                
-                // Texto informativo
+                    .accessibilityLabel("Cargando DevCollab") // VoiceOver lo describe
+                    .accessibilityHidden(false) // Importante: es un icono con significado
+                    
+                // Texto informativo con accesibilidad activa
                 Text("Conectando con DevCollab...")
                     .font(.headline)
-                    .foregroundColor(.primary)
-                
-                // Barra de carga animada
+                    .foregroundColor(.primary)                
+                // Barra de carga animada con descripción accesible
                 LoadingBar()
+                    .accessibilityLabel("Conectando")
+                    .accessibilityHint("Por favor, espera mientras se establece la conexión")
             }
             .padding()
         }
@@ -39,6 +42,7 @@ struct LoadingView: View {
     }
 }
 
+// MARK: - Barra de carga animada
 struct LoadingBar: View {
     @State private var animate: Bool = false
     
@@ -52,8 +56,9 @@ struct LoadingBar: View {
                 RoundedRectangle(cornerRadius: 4)
                     .fill(Color.gray.opacity(0.2))
                     .frame(height: 8)
+                    .accessibilityHidden(true) // No necesario para VoiceOver
                 
-                // Barra animada que se desplaza dentro del progress bar
+                // Barra animada
                 RoundedRectangle(cornerRadius: 4)
                     .fill(
                         LinearGradient(
@@ -63,7 +68,6 @@ struct LoadingBar: View {
                         )
                     )
                     .frame(width: barWidth, height: 8)
-                    // Desplazamos desde 0 hasta (ancho total - ancho de la línea)
                     .offset(x: animate ? width - barWidth : 0)
                     .animation(
                         Animation.linear(duration: 1.5)

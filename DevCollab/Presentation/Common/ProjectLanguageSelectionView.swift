@@ -17,11 +17,14 @@ struct ProjectLanguageSelectionView: View {
                 Spacer()
                 Image(systemName: "chevron.right")
                     .foregroundColor(.gray)
+                    .accessibilityHidden(true) // icono decorativo
             }
             .padding(8)
             .background(Color(UIColor.secondarySystemBackground))
             .cornerRadius(8)
         }
+        .accessibilityLabel("Seleccionar lenguajes")
+        .accessibilityHint("Abre la lista para elegir lenguajes de programación")
         .sheet(isPresented: $showLanguageSheet) {
             NavigationView {
                 List {
@@ -46,6 +49,8 @@ struct ProjectLanguageSelectionView: View {
                         Button("Hecho") {
                             showLanguageSheet = false
                         }
+                        .accessibilityLabel("Hecho")
+                        .accessibilityHint("Cierra la lista de lenguajes")
                     }
                 }
             }
@@ -72,5 +77,8 @@ struct ProjectMultipleSelectionRow: View {
             }
             .padding(.vertical, 8)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(lenguaje.rawValue)
+        .accessibilityHint(isSelected ? "Seleccionado. Pulsa para deseleccionar" : "No seleccionado. Pulsa para seleccionar")
     }
 }

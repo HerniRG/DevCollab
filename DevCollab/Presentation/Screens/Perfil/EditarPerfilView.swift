@@ -24,7 +24,6 @@ struct EditarPerfilView: View {
     }
     
     var body: some View {
-        // MARK: - Estructura principal sin NavigationView de raíz
         Form {
             // MARK: - Sección: Editar Perfil
             Section {
@@ -38,12 +37,16 @@ struct EditarPerfilView: View {
                         nombre = String(newValue.prefix(maxNombreLength))
                     }
                 }
+                // Accesibilidad
+                .accessibilityLabel("Nombre del perfil")
+                .accessibilityHint("Introduce tu nombre, máximo de \(maxNombreLength) caracteres.")
                 
                 // Campo: Descripción con contador
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Descripción (máx. \(maxDescripcionLength) caracteres)")
                         .font(.caption)
                         .foregroundColor(.gray)
+                        .accessibilityHidden(true) // Texto meramente informativo (puedes exponerlo si lo prefieres)
                     
                     ZStack(alignment: .topLeading) {
                         TextEditor(text: $descripcion)
@@ -56,13 +59,18 @@ struct EditarPerfilView: View {
                                     oldDescripcion = descripcion
                                 }
                             }
+                            // Accesibilidad
+                            .accessibilityLabel("Descripción del perfil")
+                            .accessibilityHint("Cuéntanos un poco sobre ti, máximo \(maxDescripcionLength) caracteres")
                         
+                        // Placeholder accesible: se oculta con .accessibilityHidden(true)
                         if descripcion.isEmpty {
                             Text("Ej. Mobile Developer, Backend, Diseño UX/UI...")
                                 .foregroundColor(.gray)
                                 .padding(.top, 8)
                                 .padding(.leading, 4)
                                 .allowsHitTesting(false)
+                                .accessibilityHidden(true)
                         }
                     }
                     
@@ -74,15 +82,22 @@ struct EditarPerfilView: View {
                             .foregroundColor(
                                 descripcion.count >= maxDescripcionLength ? .red : .gray
                             )
+                            .accessibilityLabel(
+                                "Caracteres usados: \(descripcion.count) de \(maxDescripcionLength)"
+                            )
                     }
                 }
                 
                 // Selector de lenguajes (subvista con fullScreenCover)
                 LanguageSelectionWithReturnView(seleccionLenguajes: $lenguajesSeleccionados)
+                    .accessibilityLabel("Lenguajes de programación")
+                    .accessibilityHint("Selecciona los lenguajes en los que sueles trabajar")
+                
             } header: {
                 Text("Editar Perfil")
                     .font(.headline)
                     .foregroundColor(.primary)
+                    .accessibilityAddTraits(.isHeader)
             }
             
             // MARK: - Sección: Botón Guardar
@@ -94,17 +109,18 @@ struct EditarPerfilView: View {
                         lenguajes: lenguajesSeleccionados
                     )
                     
-                    // Opcional: puedes cerrar la vista tras guardar,
-                    // si así lo deseas:
+                    // Opcional: cerrar la vista tras guardar:
                     // presentationMode.wrappedValue.dismiss()
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
                 .foregroundColor(.white)
+                // Accesibilidad del botón
+                .accessibilityLabel("Guardar Cambios")
+                .accessibilityHint("Actualiza tu perfil con los datos ingresados")
             }
             .listRowBackground(Color.blue)
         }
         .listStyle(InsetGroupedListStyle())
-        // Ajusta la visualización del título si lo deseas:
         .navigationBarTitleDisplayMode(.inline)
         // Si quisieras un botón "Cerrar" arriba a la izquierda,
         // podrías añadir un .toolbar{} con un ToolbarItem (como en otras vistas).
@@ -130,11 +146,14 @@ struct LanguageSelectionWithReturnView: View {
                 Spacer()
                 Image(systemName: "chevron.right")
                     .foregroundColor(.gray)
+                    .accessibilityHidden(true) // es un icono decorativo
             }
             .padding(8)
             .background(Color(UIColor.secondarySystemBackground))
             .cornerRadius(8)
         }
+        .accessibilityLabel("Seleccionar lenguajes")
+        .accessibilityHint("Abre la lista de lenguajes de programación disponibles")
         // Usamos fullScreenCover para el selector de lenguajes
         .fullScreenCover(isPresented: $showLanguageModal) {
             NavigationView {
@@ -151,6 +170,12 @@ struct LanguageSelectionWithReturnView: View {
                                 }
                             }
                         )
+                        .accessibilityLabel("\(lenguaje.rawValue)")
+                        .accessibilityHint(
+                            seleccionLenguajes.contains(lenguaje)
+                            ? "Actualmente seleccionado. Activa para deseleccionar"
+                            : "No seleccionado. Activa para seleccionar"
+                        )
                     }
                 }
                 .navigationTitle("Lenguajes de Programación")
@@ -160,11 +185,12 @@ struct LanguageSelectionWithReturnView: View {
                         Button("Hecho") {
                             showLanguageModal = false
                         }
+                        .accessibilityLabel("Hecho")
+                        .accessibilityHint("Cierra la lista de lenguajes")
                     }
                 }
             }
             // Deshabilita el dismiss interactivo si no se ha pulsado "Hecho"
-            // (depende de tus preferencias):
             .interactiveDismissDisabled(true)
         }
     }

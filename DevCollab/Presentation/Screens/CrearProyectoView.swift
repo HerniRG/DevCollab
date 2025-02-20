@@ -46,6 +46,8 @@ struct CrearProyectoView: View {
                                 nombre = String(newValue.prefix(maxNombreLength))
                             }
                         }
+                        .accessibilityLabel("Nombre del proyecto")
+                        .accessibilityHint("Introduce el nombre del proyecto, máximo \(maxNombreLength) caracteres")
                         .id(Field.nombre)
                         
                         // Campo: Descripción (TextEditor con placeholder)
@@ -61,14 +63,18 @@ struct CrearProyectoView: View {
                                 }
                                 .background(Color(UIColor.secondarySystemBackground))
                                 .cornerRadius(8)
+                                .accessibilityLabel("Descripción del proyecto")
+                                .accessibilityHint("Máximo \(maxDescripcionLength) caracteres. Explica de qué trata el proyecto.")
                                 .id(Field.descripcion)
                             
+                            // Placeholder accesible
                             if descripcion.isEmpty {
                                 Text("Descripción")
                                     .foregroundColor(Color(UIColor.placeholderText))
                                     .padding(.top, 8)
                                     .padding(.leading, 4)
                                     .allowsHitTesting(false)
+                                    .accessibilityHidden(true) // VoiceOver no debe leerlo como texto real
                             }
                         }
                         .padding(.vertical, 8)
@@ -77,6 +83,7 @@ struct CrearProyectoView: View {
                         Text("Información principal")
                             .font(.headline)
                             .foregroundColor(.primary)
+                            .accessibilityAddTraits(.isHeader)
                     }
                     
                     // MARK: - Sección: Detalles del proyecto
@@ -84,6 +91,8 @@ struct CrearProyectoView: View {
                         // Vista de selección de lenguajes
                         ProjectLanguageSelectionView(seleccionLenguajes: $lenguajesSeleccionados)
                             .id("lenguajes")
+                            .accessibilityLabel("Lenguajes de programación")
+                            .accessibilityHint("Selecciona los lenguajes necesarios para este proyecto")
                         
                         // Campo: Horas semanales
                         TextField("Horas semanales", text: $horasSemanales)
@@ -95,6 +104,11 @@ struct CrearProyectoView: View {
                             .onSubmit {
                                 focusedField = .colaboracion
                             }
+                            .onChange(of: horasSemanales) { newValue in
+                                // Podrías aplicar validaciones extra en accesibilidad
+                            }
+                            .accessibilityLabel("Horas semanales")
+                            .accessibilityHint("Número aproximado de horas que invertirás en el proyecto cada semana")
                             .id(Field.horas)
                         
                         // Campo: Tipo de colaboración
@@ -111,12 +125,15 @@ struct CrearProyectoView: View {
                                 tipoColaboracion = String(newValue.prefix(maxTipoColaboracionLength))
                             }
                         }
+                        .accessibilityLabel("Tipo de colaboración")
+                        .accessibilityHint("Ejemplo: remoto, presencial, híbrido, etc.")
                         .id(Field.colaboracion)
                         
                     } header: {
                         Text("Detalles del proyecto")
                             .font(.headline)
                             .foregroundColor(.primary)
+                            .accessibilityAddTraits(.isHeader)
                     }
                     
                     // MARK: - Sección: Botón de crear proyecto
@@ -128,6 +145,8 @@ struct CrearProyectoView: View {
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .foregroundColor(.white)
                         }
+                        .accessibilityLabel("Crear Proyecto")
+                        .accessibilityHint("Guarda el proyecto y cierra la ventana")
                         .listRowBackground(Color.blue)
                     }
                     
@@ -140,10 +159,12 @@ struct CrearProyectoView: View {
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .foregroundColor(.white)
                         }
+                        .accessibilityLabel("Cerrar pantalla de creación")
+                        .accessibilityHint("Cancela la creación de proyecto y vuelve atrás")
                         .listRowBackground(Color.gray)
                     }
                 }
-                .listStyle(InsetGroupedListStyle()) // Estilo similar a la vista de exploración
+                .listStyle(InsetGroupedListStyle())
                 .onChange(of: focusedField) { field in
                     // Desplaza la vista para enfocar el campo si es necesario
                     withAnimation {
@@ -201,20 +222,28 @@ private struct InformacionPrincipalSection: View {
     }
     
     var body: some View {
+        // Etiquetamos la sección para VoiceOver
         Section("Información principal") {
+            // Campo: Nombre del proyecto
             TextField(nombrePlaceholder, text: $nombre)
                 .autocorrectionDisabled(true)
                 .textInputAutocapitalization(.never)
                 .focused($focusedField, equals: .nombre)
                 .submitLabel(.next)
-                .onSubmit { focusedField = .descripcion }
+                .onSubmit {
+                    focusedField = .descripcion
+                }
                 .onChange(of: nombre) { newValue in
                     if newValue.count > maxNombreLength {
                         nombre = String(newValue.prefix(maxNombreLength))
                     }
                 }
                 .id(CrearProyectoView.Field.nombre)
+                // Accesibilidad
+                .accessibilityLabel("Nombre del proyecto")
+                .accessibilityHint("Introduce el nombre, máximo \(maxNombreLength) caracteres")
             
+            // Campo: Descripción con placeholder
             ZStack(alignment: .topLeading) {
                 TextEditor(text: $descripcion)
                     .frame(minHeight: 100, maxHeight: 200)
@@ -228,16 +257,24 @@ private struct InformacionPrincipalSection: View {
                     .background(Color(UIColor.secondarySystemBackground))
                     .cornerRadius(8)
                     .id(CrearProyectoView.Field.descripcion)
+                    // Accesibilidad
+                    .accessibilityLabel("Descripción del proyecto")
+                    .accessibilityHint("Explica de qué trata el proyecto, máximo \(maxDescripcionLength) caracteres")
+                
+                // Placeholder decorativo
                 if descripcion.isEmpty {
                     Text(descripcionPlaceholder)
                         .foregroundColor(Color(UIColor.placeholderText))
                         .padding(.top, 8)
                         .padding(.leading, 4)
                         .allowsHitTesting(false)
+                        .accessibilityHidden(true) // No lo anunciamos en VoiceOver
                 }
             }
             .padding(.vertical, 8)
         }
+        // Marca a VoiceOver que este 'Text("Información principal")' es cabecera
+        .accessibilityAddTraits(.isHeader)
     }
 }
 
@@ -255,16 +292,28 @@ private struct DetallesProyectoSection: View {
     
     var body: some View {
         Section("Detalles del proyecto") {
+            // Vista de selección de lenguajes
             ProjectLanguageSelectionView(seleccionLenguajes: $lenguajesSeleccionados)
                 .id("lenguajes")
+                .accessibilityLabel("Lenguajes de programación")
+                .accessibilityHint("Selecciona los lenguajes necesarios para este proyecto")
+            
+            // Campo: Horas semanales
             TextField("Horas semanales", text: $horasSemanales)
                 .keyboardType(.numberPad)
                 .autocorrectionDisabled(true)
                 .textInputAutocapitalization(.never)
                 .focused($focusedField, equals: .horas)
                 .submitLabel(.next)
-                .onSubmit { focusedField = .colaboracion }
+                .onSubmit {
+                    focusedField = .colaboracion
+                }
                 .id(CrearProyectoView.Field.horas)
+                // Accesibilidad
+                .accessibilityLabel("Horas semanales")
+                .accessibilityHint("Cuántas horas piensas dedicar al proyecto cada semana")
+            
+            // Campo: Tipo de colaboración
             TextField(colaboracionPlaceholder, text: $tipoColaboracion)
                 .autocorrectionDisabled(true)
                 .textInputAutocapitalization(.never)
@@ -276,7 +325,11 @@ private struct DetallesProyectoSection: View {
                     }
                 }
                 .id(CrearProyectoView.Field.colaboracion)
+                // Accesibilidad
+                .accessibilityLabel("Tipo de colaboración")
+                .accessibilityHint("Por ejemplo remoto, presencial, híbrido...")
         }
+        .accessibilityAddTraits(.isHeader)
     }
 }
 
@@ -304,18 +357,19 @@ private struct CrearProyectoButtonSection: View {
                     lenguajes: lenguajesSeleccionados,
                     horasSemanales: horasSemanales,
                     tipoColaboracion: tipoColaboracion,
-                    creadorID: userID,
-                    completion: { success in
-                        if success {
-                            onSuccess()
-                        }
+                    creadorID: userID
+                ) { success in
+                    if success {
+                        onSuccess()
                     }
-                )
+                }
             }) {
                 Text("Crear Proyecto")
                     .frame(maxWidth: .infinity, alignment: .center)
                     .foregroundColor(.white)
             }
+            .accessibilityLabel("Crear Proyecto")
+            .accessibilityHint("Guarda el proyecto con la información proporcionada")
             .listRowBackground(Color.blue)
         }
     }

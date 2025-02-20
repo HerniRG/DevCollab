@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseAuth
 
 struct PerfilView: View {
     @ObservedObject var viewModel: PerfilViewModel
@@ -16,12 +17,15 @@ struct PerfilView: View {
                                 Text(usuario.nombre)
                                     .font(.largeTitle)
                                     .fontWeight(.bold)
+                                    .accessibilityLabel("Nombre de usuario: \(usuario.nombre)")
+                                    .accessibilityHint("Este es tu nombre de perfil")
                                 
-                                // Descripción del usuario
+                                // Descripción del usuario (si existe)
                                 if let descripcion = usuario.descripcion {
                                     Text(descripcion)
                                         .font(.subheadline)
                                         .foregroundColor(.secondary)
+                                        .accessibilityLabel("Descripción: \(descripcion)")
                                 }
                                 
                                 // Lenguajes del usuario
@@ -29,6 +33,9 @@ struct PerfilView: View {
                                     Text("Lenguajes: \(usuario.lenguajes.map { $0.rawValue }.joined(separator: ", "))")
                                         .font(.subheadline)
                                         .foregroundColor(.secondary)
+                                        .accessibilityLabel(
+                                            "Lenguajes: \(usuario.lenguajes.map { $0.rawValue }.joined(separator: ", "))"
+                                        )
                                 }
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -42,11 +49,14 @@ struct PerfilView: View {
                                     .font(.system(size: 20, weight: .semibold))
                                     .padding(8)
                             }
+                            .accessibilityLabel("Editar perfil")
+                            .accessibilityHint("Abre la pantalla de edición de tu perfil")
                         }
                     } header: {
                         Text("Perfil")
                             .font(.headline)
                             .foregroundColor(.primary)
+                            .accessibilityAddTraits(.isHeader)
                     }
                     
                     // MARK: - Sección: Mis proyectos creados
@@ -58,9 +68,12 @@ struct PerfilView: View {
                                     Image(systemName: "doc.badge.plus")
                                         .font(.largeTitle)
                                         .foregroundColor(.gray)
+                                        .accessibilityHidden(true)
+                                    
                                     Text("No tienes proyectos creados.")
                                         .foregroundColor(.gray)
                                         .multilineTextAlignment(.center)
+                                        .accessibilityLabel("No tienes proyectos creados")
                                 }
                                 Spacer()
                             }
@@ -75,6 +88,7 @@ struct PerfilView: View {
                                             viewModel.deleteProject(proyecto: proyecto)
                                         }
                                     )
+                                    .accessibilityHint("Proyecto cerrado, puedes borrarlo con un deslizamiento o pulsando el botón eliminar")
                                 } else {
                                     ProyectoRowView(proyecto: proyecto)
                                 }
@@ -84,6 +98,7 @@ struct PerfilView: View {
                         Text("Mis proyectos creados")
                             .font(.headline)
                             .foregroundColor(.primary)
+                            .accessibilityAddTraits(.isHeader)
                     }
                     
                     // MARK: - Sección: Proyectos en los que participas
@@ -95,9 +110,12 @@ struct PerfilView: View {
                                     Image(systemName: "person.2.circle")
                                         .font(.largeTitle)
                                         .foregroundColor(.gray)
+                                        .accessibilityHidden(true)
+                                    
                                     Text("No participas en ningún proyecto.")
                                         .foregroundColor(.gray)
                                         .multilineTextAlignment(.center)
+                                        .accessibilityLabel("No participas en ningún proyecto")
                                 }
                                 Spacer()
                             }
@@ -111,6 +129,7 @@ struct PerfilView: View {
                         Text("Proyectos en los que participas")
                             .font(.headline)
                             .foregroundColor(.primary)
+                            .accessibilityAddTraits(.isHeader)
                     }
                     
                     // MARK: - Sección: Cerrar sesión
@@ -124,11 +143,12 @@ struct PerfilView: View {
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .foregroundColor(.white)
                         }
+                        .accessibilityLabel("Cerrar sesión")
+                        .accessibilityHint("Se cerrará tu sesión en la aplicación")
                         .listRowBackground(Color.red)
                     }
                 }
                 .listStyle(InsetGroupedListStyle())
-                
                 // Navegación a EditarPerfilView
                 .background(
                     NavigationLink(
@@ -139,11 +159,10 @@ struct PerfilView: View {
                     }
                     .hidden()
                 )
-                // Recargamos el perfil si fuera necesario:
+                // Actualiza el perfil al aparecer
                 .onAppear {
                     viewModel.fetchUserProfile()
                 }
-                
             } else {
                 // MARK: - Estado de carga
                 VStack {
@@ -151,6 +170,8 @@ struct PerfilView: View {
                     ProgressView("Cargando perfil...")
                     Spacer()
                 }
+                .accessibilityElement()
+                .accessibilityLabel("Cargando el perfil del usuario")
                 .onAppear {
                     viewModel.fetchUserProfile()
                 }

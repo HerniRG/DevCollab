@@ -21,6 +21,8 @@ struct RegisterView: View {
     
     var body: some View {
         VStack(spacing: 16) {
+            
+            // MARK: - Campo de Correo
             CustomTextField(
                 placeholder: "Correo electrónico",
                 text: $email,
@@ -33,8 +35,11 @@ struct RegisterView: View {
             .onSubmit {
                 focusedField = .password
             }
+            // Accesibilidad
             .accessibilityLabel("Correo electrónico")
+            .accessibilityHint("Introduce tu correo para registrarte")
             
+            // MARK: - Campo de Contraseña (con visor)
             CustomSecureField(
                 placeholder: "Contraseña",
                 text: $password,
@@ -46,7 +51,9 @@ struct RegisterView: View {
                 focusedField = .nombre
             }
             .accessibilityLabel("Contraseña")
+            .accessibilityHint("Introduce tu contraseña de registro")
             
+            // MARK: - Campo de Nombre
             CustomTextField(
                 placeholder: "Nombre",
                 text: $nombre
@@ -59,8 +66,9 @@ struct RegisterView: View {
                 focusedField = .descripcion
             }
             .accessibilityLabel("Nombre")
+            .accessibilityHint("Introduce tu nombre o alias en la plataforma")
             
-            // Campo de descripción con contador de caracteres
+            // MARK: - Campo de Descripción con contador de caracteres
             VStack(alignment: .trailing, spacing: 4) {
                 CustomTextField(
                     placeholder: "Descripción (ej. Mobile Developer, Backend, Diseño UX/UI)",
@@ -70,20 +78,25 @@ struct RegisterView: View {
                 .textInputAutocapitalization(.never)
                 .focused($focusedField, equals: .descripcion)
                 .submitLabel(.done)
-                .onSubmit { focusedField = nil }
+                .onSubmit {
+                    focusedField = nil
+                }
                 .onChange(of: descripcion) { newValue in
                     if newValue.count > maxDescriptionLength {
                         descripcion = String(newValue.prefix(maxDescriptionLength))
                     }
                 }
+                // Accesibilidad
                 .accessibilityLabel("Descripción")
+                .accessibilityHint("Máximo \(maxDescriptionLength) caracteres. Describe brevemente tu experiencia o rol.")
                 
                 Text("\(descripcion.count)/\(maxDescriptionLength)")
                     .font(.caption)
                     .foregroundColor(descripcion.count >= maxDescriptionLength ? .red : .gray)
+                    .accessibilityLabel("Caracteres usados: \(descripcion.count) de \(maxDescriptionLength)")
             }
             
-            // Vista para la selección de lenguajes
+            // MARK: - Vista de selección de lenguajes
             LanguageSelectionView(seleccionLenguajes: $seleccionLenguajes)
         }
         .padding(.horizontal, 30)
@@ -104,15 +117,18 @@ struct LanguageSelectionView: View {
                      ? "Seleccionar lenguajes"
                      : seleccionLenguajes.map { $0.rawValue }.joined(separator: ", "))
                 .foregroundColor(seleccionLenguajes.isEmpty ? .gray : .primary)
+                
                 Spacer()
                 Image(systemName: "chevron.right")
                     .foregroundColor(.gray)
+                    .accessibilityHidden(true) // Icono decorativo
             }
             .padding()
             .background(Color(UIColor.secondarySystemBackground))
             .cornerRadius(8)
         }
         .accessibilityLabel("Seleccionar lenguajes")
+        .accessibilityHint("Abre la lista para elegir lenguajes de programación")
         .sheet(isPresented: $showLanguageSheet) {
             NavigationView {
                 List {
@@ -137,6 +153,8 @@ struct LanguageSelectionView: View {
                         Button("Hecho") {
                             showLanguageSheet = false
                         }
+                        .accessibilityLabel("Hecho")
+                        .accessibilityHint("Cierra la lista de lenguajes seleccionados")
                     }
                 }
             }
@@ -165,6 +183,10 @@ struct MultipleSelectionRow: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(lenguaje.rawValue)
-        .accessibilityHint(isSelected ? "Seleccionado" : "No seleccionado")
+        .accessibilityHint(
+            isSelected
+            ? "Actualmente seleccionado. Pulsa para deseleccionar"
+            : "No seleccionado. Pulsa para seleccionar"
+        )
     }
 }

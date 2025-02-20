@@ -21,7 +21,7 @@ struct DetalleProyectoCreadorView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            // MARK: - Cargando datos
+            // MARK: - Estado de carga
             if viewModel.isLoading {
                 VStack {
                     Spacer()
@@ -30,6 +30,9 @@ struct DetalleProyectoCreadorView: View {
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                // Accesibilidad para el estado de carga
+                .accessibilityElement()
+                .accessibilityLabel("Cargando información del proyecto")
             }
             // MARK: - Contenido principal
             else {
@@ -40,6 +43,7 @@ struct DetalleProyectoCreadorView: View {
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             .frame(maxWidth: .infinity, alignment: .center)
+                            .accessibilityLabel("Nombre del proyecto: \(proyecto.nombre)")
                     }
                     
                     // MARK: - Sección: Información del proyecto
@@ -57,6 +61,7 @@ struct DetalleProyectoCreadorView: View {
                                 Text("Estado:").fontWeight(.semibold)
                                 Text(viewModel.estadoProyecto)
                                     .foregroundColor(viewModel.estadoProyecto == "Abierto" ? .green : .red)
+                                    .accessibilityLabel("Estado del proyecto: \(viewModel.estadoProyecto)")
                             }
                         }
                         .padding(.vertical, 4)
@@ -64,6 +69,7 @@ struct DetalleProyectoCreadorView: View {
                         Text("Información del Proyecto")
                             .font(.headline)
                             .foregroundColor(.primary)
+                            .accessibilityAddTraits(.isHeader)
                     }
                     
                     // MARK: - Sección: Botón para abrir/cerrar proyecto
@@ -73,13 +79,19 @@ struct DetalleProyectoCreadorView: View {
                                 await viewModel.alternarEstadoProyecto(proyectoID: proyecto.id)
                             }
                         }) {
-                            Text(viewModel.estadoProyecto == "Abierto" ? "Cerrar Proyecto" : "Reabrir Proyecto")
+                            Text(viewModel.estadoProyecto == "Abierto"
+                                 ? "Cerrar Proyecto"
+                                 : "Reabrir Proyecto")
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .foregroundColor(.white)
                         }
                         .listRowBackground(
                             viewModel.estadoProyecto == "Abierto" ? Color.red : Color.green
                         )
+                        .accessibilityLabel(viewModel.estadoProyecto == "Abierto"
+                                            ? "Cerrar proyecto"
+                                            : "Reabrir proyecto")
+                        .accessibilityHint("Cambia el estado del proyecto")
                     }
                     
                     // MARK: - Sección: Solicitudes pendientes
@@ -91,9 +103,11 @@ struct DetalleProyectoCreadorView: View {
                                     Image(systemName: "envelope.badge")
                                         .font(.largeTitle)
                                         .foregroundColor(.gray)
+                                        .accessibilityHidden(true)
                                     Text("No hay solicitudes pendientes.")
                                         .foregroundColor(.gray)
                                         .multilineTextAlignment(.center)
+                                        .accessibilityLabel("No hay solicitudes pendientes")
                                 }
                                 Spacer()
                             }
@@ -124,15 +138,19 @@ struct DetalleProyectoCreadorView: View {
                                         Spacer()
                                         Image(systemName: "chevron.right")
                                             .foregroundColor(.secondary)
+                                            .accessibilityHidden(true)
                                     }
                                     .padding(.vertical, 4)
                                 }
+                                .accessibilityLabel("Solicitud de participación")
+                                .accessibilityHint("Ver detalles de la solicitud")
                             }
                         }
                     } header: {
                         Text("Solicitudes de Participación")
                             .font(.headline)
                             .foregroundColor(.primary)
+                            .accessibilityAddTraits(.isHeader)
                     }
                     
                     // MARK: - Sección: Participantes
@@ -144,9 +162,11 @@ struct DetalleProyectoCreadorView: View {
                                     Image(systemName: "person.3")
                                         .font(.largeTitle)
                                         .foregroundColor(.gray)
+                                        .accessibilityHidden(true)
                                     Text("No hay participantes aprobados.")
                                         .foregroundColor(.gray)
                                         .multilineTextAlignment(.center)
+                                        .accessibilityLabel("No hay participantes aprobados")
                                 }
                                 Spacer()
                             }
@@ -161,12 +181,16 @@ struct DetalleProyectoCreadorView: View {
                                             .foregroundColor(.secondary)
                                     }
                                 }
+                                .accessibilityLabel(
+                                    "Participante: \(participante.nombre). Lenguajes: \(participante.lenguajes.map { $0.rawValue }.joined(separator: ", "))"
+                                )
                             }
                         }
                     } header: {
                         Text("Participantes")
                             .font(.headline)
                             .foregroundColor(.primary)
+                            .accessibilityAddTraits(.isHeader)
                     }
                     
                     // MARK: - Sección: Eliminar proyecto si está cerrado
@@ -180,6 +204,8 @@ struct DetalleProyectoCreadorView: View {
                                     .foregroundColor(.white)
                             }
                             .listRowBackground(Color.red)
+                            .accessibilityLabel("Eliminar proyecto")
+                            .accessibilityHint("Borra permanentemente este proyecto")
                         }
                     }
                     
@@ -189,6 +215,7 @@ struct DetalleProyectoCreadorView: View {
                             Text(error)
                                 .foregroundColor(.red)
                                 .frame(maxWidth: .infinity, alignment: .center)
+                                .accessibilityLabel("Error: \(error)")
                         }
                     }
                 }
@@ -196,13 +223,13 @@ struct DetalleProyectoCreadorView: View {
                 .listSectionSpacing(20)
             }
         }
-        // MARK: - Tareas async
+        // Carga asíncrona y actualización
         .task {
             await viewModel.obtenerDatosAdicionales(proyectoID: proyecto.id)
             await viewModel.fetchParticipantes(proyectoID: proyecto.id)
             await viewModel.fetchSolicitudesPorProyecto(proyectoID: proyecto.id)
         }
-        // MARK: - Modal para ver/gestionar solicitud
+        // Modal para ver/gestionar solicitud
         .fullScreenCover(isPresented: $showSolicitudDetail) {
             SolicitudDetailModalContainerView(
                 selectedSolicitud: $selectedSolicitud,
@@ -211,10 +238,7 @@ struct DetalleProyectoCreadorView: View {
                 Task {
                     if let solicitud = selectedSolicitud {
                         let nuevoEstado = decision ? "Aceptada" : "Rechazada"
-                        await viewModel.actualizarEstadoSolicitud(
-                            solicitudID: solicitud.id,
-                            estado: nuevoEstado
-                        )
+                        await viewModel.actualizarEstadoSolicitud(solicitudID: solicitud.id, estado: nuevoEstado)
                         if decision {
                             await viewModel.agregarParticipante(solicitud: solicitud)
                         }
@@ -224,7 +248,7 @@ struct DetalleProyectoCreadorView: View {
                 }
             }
         }
-        // MARK: - Alerta de confirmación de eliminación
+        // Alerta de confirmación de eliminación
         .alert("Confirmar eliminación", isPresented: $showingDeleteConfirmation) {
             Button("Eliminar", role: .destructive) {
                 Task {
@@ -244,9 +268,12 @@ struct DetalleProyectoCreadorView: View {
 // MARK: - Helper para mostrar un label con un título en negrita y el contenido
 private func infoLabel(_ title: String, _ content: String) -> some View {
     VStack(alignment: .leading, spacing: 2) {
-        Text(title).fontWeight(.semibold)
+        Text(title)
+            .fontWeight(.semibold)
         Text(content)
             .fixedSize(horizontal: false, vertical: true)
+            // Accesibilidad: Unifica el contenido para VoiceOver
+            .accessibilityLabel("\(title) \(content)")
     }
 }
 
@@ -265,6 +292,8 @@ struct SolicitudDetailModalContainerView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(UIColor.systemBackground))
+            .accessibilityElement()
+            .accessibilityLabel("Cargando detalles de la solicitud")
         }
     }
 }

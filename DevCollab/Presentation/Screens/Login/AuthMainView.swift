@@ -18,7 +18,7 @@ struct AuthMainView: View {
             VStack(spacing: 20) {
                 Spacer()
                 
-                // Cabecera común
+                // Cabecera común con etiquetado de accesibilidad
                 AuthHeaderView(isRegistering: viewModel.isRegistering)
                 
                 // Contenido: Registro o Login según el estado
@@ -33,6 +33,8 @@ struct AuthMainView: View {
                         showSuccessResetAlert: $showSuccessResetAlert,
                         viewModel: viewModel
                     )
+                    .accessibilityLabel("Formulario de registro")
+                    .accessibilityHint("Introduce tus datos para crear una cuenta")
                 } else {
                     LoginFormView(
                         email: $email,
@@ -41,6 +43,8 @@ struct AuthMainView: View {
                         showSuccessResetAlert: $showSuccessResetAlert,
                         viewModel: viewModel
                     )
+                    .accessibilityLabel("Formulario de inicio de sesión")
+                    .accessibilityHint("Introduce tus credenciales para acceder a la aplicación")
                 }
                 
                 // Botón de acción: Login o Registrar
@@ -68,7 +72,10 @@ struct AuthMainView: View {
                         .cornerRadius(10)
                         .padding(.horizontal, 30)
                 }
-                .accessibilityLabel(viewModel.isRegistering ? "Registrar" : "Iniciar Sesión")
+                .accessibilityLabel(viewModel.isRegistering ? "Botón registrar" : "Botón iniciar sesión")
+                .accessibilityHint(viewModel.isRegistering
+                                   ? "Crea tu cuenta con los datos proporcionados"
+                                   : "Inicia sesión con el email y la contraseña introducidos")
                 
                 // Botón para cambiar entre Login y Registro
                 Button(action: {
@@ -80,7 +87,16 @@ struct AuthMainView: View {
                         .font(.footnote)
                         .foregroundColor(.blue)
                 }
-                .accessibilityLabel(viewModel.isRegistering ? "Ir a iniciar sesión" : "Ir a registrarse")
+                .accessibilityLabel(
+                    viewModel.isRegistering
+                    ? "Cambiar a iniciar sesión"
+                    : "Cambiar a registro de cuenta"
+                )
+                .accessibilityHint(
+                    viewModel.isRegistering
+                    ? "Te lleva al formulario para iniciar sesión"
+                    : "Te lleva al formulario para crear una cuenta nueva"
+                )
                 
                 Spacer()
             }
@@ -97,6 +113,8 @@ struct AuthMainView: View {
                     ToastView(message: toast)
                         .transition(.move(edge: .top).combined(with: .opacity))
                         .padding(.top, 20)
+                        .accessibilityElement()
+                        .accessibilityLabel("Mensaje: \(toast)")
                 }
             },
             alignment: .top
@@ -107,18 +125,25 @@ struct AuthMainView: View {
 // MARK: - Cabecera Común
 struct AuthHeaderView: View {
     let isRegistering: Bool
+    
     var body: some View {
         VStack(spacing: 5) {
             Text("DevCollab")
                 .font(.system(size: 36, weight: .bold))
                 .foregroundColor(.blue)
+                // VoiceOver: nombre de la app
+                .accessibilityLabel("DevCollab")
                 .accessibilityAddTraits(.isHeader)
+            
             Text(isRegistering ? "Crea tu cuenta" : "Inicia sesión")
                 .font(.title2)
                 .foregroundColor(.gray)
                 .padding(.bottom, 10)
+                // VoiceOver: subtítulo
                 .accessibilityLabel(isRegistering ? "Crea tu cuenta" : "Inicia sesión")
         }
+        // Esto actúa como un bloque de encabezado
+        .accessibilityElement(children: .combine)
     }
 }
 

@@ -15,6 +15,7 @@ struct LoginFormView: View {
     
     var body: some View {
         VStack(spacing: 16) {
+            // Campo de Correo electrónico
             CustomTextField(
                 placeholder: "Correo electrónico",
                 text: $email,
@@ -28,7 +29,9 @@ struct LoginFormView: View {
                 focusedField = .password
             }
             .accessibilityLabel("Correo electrónico")
+            .accessibilityHint("Introduce tu correo para iniciar sesión")
             
+            // Campo de Contraseña (con opción de ver u ocultar)
             CustomSecureField(
                 placeholder: "Contraseña",
                 text: $password,
@@ -41,15 +44,16 @@ struct LoginFormView: View {
                 focusedField = nil
             }
             .accessibilityLabel("Contraseña")
+            .accessibilityHint("Introduce tu contraseña de acceso")
             
-            // Botón para resetear contraseña
+            // Botón para resetear la contraseña
             Button(action: {
                 Task {
                     do {
                         try await viewModel.resetPassword(email: email)
                         showSuccessResetAlert = true
                     } catch {
-                        // En esta versión, el ViewModel se encarga de mostrar el Toast de error
+                        // El ViewModel se encarga de mostrar el Toast de error
                     }
                 }
             }) {
@@ -59,7 +63,8 @@ struct LoginFormView: View {
                     .padding(.top, -5)
             }
             .disabled(!email.isValidEmail)
-            .accessibilityLabel("Restablecer contraseña")
+            .accessibilityLabel("Olvidé mi contraseña")
+            .accessibilityHint("Envía un correo de restablecimiento si el email es válido")
         }
         .padding(.horizontal, 30)
     }

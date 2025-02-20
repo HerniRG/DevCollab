@@ -14,5 +14,9 @@ struct CustomTextField: View {
             .cornerRadius(8)
             .keyboardType(keyboardType)
             .autocapitalization(.none)
+            // Accesibilidad:
+            .accessibilityLabel(placeholder)
+            .accessibilityValue(text)
+            .accessibilityHint("Ingrese su \(placeholder.lowercased())")
     }
 }

@@ -25,6 +25,8 @@ struct DetalleProyectoParticipanteView: View {
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityElement()
+                .accessibilityLabel("Cargando información del proyecto")
             }
             // MARK: - Contenido principal
             else {
@@ -35,6 +37,7 @@ struct DetalleProyectoParticipanteView: View {
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             .frame(maxWidth: .infinity, alignment: .center)
+                            .accessibilityLabel("Nombre del proyecto: \(proyecto.nombre)")
                     }
                     
                     // MARK: - Sección: Información del Proyecto
@@ -48,10 +51,14 @@ struct DetalleProyectoParticipanteView: View {
                             infoLabel("Horas semanales:", "\(proyecto.horasSemanales)")
                             infoLabel("Tipo de colaboración:", proyecto.tipoColaboracion)
                             
+                            // Estado
                             HStack {
                                 Text("Estado:").fontWeight(.semibold)
                                 Text(viewModel.estadoProyecto)
-                                    .foregroundColor(viewModel.estadoProyecto == "Abierto" ? .green : .red)
+                                    .foregroundColor(
+                                        viewModel.estadoProyecto == "Abierto" ? .green : .red
+                                    )
+                                    .accessibilityLabel("Estado: \(viewModel.estadoProyecto)")
                             }
                         }
                         .padding(.vertical, 4)
@@ -59,21 +66,27 @@ struct DetalleProyectoParticipanteView: View {
                         Text("Información del Proyecto")
                             .font(.headline)
                             .foregroundColor(.primary)
+                            .accessibilityAddTraits(.isHeader)
                     }
                     
                     // MARK: - Sección: Información del Creador
                     Section {
                         VStack(alignment: .leading, spacing: 8) {
                             creadorRow(label: "Nombre:", value: viewModel.nombreCreador)
+                                .accessibilityLabel("Nombre del creador: \(viewModel.nombreCreador)")
                             
                             if !viewModel.descripcionCreador.isEmpty {
                                 creadorRow(label: "Descripción:", value: viewModel.descripcionCreador)
+                                    .accessibilityLabel("Descripción del creador: \(viewModel.descripcionCreador)")
                             }
                             
                             if !viewModel.lenguajesCreador.isEmpty {
                                 creadorRow(
                                     label: "Lenguajes:",
                                     value: viewModel.lenguajesCreador.joined(separator: ", ")
+                                )
+                                .accessibilityLabel(
+                                    "Lenguajes del creador: \(viewModel.lenguajesCreador.joined(separator: ", "))"
                                 )
                             }
                         }
@@ -82,6 +95,7 @@ struct DetalleProyectoParticipanteView: View {
                         Text("Información del Creador")
                             .font(.headline)
                             .foregroundColor(.primary)
+                            .accessibilityAddTraits(.isHeader)
                     }
                     
                     // MARK: - Sección: Acciones de Participación
@@ -96,6 +110,9 @@ struct DetalleProyectoParticipanteView: View {
                                     .foregroundColor(.white)
                             }
                             .listRowBackground(Color.blue)
+                            .accessibilityLabel("Solicitar participación")
+                            .accessibilityHint("Envía una solicitud al creador para participar en este proyecto")
+                            
                         } else {
                             // Si ya se solicitó
                             if viewModel.soyParticipante {
@@ -104,6 +121,7 @@ struct DetalleProyectoParticipanteView: View {
                                     Text("Solicitud Aprobada")
                                         .foregroundColor(.green)
                                         .frame(maxWidth: .infinity, alignment: .center)
+                                        .accessibilityLabel("Tu solicitud ha sido aprobada")
                                     
                                     Button(action: {
                                         showAbandonConfirmation = true
@@ -116,6 +134,8 @@ struct DetalleProyectoParticipanteView: View {
                                             .foregroundColor(.white)
                                             .cornerRadius(8)
                                     }
+                                    .accessibilityLabel("Abandonar proyecto")
+                                    .accessibilityHint("Dejas de participar en este proyecto")
                                 }
                             } else {
                                 // Solicitud rechazada o pendiente
@@ -123,10 +143,12 @@ struct DetalleProyectoParticipanteView: View {
                                     Text("Solicitud Rechazada")
                                         .foregroundColor(.red)
                                         .frame(maxWidth: .infinity, alignment: .center)
+                                        .accessibilityLabel("Tu solicitud ha sido rechazada")
                                 } else {
                                     Text("Solicitud Pendiente")
                                         .foregroundColor(.gray)
                                         .frame(maxWidth: .infinity, alignment: .center)
+                                        .accessibilityLabel("Tu solicitud está pendiente de respuesta")
                                 }
                             }
                         }
@@ -141,9 +163,11 @@ struct DetalleProyectoParticipanteView: View {
                                     Image(systemName: "person.3")
                                         .font(.largeTitle)
                                         .foregroundColor(.gray)
+                                        .accessibilityHidden(true)
                                     Text("No hay participantes aprobados.")
                                         .foregroundColor(.gray)
                                         .multilineTextAlignment(.center)
+                                        .accessibilityLabel("No hay participantes aprobados")
                                 }
                                 Spacer()
                             }
@@ -158,12 +182,16 @@ struct DetalleProyectoParticipanteView: View {
                                             .foregroundColor(.secondary)
                                     }
                                 }
+                                .accessibilityLabel(
+                                    "Participante: \(participante.nombre). Lenguajes: \(participante.lenguajes.map { $0.rawValue }.joined(separator: ", "))"
+                                )
                             }
                         }
                     } header: {
                         Text("Participantes")
                             .font(.headline)
                             .foregroundColor(.primary)
+                            .accessibilityAddTraits(.isHeader)
                     }
                     
                     // MARK: - Sección: Mensaje de error (si existe)
@@ -172,6 +200,7 @@ struct DetalleProyectoParticipanteView: View {
                             Text(error)
                                 .foregroundColor(.red)
                                 .frame(maxWidth: .infinity, alignment: .center)
+                                .accessibilityLabel("Error: \(error)")
                         }
                     }
                 }
@@ -216,6 +245,7 @@ private func infoLabel(_ title: String, _ content: String) -> some View {
         Text(title).fontWeight(.semibold)
         Text(content)
             .fixedSize(horizontal: false, vertical: true)
+            .accessibilityLabel("\(title) \(content)")
     }
 }
 
@@ -227,4 +257,6 @@ private func creadorRow(label: String, value: String) -> some View {
         Text(value)
             .multilineTextAlignment(.trailing)
     }
+    .accessibilityElement(children: .combine)
+    .accessibilityLabel("\(label) \(value)")
 }
