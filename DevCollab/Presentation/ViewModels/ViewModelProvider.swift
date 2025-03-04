@@ -1,20 +1,25 @@
+import Foundation
+
 class ViewModelProvider {
     static let shared = ViewModelProvider()
     
-    // Declaramos las propiedades sin inicializarlas aún
     let toastManager: ToastManager
-    let authViewModel: AuthViewModel
+    let loginVM: LoginViewModel
+    let registerVM: RegisterViewModel
     let crearProyectoViewModel: CrearProyectoViewModel
     let proyectosViewModel: ProyectosViewModel
     let solicitudesViewModel: SolicitudesViewModel
     let perfilViewModel: PerfilViewModel
 
     private init() {
-        // Inicializamos la instancia compartida de ToastManager
+        // Inicializamos ToastManager
         self.toastManager = ToastManager()
         
-        // Ahora, usando self.toastManager ya inicializado, inyectamos las dependencias
-        self.authViewModel = AuthViewModel(
+        self.loginVM = LoginViewModel(
+            authRepository: DependencyManager.shared.authRepository,
+            toastManager: self.toastManager
+        )
+        self.registerVM = RegisterViewModel(
             authRepository: DependencyManager.shared.authRepository,
             toastManager: self.toastManager
         )

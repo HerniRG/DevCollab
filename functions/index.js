@@ -87,3 +87,69 @@ exports.sendEmailOnApproval = functions.firestore
       }
       return null;
     });
+
+// Cloud Function que se dispara cuando se crea una nueva solicitud en la colección "solicitudes"
+exports.sendEmailOnNewRequest = functions.firestore
+    .document("solicitudes/{solicitudId}")
+    .onCreate(async (snap, context) => {
+      const solicitudData = snap.data();
+
+      try {
+        // Obtén los IDs del proyecto y del usuario solicitante
+        const proyectoID = solicitudData.proyectoID;
+        const usuarioID = solicitudData.usuarioID;
+
+        // Obtener el documento del proyecto
+        const proyectoDoc = await admin.firestore().collection("proyectos").doc(proyectoID).get();
+        const proyectoData = proyectoDoc.data();
+        const creadorID = proyectoData.creadorID;
+
+        // Obtener el correo del creador del proyecto
+        const creadorDoc = await admin.firestore().collection("usuarios").doc(creadorID).get();
+        const creadorEmail = creadorDoc.data()?.correo;
+
+        // Obtener el correo del solicitante
+        const solicitanteDoc = await admin.firestore().collection("usuarios").doc(usuarioID).get();
+        const solicitanteNombre = solicitanteDoc.data()?.nombre;
+
+        // Configurar asunto y cuerpo del correo
+        const subject = `Nueva solicitud para tu proyecto: ${proyectoData.nombre}`;
+        const body = `
+            Hola,
+
+            Has recibido una nueva solicitud para participar en tu proyecto "${proyectoData.nombre}".
+
+            Datos del solicitante:
+            - Nombre: ${solicitanteNombre}
+
+            Revisa la solicitud en DevCollab y decide si la aceptas o rechazas.
+
+            Saludos,
+            El equipo de DevCollab
+            `;
+
+        // Enviar el correo a través de la API de Brevo
+        const response = await axios.post(
+            "https://api.brevo.com/v3/smtp/email",
+            {
+              sender: {email: "devcollab.hrgapps@gmail.com", name: "DevCollab"},
+              to: [{email: creadorEmail}],
+              subject: subject,
+              htmlContent: `<p>${body.replace(/\n/g, "<br>")}</p>`,
+            },
+            {
+              headers: {
+                "api-key": BREVO_API_KEY,
+                "Content-Type": "application/json",
+                "accept": "application/json",
+              },
+            },
+        );
+
+        console.log("Correo enviado al creador:", response.data);
+      } catch (error) {
+        console.error("Error enviando correo al creador:", error);
+      }
+
+      return null;
+    });

@@ -6,9 +6,10 @@ struct GlobalToastModifier: ViewModifier {
     func body(content: Content) -> some View {
         ZStack(alignment: .top) {
             content
-            if let message = toastManager.message {
-                ToastView(message: message)
-                    .id(message)  // Forzamos que cada mensaje se trate como una vista nueva
+            
+            if let toastMessage = toastManager.currentToast {
+                ToastView(message: toastMessage.text)
+                    .id(toastMessage.id) // Usamos el ID único
                     .padding(.horizontal)
                     .padding(.top, 50)
                     .transition(.asymmetric(
@@ -18,7 +19,7 @@ struct GlobalToastModifier: ViewModifier {
                     .zIndex(1)
             }
         }
-        .animation(.easeInOut(duration: 0.5), value: toastManager.message)
+        .animation(.easeInOut(duration: 0.5), value: toastManager.currentToast)
     }
 }
 

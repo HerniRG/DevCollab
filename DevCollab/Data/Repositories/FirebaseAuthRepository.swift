@@ -76,10 +76,6 @@ class FirebaseAuthRepository: AuthRepository {
     /// Método para restablecer la contraseña
     func resetPassword(email: String) async throws {
         do {
-            let emailExists = try await checkIfEmailExists(email)
-            if !emailExists {
-                throw AuthRepositoryError.userNotFound
-            }
             try await auth.sendPasswordReset(withEmail: email)
         } catch {
             throw (error as NSError).toAuthRepositoryError()

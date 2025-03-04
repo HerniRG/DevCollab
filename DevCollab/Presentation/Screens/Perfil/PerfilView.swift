@@ -136,7 +136,7 @@ struct PerfilView: View {
                     Section {
                         Button(action: {
                             Task {
-                                ViewModelProvider.shared.authViewModel.logout()
+                                await ViewModelProvider.shared.loginVM.logout()
                             }
                         }) {
                             Text("Cerrar sesión")

@@ -8,7 +8,7 @@ struct RegisterView: View {
     @Binding var seleccionLenguajes: [LenguajeProgramacion]
     @Binding var isPasswordVisible: Bool
     @Binding var showSuccessResetAlert: Bool
-    let viewModel: AuthViewModel
+    let viewModel: RegisterViewModel
     
     // Número máximo de caracteres para la descripción
     let maxDescriptionLength = 25

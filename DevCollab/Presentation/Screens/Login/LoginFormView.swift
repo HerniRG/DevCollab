@@ -5,8 +5,8 @@ struct LoginFormView: View {
     @Binding var password: String
     @Binding var isPasswordVisible: Bool
     @Binding var showSuccessResetAlert: Bool
-    let viewModel: AuthViewModel
-
+    let viewModel: LoginViewModel
+    
     // Enumeración para gestionar el foco en los campos
     enum LoginField: Hashable {
         case email, password
@@ -49,12 +49,8 @@ struct LoginFormView: View {
             // Botón para resetear la contraseña
             Button(action: {
                 Task {
-                    do {
-                        try await viewModel.resetPassword(email: email)
-                        showSuccessResetAlert = true
-                    } catch {
-                        // El ViewModel se encarga de mostrar el Toast de error
-                    }
+                    await viewModel.resetPassword()
+                    showSuccessResetAlert = true
                 }
             }) {
                 Text("¿Olvidaste tu contraseña?")
@@ -71,11 +67,7 @@ struct LoginFormView: View {
             if email.isValidEmail {
                 Button(action: {
                     Task {
-                        do {
-                            try await viewModel.resendVerificationEmail()
-                        } catch {
-                            // Manejar el error (por ejemplo, mostrar un Toast)
-                        }
+                        await viewModel.resendVerificationEmail()
                     }
                 }) {
                     Text("Reenviar correo de verificación")
@@ -92,3 +84,10 @@ struct LoginFormView: View {
         .animation(.easeInOut, value: email.isValidEmail)
     }
 }
+
+extension String {
+    var isValidEmail: Bool {
+        NSPredicate(format: "SELF MATCHES %@", "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}").evaluate(with: self)
+    }
+}
+

@@ -152,8 +152,11 @@ struct CrearProyectoView: View {
                     
                     // MARK: - Sección: Botón de cerrar
                     Section {
+                        // Botón de cerrar dentro de CrearProyectoView
                         Button(action: {
-                            isPresented = false
+                            withAnimation(.easeInOut) {  // 🔥 Agregamos animación
+                                isPresented = false
+                            }
                         }) {
                             Text("Cerrar")
                                 .frame(maxWidth: .infinity, alignment: .center)
