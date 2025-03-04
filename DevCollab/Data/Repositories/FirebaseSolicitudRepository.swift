@@ -5,15 +5,39 @@ class FirebaseSolicitudRepository: SolicitudRepository {
     private let db = Firestore.firestore()
     
     func enviarSolicitud(proyectoID: String, usuarioID: String, mensaje: String) async throws {
-            let data: [String: Any] = [
-                "usuarioID": usuarioID,
-                "proyectoID": proyectoID,
-                "estado": "Pendiente",
-                "mensaje": mensaje
-            ]
-            try await db.collection("solicitudes").addDocument(data: data)
+        // 🔍 Verificar si el usuario ya abandonó este proyecto
+        let snapshot = try await db.collection("solicitudes")
+            .whereField("proyectoID", isEqualTo: proyectoID)
+            .whereField("usuarioID", isEqualTo: usuarioID)
+            .whereField("abandonado", isEqualTo: true)
+            .getDocuments()
+
+        if !snapshot.documents.isEmpty {
+            throw NSError(domain: "SolicitudError", code: 403, userInfo: [
+                NSLocalizedDescriptionKey: "❌ No puedes volver a solicitar este proyecto porque lo abandonaste anteriormente."
+            ])
         }
-        
+
+        // 🔍 Verificar que el usuario no tenga más de 2 solicitudes aceptadas
+        let solicitudesUsuario = try await obtenerSolicitudes(usuarioID: usuarioID)
+        let aceptadas = solicitudesUsuario.filter { $0.estado == "Aceptada" }
+
+        if aceptadas.count >= 2 {
+            throw NSError(domain: "SolicitudError", code: 403, userInfo: [
+                NSLocalizedDescriptionKey: "❌ Ya estás aprobado en 2 proyectos. No puedes solicitar más."
+            ])
+        }
+
+        // ✅ Si pasa las validaciones, permitir la solicitud
+        let data: [String: Any] = [
+            "usuarioID": usuarioID,
+            "proyectoID": proyectoID,
+            "estado": "Pendiente",
+            "mensaje": mensaje,
+            "abandonado": false  // Asegurar que se guarda correctamente
+        ]
+        try await db.collection("solicitudes").addDocument(data: data)
+    }
     
     func actualizarEstadoSolicitud(solicitudID: String, estado: String) async throws {
         try await db.collection("solicitudes").document(solicitudID).updateData(["estado": estado])
@@ -25,13 +49,27 @@ class FirebaseSolicitudRepository: SolicitudRepository {
     }
     
     func abandonarProyecto(proyectoID: String, usuarioID: String) async throws {
-        let snapshot = try await db.collection("participantes")
+        let snapshot = try await db.collection("solicitudes")
             .whereField("proyectoID", isEqualTo: proyectoID)
             .whereField("usuarioID", isEqualTo: usuarioID)
             .getDocuments()
+
         for document in snapshot.documents {
+            try await document.reference.updateData(["abandonado": true])
+        }
+
+        // 🚀 Eliminar al usuario de la colección de participantes
+        let participantesSnapshot = try await db.collection("participantes")
+            .whereField("proyectoID", isEqualTo: proyectoID)
+            .whereField("usuarioID", isEqualTo: usuarioID)
+            .getDocuments()
+
+        for document in participantesSnapshot.documents {
             try await document.reference.delete()
         }
+
+        // 🗑 Eliminar la solicitud si todavía estaba pendiente
+        try await eliminarSolicitud(proyectoID: proyectoID, usuarioID: usuarioID)
     }
     
     func obtenerSolicitudes(usuarioID: String) async throws -> [Solicitud] {

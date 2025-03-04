@@ -212,23 +212,14 @@ final class DetalleProyectoViewModel: ObservableObject {
     // MARK: - Solicitar Participación
     func solicitarParticipacion(proyectoID: String, mensaje: String) async {
         do {
-            let solicitudesUsuario = try await obtenerSolicitudesUseCase.execute(usuarioID: userID)
-            let aceptadas = solicitudesUsuario.filter { $0.estado == "Aceptada" }
-            if aceptadas.count >= 2 {
-                DispatchQueue.main.async {
-                    self.errorMessage = "Ya estás aprobado en 2 proyectos. No puedes solicitar más."
-                }
-                return
-            }
             try await gestionarSolicitudesUseCase.enviarSolicitud(proyectoID: proyectoID, usuarioID: userID, mensaje: mensaje)
-            DispatchQueue.main.async {
-                self.yaSolicitado = true
-                self.errorMessage = nil
-                self.showSuccess("Solicitud enviada correctamente.")
+            DispatchQueue.main.async { [weak self] in
+                self?.yaSolicitado = true
+                self?.showSuccess("✅ Solicitud enviada correctamente.")
             }
         } catch {
             DispatchQueue.main.async {
-                self.errorMessage = "Error al enviar la solicitud: \(error.localizedDescription)"
+                self.showError(error.localizedDescription)
             }
         }
     }
@@ -248,15 +239,15 @@ final class DetalleProyectoViewModel: ObservableObject {
     func abandonarProyecto(proyectoID: String) async {
         do {
             try await gestionarSolicitudesUseCase.abandonarProyecto(proyectoID: proyectoID, usuarioID: userID)
-            try await solicitudRepository.eliminarSolicitud(proyectoID: proyectoID, usuarioID: userID)
             DispatchQueue.main.async {
                 self.soyParticipante = false
                 self.yaSolicitado = false
-                self.showSuccess("Has abandonado el proyecto.")
+                self.showSuccess("🚀 Has abandonado el proyecto correctamente.")
             }
         } catch {
-            debugPrint("Error al abandonar proyecto: \(error.localizedDescription)")
-            showError("No se pudo abandonar el proyecto.")
+            DispatchQueue.main.async {
+                self.showError("❌ Error al abandonar el proyecto: \(error.localizedDescription)")
+            }
         }
     }
     

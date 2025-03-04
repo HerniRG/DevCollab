@@ -152,11 +152,8 @@ struct CrearProyectoView: View {
                     
                     // MARK: - Sección: Botón de cerrar
                     Section {
-                        // Botón de cerrar dentro de CrearProyectoView
                         Button(action: {
-                            withAnimation(.easeInOut) {  // 🔥 Agregamos animación
-                                isPresented = false
-                            }
+                            isPresented = false
                         }) {
                             Text("Cerrar")
                                 .frame(maxWidth: .infinity, alignment: .center)
@@ -194,7 +191,9 @@ struct CrearProyectoView: View {
         ) { success in
             if success {
                 clearFields()
-                isPresented = false
+                withAnimation(.easeInOut) {
+                    isPresented = false
+                }
             }
         }
     }
@@ -333,47 +332,5 @@ private struct DetallesProyectoSection: View {
                 .accessibilityHint("Por ejemplo remoto, presencial, híbrido...")
         }
         .accessibilityAddTraits(.isHeader)
-    }
-}
-
-// MARK: - Subvista: Botón de Crear Proyecto
-private struct CrearProyectoButtonSection: View {
-    @Binding var isPresented: Bool
-    var viewModel: CrearProyectoViewModel
-    let nombre: String
-    let descripcion: String
-    let lenguajesSeleccionados: [LenguajeProgramacion]
-    let horasSemanales: String
-    let tipoColaboracion: String
-    let onSuccess: () -> Void
-    
-    var body: some View {
-        Section {
-            Button(action: {
-                guard let userID = Auth.auth().currentUser?.uid else {
-                    print("Error: No hay usuario autenticado")
-                    return
-                }
-                viewModel.crearProyecto(
-                    nombre: nombre,
-                    descripcion: descripcion,
-                    lenguajes: lenguajesSeleccionados,
-                    horasSemanales: horasSemanales,
-                    tipoColaboracion: tipoColaboracion,
-                    creadorID: userID
-                ) { success in
-                    if success {
-                        onSuccess()
-                    }
-                }
-            }) {
-                Text("Crear Proyecto")
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .foregroundColor(.white)
-            }
-            .accessibilityLabel("Crear Proyecto")
-            .accessibilityHint("Guarda el proyecto con la información proporcionada")
-            .listRowBackground(Color.blue)
-        }
     }
 }

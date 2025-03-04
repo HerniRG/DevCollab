@@ -27,6 +27,16 @@ class FirebaseAuthRepository: AuthRepository {
     }
     
     private func saveUserData(usuario: Usuario, email: String) async throws {
+        // 🔍 Verificar si ya existe un usuario con este correo en Firestore
+        let snapshot = try await db.collection("usuarios")
+            .whereField("correo", isEqualTo: email)
+            .getDocuments()
+
+        if !snapshot.documents.isEmpty {
+            throw NSError(domain: "Firestore", code: 409, userInfo: [NSLocalizedDescriptionKey: "❌ Ya existe un usuario registrado con este correo."])
+        }
+
+        // 🔥 Si el correo no existe, guardamos el nuevo usuario
         let userData: [String: Any] = [
             "nombre": usuario.nombre,
             "lenguajes": usuario.lenguajes.map { $0.rawValue },
