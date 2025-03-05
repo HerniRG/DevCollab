@@ -1,0 +1,58 @@
+"auth_invalid_email" = "The email address is not valid.";
+"auth_weak_password" = "The password is too weak.";
+"auth_email_in_use" = "The email address is already in use.";
+"auth_user_not_found" = "No user found with that email.";
+"auth_wrong_password" = "Incorrect username or password.";
+"auth_email_not_verified" = "The email address has not been verified. Please check your inbox.";
+"auth_email_exists" = "❌ A user with this email is already registered.";
+"project_not_found" = "Project not found.";
+"unknown_creator" = "Unknown";
+"request_already_abandoned" = "❌ You cannot request this project again because you abandoned it before.";
+"max_approved_requests" = "❌ You are already approved in 2 projects. You cannot request more.";
+"state_not_found" = "State not found.";
+"user_not_found" = "User not found.";
+
+"show_password" = "Show password";
+"hide_password" = "Hide password";
+
+"email_placeholder" = "Email";
+"password_placeholder" = "Password";
+"name_placeholder" = "Name";
+"description_placeholder" = "Description";
+
+"email_placeholder_hint" = "Enter your email";
+"password_placeholder_hint" = "Enter your password";
+"name_placeholder_hint" = "Enter your name";
+"description_placeholder_hint" = "Enter a short description";
+"password_visible_hint" = "The password is visible";
+"password_hidden_hint" = "The password is hidden";
+"toggle_password_visibility_hint" = "Tap to toggle password visibility";
+
+"select_languages" = "Select languages";
+"select_languages_hint" = "Opens the list to choose programming languages";
+"programming_languages" = "Programming Languages";
+"done" = "Done";
+"close_languages_list" = "Close the languages list";
+"selected_language_hint" = "Selected. Tap to unselect";
+"unselected_language_hint" = "Not selected. Tap to select";
+
+"Swift" = "Swift";
+"Kotlin" = "Kotlin";
+"Java" = "Java";
+"Python" = "Python";
+"JavaScript" = "JavaScript"
+"C#" = "C#"
+"Dart" = "Dart"
+"Go" = "Go"
+"Ruby" = "Ruby"
+
+"project_name" = "Project name: %@";
+"project_languages" = "Languages: %@";
+"status" = "Status:";
+"Abierto" = "Open";
+"Cerrado" = "Closed";
+"project_status" = "Status: %@";
+"delete_project" = "Delete project";
+"delete_project_hint" = "Removes this project from Firebase";
+"pending_request" = "Pending request";
+"pending_request_hint" = "There are pending requests for this project";

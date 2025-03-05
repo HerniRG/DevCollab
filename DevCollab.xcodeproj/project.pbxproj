@@ -9,10 +9,13 @@
 /* Begin PBXBuildFile section */
 		66633C142D51424A00D41B0E /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 66633C132D51424A00D41B0E /* FirebaseAuth */; };
 		66633C162D51424A00D41B0E /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 66633C152D51424A00D41B0E /* FirebaseFirestore */; };
+		667A9CC12D789BE700A6FD5E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 667A9CBF2D789BE700A6FD5E /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		66633BE12D51130B00D41B0E /* DevCollab.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DevCollab.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		667A9CC02D789BE700A6FD5E /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
+		667A9CC22D789C0100A6FD5E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -39,6 +42,7 @@
 		66633BD82D51130B00D41B0E = {
 			isa = PBXGroup;
 			children = (
+				667A9CBF2D789BE700A6FD5E /* Localizable.strings */,
 				66633BE32D51130B00D41B0E /* DevCollab */,
 				66633BE22D51130B00D41B0E /* Products */,
 			);
@@ -95,7 +99,7 @@
 				};
 			};
 			buildConfigurationList = 66633BDC2D51130B00D41B0E /* Build configuration list for PBXProject "DevCollab" */;
-			developmentRegion = es;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -122,6 +126,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				667A9CC12D789BE700A6FD5E /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,6 +141,18 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		667A9CBF2D789BE700A6FD5E /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				667A9CC02D789BE700A6FD5E /* es */,
+				667A9CC22D789C0100A6FD5E /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		66633BED2D51130C00D41B0E /* Debug */ = {

@@ -8,17 +8,15 @@ struct CustomSecureField: View {
     
     var body: some View {
         HStack {
-            // Dependiendo del estado, mostramos un TextField o SecureField.
+            // 🔥 Se muestra un TextField o SecureField según el estado de visibilidad
             if isPasswordVisible {
-                TextField(placeholder, text: $text)
-                    .accessibilityLabel(placeholder)
-                    .accessibilityValue(text)
-                    .accessibilityHint("La contraseña es visible")
+                TextField(NSLocalizedString("password_placeholder", comment: "Placeholder para el campo de contraseña"), text: $text)
+                    .accessibilityLabel(NSLocalizedString("password_placeholder", comment: "Placeholder para el campo de contraseña"))
+                    .accessibilityHint(NSLocalizedString("password_visible_hint", comment: "Indica que la contraseña está visible"))
             } else {
-                SecureField(placeholder, text: $text)
-                    .accessibilityLabel(placeholder)
-                    .accessibilityValue(text)
-                    .accessibilityHint("La contraseña está oculta")
+                SecureField(NSLocalizedString("password_placeholder", comment: "Placeholder para el campo de contraseña"), text: $text)
+                    .accessibilityLabel(NSLocalizedString("password_placeholder", comment: "Placeholder para el campo de contraseña"))
+                    .accessibilityHint(NSLocalizedString("password_hidden_hint", comment: "Indica que la contraseña está oculta"))
             }
             
             // Botón para alternar la visibilidad de la contraseña.
@@ -28,8 +26,8 @@ struct CustomSecureField: View {
                 Image(systemName: isPasswordVisible ? "eye.slash.fill" : "eye.fill")
                     .foregroundColor(.gray)
             }
-            .accessibilityLabel(isPasswordVisible ? "Ocultar contraseña" : "Mostrar contraseña")
-            .accessibilityHint("Toca para cambiar la visibilidad de la contraseña")
+            .accessibilityLabel(NSLocalizedString(isPasswordVisible ? "hide_password" : "show_password", comment: "Botón para alternar visibilidad de la contraseña"))
+            .accessibilityHint(NSLocalizedString("toggle_password_visibility_hint", comment: "Toca para cambiar la visibilidad de la contraseña"))
         }
         .padding()
         .frame(height: 50) // 🔥 Asegura altura uniforme

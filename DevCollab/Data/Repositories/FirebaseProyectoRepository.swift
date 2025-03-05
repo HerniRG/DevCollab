@@ -57,7 +57,7 @@ class FirebaseProyectoRepository: ProyectoRepository {
         // Obtener el documento del proyecto
         let proyectoDoc = try await db.collection("proyectos").document(proyectoID).getDocument()
         guard let data = proyectoDoc.data() else {
-            throw NSError(domain: "FirebaseProyectoRepository", code: 404, userInfo: [NSLocalizedDescriptionKey: "Proyecto no encontrado"])
+            throw NSError(domain: "FirebaseProyectoRepository", code: 404, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("project_not_found", comment: "Error cuando el proyecto no existe")])
         }
         
         // Extraer el creadorID
@@ -66,7 +66,7 @@ class FirebaseProyectoRepository: ProyectoRepository {
         // Consultar la colección "usuarios" para obtener la información del creador
         let usuarioDoc = try await db.collection("usuarios").document(creadorID).getDocument()
         let userData = usuarioDoc.data() ?? [:]
-        let nombreCreador = userData["nombre"] as? String ?? "Desconocido"
+        let nombreCreador = userData["nombre"] as? String ?? NSLocalizedString("unknown_creator", comment: "Texto para cuando no se encuentra el nombre del creador")
         let descripcionCreador = userData["descripcion"] as? String ?? ""
         let lenguajesCreador = userData["lenguajes"] as? [String] ?? []
         let correoCreador = userData["correo"] as? String ?? ""  // Obtenemos el correo

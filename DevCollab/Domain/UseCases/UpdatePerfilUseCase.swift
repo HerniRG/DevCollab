@@ -1,11 +1,3 @@
-//
-//  UpdatePerfilUseCase.swift
-//  DevCollab
-//
-//  Created by Hernán Rodríguez on 8/2/25.
-//
-
-
 protocol UpdatePerfilUseCase {
     func execute(userID: String,
                  nombre: String,

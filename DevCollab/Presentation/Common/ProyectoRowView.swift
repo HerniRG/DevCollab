@@ -18,29 +18,31 @@ struct ProyectoRowView: View {
                 // Nombre del proyecto
                 Text(proyecto.nombre)
                     .font(.headline)
-                    .accessibilityLabel("Nombre del proyecto: \(proyecto.nombre)")
+                    .accessibilityLabel(String(format: NSLocalizedString("project_name", comment: "Etiqueta de nombre de proyecto"), proyecto.nombre))
                 
                 // Lenguajes del proyecto
-                Text("Lenguajes: \(proyecto.lenguajes.map { $0.rawValue }.joined(separator: ", "))")
+                Text(String(format: NSLocalizedString("project_languages", comment: "Etiqueta de lenguajes del proyecto"),
+                            proyecto.lenguajes.map { NSLocalizedString($0.rawValue, comment: "Nombre del lenguaje") }.joined(separator: ", ")))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                    .accessibilityLabel("Lenguajes: \(proyecto.lenguajes.map { $0.rawValue }.joined(separator: ", "))")
+                    .accessibilityLabel(String(format: NSLocalizedString("project_languages", comment: "Etiqueta de accesibilidad para lenguajes del proyecto"),
+                                               proyecto.lenguajes.map { NSLocalizedString($0.rawValue, comment: "Nombre del lenguaje") }.joined(separator: ", ")))
                 
                 // Estado: Abierto en verde, Cerrado en rojo
                 HStack {
-                    Text("Estado:")
+                    Text(NSLocalizedString("status", comment: "Etiqueta de estado"))
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .accessibilityHidden(true)  // Información redundante
-                    Text(proyecto.estado)
+                    Text(NSLocalizedString(proyecto.estado, comment: "Estado del proyecto"))
                         .font(.subheadline)
                         .foregroundColor(proyecto.estado == "Abierto" ? .green : .red)
-                        .accessibilityLabel("Estado: \(proyecto.estado)")
+                        .accessibilityLabel(String(format: NSLocalizedString("project_status", comment: "Accesibilidad del estado"), proyecto.estado))
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             
-            // Botón de borrar (solo se muestra si el proyecto está cerrado y hay un handler)
+            // Botón de borrar (solo si el proyecto está cerrado y hay un handler)
             if proyecto.estado == "Cerrado", let onDelete = onDelete {
                 Button(action: {
                     onDelete()
@@ -49,8 +51,8 @@ struct ProyectoRowView: View {
                         .foregroundColor(.red)
                 }
                 .buttonStyle(BorderlessButtonStyle())
-                .accessibilityLabel("Borrar proyecto")
-                .accessibilityHint("Elimina este proyecto de Firebase")
+                .accessibilityLabel(NSLocalizedString("delete_project", comment: "Etiqueta de botón para eliminar proyecto"))
+                .accessibilityHint(NSLocalizedString("delete_project_hint", comment: "Hint para eliminar proyecto de Firebase"))
             }
         }
         .padding(.vertical, 8)
@@ -79,8 +81,8 @@ struct ProyectoRowView: View {
                         }
                     }
                     .offset(x: -8, y: 8)
-                    .accessibilityLabel("Solicitud pendiente")
-                    .accessibilityHint("Hay solicitudes pendientes para este proyecto")
+                    .accessibilityLabel(NSLocalizedString("pending_request", comment: "Etiqueta para indicar que hay solicitudes pendientes"))
+                    .accessibilityHint(NSLocalizedString("pending_request_hint", comment: "Hint para indicar que hay solicitudes pendientes en este proyecto"))
                 }
             },
             alignment: .topTrailing

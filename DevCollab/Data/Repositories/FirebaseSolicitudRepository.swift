@@ -14,7 +14,7 @@ class FirebaseSolicitudRepository: SolicitudRepository {
 
         if !snapshot.documents.isEmpty {
             throw NSError(domain: "SolicitudError", code: 403, userInfo: [
-                NSLocalizedDescriptionKey: "❌ No puedes volver a solicitar este proyecto porque lo abandonaste anteriormente."
+                NSLocalizedDescriptionKey: NSLocalizedString("request_already_abandoned", comment: "El usuario ya abandonó este proyecto.")
             ])
         }
 
@@ -24,7 +24,7 @@ class FirebaseSolicitudRepository: SolicitudRepository {
 
         if aceptadas.count >= 2 {
             throw NSError(domain: "SolicitudError", code: 403, userInfo: [
-                NSLocalizedDescriptionKey: "❌ Ya estás aprobado en 2 proyectos. No puedes solicitar más."
+                NSLocalizedDescriptionKey: NSLocalizedString("max_approved_requests", comment: "El usuario ya está en 2 proyectos.")
             ])
         }
 
@@ -120,7 +120,7 @@ class FirebaseSolicitudRepository: SolicitudRepository {
         // 🔥 Obtiene el estado actual
         let snapshot = try await docRef.getDocument()
         guard let currentEstado = snapshot.data()?["estado"] as? String else {
-            throw NSError(domain: "Firestore", code: 404, userInfo: [NSLocalizedDescriptionKey: "Estado no encontrado"])
+            throw NSError(domain: "Firestore", code: 404, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("state_not_found", comment: "El estado del proyecto no fue encontrado.")])
         }
         
         return currentEstado // ✅ Solo devuelve el estado, no lo cambia

@@ -9,7 +9,7 @@ struct GlobalToastModifier: ViewModifier {
             
             if let toastMessage = toastManager.currentToast {
                 ToastView(message: toastMessage.text)
-                    .id(toastMessage.id) // Usamos el ID único
+                    .id(toastMessage.id)
                     .padding(.horizontal)
                     .padding(.top, 50)
                     .transition(.asymmetric(

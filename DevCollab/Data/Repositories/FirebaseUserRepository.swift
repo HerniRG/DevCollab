@@ -18,7 +18,9 @@ class FirebaseUserRepository: UserRepository {
     func obtenerUsuario(usuarioID: String) async throws -> Usuario {
         let document = try await db.collection("usuarios").document(usuarioID).getDocument()
         guard let data = document.data() else {
-            throw NSError(domain: "Firestore", code: 404, userInfo: [NSLocalizedDescriptionKey: "Usuario no encontrado"])
+            throw NSError(domain: "Firestore", code: 404, userInfo: [
+                NSLocalizedDescriptionKey: NSLocalizedString("user_not_found", comment: "El usuario no fue encontrado en la base de datos.")
+            ])
         }
         
         return Usuario(

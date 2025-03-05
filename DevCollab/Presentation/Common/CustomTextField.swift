@@ -2,12 +2,12 @@ import SwiftUI
 
 // 🔹 COMPONENTE PARA TEXTFIELD NORMAL
 struct CustomTextField: View {
-    var placeholder: String
+    var placeholderKey: String  // Clave para Localizable.strings
     @Binding var text: String
     var keyboardType: UIKeyboardType = .default
     
     var body: some View {
-        TextField(placeholder, text: $text)
+        TextField(NSLocalizedString(placeholderKey, comment: "Placeholder del campo de texto"), text: $text)
             .padding()
             .frame(height: 50) // 🔥 Asegura altura uniforme
             .background(Color.gray.opacity(0.1))
@@ -15,8 +15,8 @@ struct CustomTextField: View {
             .keyboardType(keyboardType)
             .autocapitalization(.none)
             // Accesibilidad:
-            .accessibilityLabel(placeholder)
+            .accessibilityLabel(NSLocalizedString(placeholderKey, comment: "Placeholder del campo de texto"))
             .accessibilityValue(text)
-            .accessibilityHint("Ingrese su \(placeholder.lowercased())")
+            .accessibilityHint(NSLocalizedString("\(placeholderKey)_hint", comment: "Hint para el campo de texto"))
     }
 }

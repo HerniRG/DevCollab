@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - Vista de Selección de Lenguajes (renombrada)
+// MARK: - Vista de Selección de Lenguajes (Internacionalizada)
 struct ProjectLanguageSelectionView: View {
     @Binding var seleccionLenguajes: [LenguajeProgramacion]
     @State private var showLanguageSheet = false
@@ -11,8 +11,8 @@ struct ProjectLanguageSelectionView: View {
         }) {
             HStack {
                 Text(seleccionLenguajes.isEmpty
-                     ? "Seleccionar lenguajes"
-                     : seleccionLenguajes.map { $0.rawValue }.joined(separator: ", "))
+                     ? NSLocalizedString("select_languages", comment: "Placeholder para seleccionar lenguajes")
+                     : seleccionLenguajes.map { NSLocalizedString($0.rawValue, comment: "Nombre del lenguaje") }.joined(separator: ", "))
                     .foregroundColor(seleccionLenguajes.isEmpty ? .gray : .primary)
                 Spacer()
                 Image(systemName: "chevron.right")
@@ -23,8 +23,8 @@ struct ProjectLanguageSelectionView: View {
             .background(Color(UIColor.secondarySystemBackground))
             .cornerRadius(8)
         }
-        .accessibilityLabel("Seleccionar lenguajes")
-        .accessibilityHint("Abre la lista para elegir lenguajes de programación")
+        .accessibilityLabel(NSLocalizedString("select_languages", comment: "Etiqueta de accesibilidad para seleccionar lenguajes"))
+        .accessibilityHint(NSLocalizedString("select_languages_hint", comment: "Hint para abrir la lista de lenguajes de programación"))
         .sheet(isPresented: $showLanguageSheet) {
             NavigationView {
                 List {
@@ -42,15 +42,15 @@ struct ProjectLanguageSelectionView: View {
                         )
                     }
                 }
-                .navigationTitle("Lenguajes de Programación")
+                .navigationTitle(NSLocalizedString("programming_languages", comment: "Título para la lista de lenguajes"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Hecho") {
+                        Button(NSLocalizedString("done", comment: "Botón para confirmar selección")) {
                             showLanguageSheet = false
                         }
-                        .accessibilityLabel("Hecho")
-                        .accessibilityHint("Cierra la lista de lenguajes")
+                        .accessibilityLabel(NSLocalizedString("done", comment: "Etiqueta de accesibilidad para botón de confirmación"))
+                        .accessibilityHint(NSLocalizedString("close_languages_list", comment: "Hint para cerrar la lista de lenguajes"))
                     }
                 }
             }
@@ -59,6 +59,7 @@ struct ProjectLanguageSelectionView: View {
 }
 
 // MARK: - Fila de Selección Múltiple (renombrada)
+// MARK: - Fila de Selección Múltiple (Internacionalizada)
 struct ProjectMultipleSelectionRow: View {
     var lenguaje: LenguajeProgramacion
     var isSelected: Bool
@@ -67,7 +68,7 @@ struct ProjectMultipleSelectionRow: View {
     var body: some View {
         Button(action: action) {
             HStack {
-                Text(lenguaje.rawValue)
+                Text(NSLocalizedString(lenguaje.rawValue, comment: "Nombre del lenguaje de programación"))
                     .foregroundColor(.primary)
                 Spacer()
                 if isSelected {
@@ -78,7 +79,9 @@ struct ProjectMultipleSelectionRow: View {
             .padding(.vertical, 8)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(lenguaje.rawValue)
-        .accessibilityHint(isSelected ? "Seleccionado. Pulsa para deseleccionar" : "No seleccionado. Pulsa para seleccionar")
+        .accessibilityLabel(NSLocalizedString(lenguaje.rawValue, comment: "Nombre del lenguaje de programación"))
+        .accessibilityHint(isSelected
+            ? NSLocalizedString("selected_language_hint", comment: "Lenguaje seleccionado")
+            : NSLocalizedString("unselected_language_hint", comment: "Lenguaje no seleccionado"))
     }
 }

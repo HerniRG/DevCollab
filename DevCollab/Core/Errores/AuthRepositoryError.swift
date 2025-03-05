@@ -12,17 +12,17 @@ enum AuthRepositoryError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidEmail:
-            return "El correo electrónico no es válido."
+            return NSLocalizedString("auth_invalid_email", comment: "Error cuando el email no es válido")
         case .weakPassword:
-            return "La contraseña es demasiado débil."
+            return NSLocalizedString("auth_weak_password", comment: "Error cuando la contraseña es demasiado débil")
         case .emailAlreadyInUse:
-            return "El correo electrónico ya está en uso."
+            return NSLocalizedString("auth_email_in_use", comment: "Error cuando el email ya está registrado")
         case .userNotFound:
-            return "No se encontró un usuario con ese correo."
+            return NSLocalizedString("auth_user_not_found", comment: "Error cuando no se encuentra el usuario")
         case .wrongPassword:
-            return "Usuario o contraseña incorrectos."
+            return NSLocalizedString("auth_wrong_password", comment: "Error cuando la contraseña es incorrecta")
         case .emailNotVerified:
-            return "El correo electrónico no ha sido verificado. Por favor, revisa tu bandeja de entrada."
+            return NSLocalizedString("auth_email_not_verified", comment: "Error cuando el email no ha sido verificado")
         case .unknown(let error):
             return error.localizedDescription
         }

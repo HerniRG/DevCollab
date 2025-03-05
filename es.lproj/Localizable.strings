@@ -1,0 +1,58 @@
+"auth_invalid_email" = "El correo electrónico no es válido.";
+"auth_weak_password" = "La contraseña es demasiado débil.";
+"auth_email_in_use" = "El correo electrónico ya está en uso.";
+"auth_user_not_found" = "No se encontró un usuario con ese correo.";
+"auth_wrong_password" = "Usuario o contraseña incorrectos.";
+"auth_email_not_verified" = "El correo electrónico no ha sido verificado. Por favor, revisa tu bandeja de entrada.";
+"auth_email_exists" = "❌ Ya existe un usuario registrado con este correo.";
+"project_not_found" = "Proyecto no encontrado.";
+"unknown_creator" = "Desconocido";
+"request_already_abandoned" = "❌ No puedes volver a solicitar este proyecto porque lo abandonaste anteriormente.";
+"max_approved_requests" = "❌ Ya estás aprobado en 2 proyectos. No puedes solicitar más.";
+"state_not_found" = "Estado no encontrado.";
+"user_not_found" = "Usuario no encontrado.";
+
+"show_password" = "Mostrar contraseña";
+"hide_password" = "Ocultar contraseña";
+
+"email_placeholder" = "Correo electrónico";
+"password_placeholder" = "Contraseña";
+"name_placeholder" = "Nombre";
+"description_placeholder" = "Descripción";
+
+"email_placeholder_hint" = "Ingrese su correo electrónico";
+"password_placeholder_hint" = "Ingrese su contraseña";
+"name_placeholder_hint" = "Ingrese su nombre";
+"description_placeholder_hint" = "Ingrese una breve descripción";
+"password_visible_hint" = "La contraseña es visible";
+"password_hidden_hint" = "La contraseña está oculta";
+"toggle_password_visibility_hint" = "Toca para cambiar la visibilidad de la contraseña";
+
+"select_languages" = "Seleccionar lenguajes";
+"select_languages_hint" = "Abre la lista para elegir lenguajes de programación";
+"programming_languages" = "Lenguajes de Programación";
+"done" = "Hecho";
+"close_languages_list" = "Cierra la lista de lenguajes";
+"selected_language_hint" = "Seleccionado. Pulsa para deseleccionar";
+"unselected_language_hint" = "No seleccionado. Pulsa para seleccionar";
+
+"Swift" = "Swift";
+"Kotlin" = "Kotlin";
+"Java" = "Java";
+"Python" = "Python";
+"JavaScript" = "JavaScript"
+"C#" = "C#"
+"Dart" = "Dart"
+"Go" = "Go"
+"Ruby" = "Ruby"
+
+"project_name" = "Nombre del proyecto: %@";
+"project_languages" = "Lenguajes: %@";
+"status" = "Estado:";
+"Abierto" = "Abierto";
+"Cerrado" = "Cerrado";
+"project_status" = "Estado: %@";
+"delete_project" = "Borrar proyecto";
+"delete_project_hint" = "Elimina este proyecto de Firebase";
+"pending_request" = "Solicitud pendiente";
+"pending_request_hint" = "Hay solicitudes pendientes para este proyecto";

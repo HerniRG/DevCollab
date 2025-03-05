@@ -33,7 +33,7 @@ class FirebaseAuthRepository: AuthRepository {
             .getDocuments()
 
         if !snapshot.documents.isEmpty {
-            throw NSError(domain: "Firestore", code: 409, userInfo: [NSLocalizedDescriptionKey: "❌ Ya existe un usuario registrado con este correo."])
+            throw NSError(domain: "Firestore", code: 409, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("auth_email_exists", comment: "Error cuando el email ya está registrado")])
         }
 
         // 🔥 Si el correo no existe, guardamos el nuevo usuario
@@ -110,12 +110,10 @@ class FirebaseAuthRepository: AuthRepository {
 
 extension NSError {
     func toAuthRepositoryError() -> AuthRepositoryError {
-        // Verifica que el dominio sea el de Firebase Auth.
         guard self.domain == AuthErrorDomain else {
             return .unknown(self)
         }
         
-        // Mapea según el código de error.
         switch self.code {
         case AuthErrorCode.invalidEmail.rawValue:
             return .invalidEmail
@@ -125,7 +123,6 @@ extension NSError {
             return .emailAlreadyInUse
         case AuthErrorCode.userNotFound.rawValue:
             return .userNotFound
-        // Se añade el código 17004 para cubrir el caso de contraseña incorrecta
         case AuthErrorCode.wrongPassword.rawValue, 17004:
             return .wrongPassword
         default:
