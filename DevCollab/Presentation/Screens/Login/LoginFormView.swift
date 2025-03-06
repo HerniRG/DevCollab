@@ -6,8 +6,7 @@ struct LoginFormView: View {
     @Binding var isPasswordVisible: Bool
     @Binding var showSuccessResetAlert: Bool
     let viewModel: LoginViewModel
-    
-    // Enumeración para gestionar el foco en los campos
+
     enum LoginField: Hashable {
         case email, password
     }
@@ -17,7 +16,7 @@ struct LoginFormView: View {
         VStack(spacing: 16) {
             // Campo de Correo electrónico
             CustomTextField(
-                placeholder: "Correo electrónico",
+                placeholderKey: "login_email_placeholder",
                 text: $email,
                 keyboardType: .emailAddress
             )
@@ -28,12 +27,12 @@ struct LoginFormView: View {
             .onSubmit {
                 focusedField = .password
             }
-            .accessibilityLabel("Correo electrónico")
-            .accessibilityHint("Introduce tu correo para iniciar sesión")
+            .accessibilityLabel(NSLocalizedString("login_email_accessibility", comment: "Etiqueta de accesibilidad para el email"))
+            .accessibilityHint(NSLocalizedString("login_email_hint", comment: "Hint de accesibilidad para el email"))
             
             // Campo de Contraseña (con opción de ver u ocultar)
             CustomSecureField(
-                placeholder: "Contraseña",
+                placeholder: NSLocalizedString("login_password_placeholder", comment: "Placeholder para contraseña"),
                 text: $password,
                 isPasswordVisible: $isPasswordVisible
             )
@@ -43,9 +42,9 @@ struct LoginFormView: View {
                 // Se cierra el teclado al terminar
                 focusedField = nil
             }
-            .accessibilityLabel("Contraseña")
-            .accessibilityHint("Introduce tu contraseña de acceso")
-            
+            .accessibilityLabel(NSLocalizedString("login_password_accessibility", comment: "Accesibilidad para campo de contraseña"))
+            .accessibilityHint(NSLocalizedString("login_password_hint", comment: "Hint para contraseña"))
+
             // Botón para resetear la contraseña
             Button(action: {
                 Task {
@@ -53,14 +52,14 @@ struct LoginFormView: View {
                     showSuccessResetAlert = true
                 }
             }) {
-                Text("¿Olvidaste tu contraseña?")
+                Text(NSLocalizedString("forgot_password_button", comment: "¿Olvidaste tu contraseña?"))
                     .font(.footnote)
                     .foregroundColor(email.isValidEmail ? .blue : .gray)
                     .padding(.top, -5)
             }
             .disabled(!email.isValidEmail)
-            .accessibilityLabel("Olvidé mi contraseña")
-            .accessibilityHint("Envía un correo de restablecimiento si el email es válido")
+            .accessibilityLabel(NSLocalizedString("forgot_password_accessibility", comment: "Accesibilidad: Olvidé mi contraseña"))
+            .accessibilityHint(NSLocalizedString("forgot_password_hint", comment: "Envía un correo de restablecimiento si el email es válido"))
             .transition(.opacity)
             
             // Botón para reenviar el correo de verificación
@@ -70,13 +69,13 @@ struct LoginFormView: View {
                         await viewModel.resendVerificationEmail()
                     }
                 }) {
-                    Text("Reenviar correo de verificación")
+                    Text(NSLocalizedString("resend_verification_button", comment: "Reenviar correo de verificación"))
                         .font(.footnote)
                         .foregroundColor(.blue)
                         .padding(.top, -5)
                 }
-                .accessibilityLabel("Reenviar correo de verificación")
-                .accessibilityHint("Solicita que se envíe nuevamente el correo para verificar tu dirección")
+                .accessibilityLabel(NSLocalizedString("resend_verification_accessibility", comment: "Reenviar correo de verificación"))
+                .accessibilityHint(NSLocalizedString("resend_verification_hint", comment: "Solicita que se envíe nuevamente el correo para verificar tu dirección"))
                 .transition(.opacity)
             }
         }
@@ -85,9 +84,9 @@ struct LoginFormView: View {
     }
 }
 
+// Mantén tu extensión para validar emails.
 extension String {
     var isValidEmail: Bool {
         NSPredicate(format: "SELF MATCHES %@", "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}").evaluate(with: self)
     }
 }
-

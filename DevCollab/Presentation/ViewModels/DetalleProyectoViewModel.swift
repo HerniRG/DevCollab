@@ -22,10 +22,10 @@ final class DetalleProyectoViewModel: ObservableObject {
     @Published var estadoSolicitud: String = ""
     @Published var correoCreador: String = ""
     
-    // ToastManager: no mantenemos toastMessage local
+    // ToastManager
     var toastManager: ToastManager
 
-    // Dependencias para operaciones
+    // Dependencias
     private let obtenerDetallesProyectoUseCase: ObtenerDetallesProyectoUseCaseProtocol
     private let gestionarSolicitudesUseCase: GestionarSolicitudesUseCaseProtocol
     private let obtenerSolicitudesUseCase: ObtenerSolicitudesUseCase
@@ -59,11 +59,15 @@ final class DetalleProyectoViewModel: ObservableObject {
     }
     
     private func showError(_ message: String) {
-        showToast("❌ \(message)")
+        // Prefijo de error
+        let errorPrefix = NSLocalizedString("detalle_proyecto_error_prefix", comment: "Prefijo para errores: ❌")
+        showToast("\(errorPrefix) \(message)")
     }
     
     private func showSuccess(_ message: String) {
-        showToast("✅ \(message)")
+        // Prefijo de éxito
+        let successPrefix = NSLocalizedString("detalle_proyecto_success_prefix", comment: "Prefijo para éxitos: ✅")
+        showToast("\(successPrefix) \(message)")
     }
     
     // MARK: - Fetch Usuario para solicitud
@@ -102,10 +106,13 @@ final class DetalleProyectoViewModel: ObservableObject {
                 "usuarioID": solicitud.usuarioID
             ]
             try await db.collection("participantes").addDocument(data: data)
-            showSuccess("Participante agregado correctamente")
+            
+            let msg = NSLocalizedString("detalle_proyecto_participant_added", comment: "Participante agregado correctamente")
+            showSuccess(msg)
         } catch {
             debugPrint("Error al agregar participante: \(error.localizedDescription)")
-            showError("No se pudo agregar al participante.")
+            let errMsg = NSLocalizedString("detalle_proyecto_could_not_add_participant", comment: "No se pudo agregar al participante.")
+            showError(errMsg)
         }
     }
     
@@ -197,15 +204,20 @@ final class DetalleProyectoViewModel: ObservableObject {
             let estadoActual = try await gestionarSolicitudesUseCase.obtenerEstadoProyecto(proyectoID: proyectoID)
             let nuevoEstado = (estadoActual == "Abierto") ? "Cerrado" : "Abierto"
             try await gestionarSolicitudesUseCase.cambiarEstadoProyecto(proyectoID: proyectoID, nuevoEstado: nuevoEstado)
+            
             DispatchQueue.main.async {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     self.estadoProyecto = nuevoEstado
                 }
-                self.showSuccess("Proyecto cambiado a estado: \(nuevoEstado)")
+                // Mensaje de éxito con "Proyecto cambiado a estado: X"
+                let msgFormat = NSLocalizedString("detalle_proyecto_state_changed_format", comment: "Proyecto cambiado a estado: %@")
+                let finalMsg = String(format: msgFormat, nuevoEstado)
+                self.showSuccess(finalMsg)
             }
         } catch {
             debugPrint("Error al cambiar estado del proyecto: \(error.localizedDescription)")
-            showError("No se pudo cambiar el estado del proyecto.")
+            let errMsg = NSLocalizedString("detalle_proyecto_could_not_change_state", comment: "No se pudo cambiar el estado del proyecto.")
+            showError(errMsg)
         }
     }
     
@@ -214,12 +226,15 @@ final class DetalleProyectoViewModel: ObservableObject {
         do {
             try await gestionarSolicitudesUseCase.enviarSolicitud(proyectoID: proyectoID, usuarioID: userID, mensaje: mensaje)
             DispatchQueue.main.async { [weak self] in
-                self?.yaSolicitado = true
-                self?.showSuccess("✅ Solicitud enviada correctamente.")
+                guard let self = self else { return }
+                self.yaSolicitado = true
+                let successMsg = NSLocalizedString("detalle_proyecto_request_sent", comment: "Solicitud enviada correctamente.")
+                self.showSuccess(successMsg)
             }
         } catch {
+            let err = (error as NSError).localizedDescription
             DispatchQueue.main.async {
-                self.showError(error.localizedDescription)
+                self.showError(err)
             }
         }
     }
@@ -228,10 +243,14 @@ final class DetalleProyectoViewModel: ObservableObject {
     func actualizarEstadoSolicitud(solicitudID: String, estado: String) async {
         do {
             try await gestionarSolicitudesUseCase.actualizarEstadoSolicitud(solicitudID: solicitudID, estado: estado)
-            showSuccess("Solicitud \(estado)")
+            // "Solicitud <estado>"
+            let msg = String(format: NSLocalizedString("detalle_proyecto_request_state_format", comment: "Solicitud %@"), estado)
+            showSuccess(msg)
         } catch {
             debugPrint("Error al actualizar estado de solicitud: \(error.localizedDescription)")
-            showError("No se pudo actualizar la solicitud a \(estado).")
+            let errMsgFormat = NSLocalizedString("detalle_proyecto_could_not_update_request_format", comment: "No se pudo actualizar la solicitud a %@")
+            let finalErr = String(format: errMsgFormat, estado)
+            showError(finalErr)
         }
     }
     
@@ -242,11 +261,15 @@ final class DetalleProyectoViewModel: ObservableObject {
             DispatchQueue.main.async {
                 self.soyParticipante = false
                 self.yaSolicitado = false
-                self.showSuccess("🚀 Has abandonado el proyecto correctamente.")
+                let msg = NSLocalizedString("detalle_proyecto_abandon_success", comment: "Has abandonado el proyecto correctamente.")
+                self.showSuccess(msg)
             }
         } catch {
+            debugPrint("Error al abandonar proyecto: \(error.localizedDescription)")
+            let errMsgFormat = NSLocalizedString("detalle_proyecto_abandon_error_format", comment: "Error al abandonar el proyecto: %@")
+            let finalErr = String(format: errMsgFormat, error.localizedDescription)
             DispatchQueue.main.async {
-                self.showError("❌ Error al abandonar el proyecto: \(error.localizedDescription)")
+                self.showError(finalErr)
             }
         }
     }
@@ -263,13 +286,18 @@ final class DetalleProyectoViewModel: ObservableObject {
             }
             try await batch.commit()
             try await proyectoRepository.eliminarProyecto(proyectoID: proyecto.id)
+            
             DispatchQueue.main.async {
-                self.showSuccess("Proyecto eliminado correctamente")
+                let successMsg = NSLocalizedString("detalle_proyecto_deleted_success", comment: "Proyecto eliminado correctamente")
+                self.showSuccess(successMsg)
                 self.errorMessage = nil
             }
         } catch {
+            let errMsgFormat = NSLocalizedString("detalle_proyecto_deleted_error_format", comment: "Error al eliminar proyecto: %@")
+            let finalErr = String(format: errMsgFormat, error.localizedDescription)
+            
             DispatchQueue.main.async {
-                self.errorMessage = "Error al eliminar proyecto: \(error.localizedDescription)"
+                self.errorMessage = finalErr
             }
         }
     }

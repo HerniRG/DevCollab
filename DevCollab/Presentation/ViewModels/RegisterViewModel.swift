@@ -24,15 +24,21 @@ class RegisterViewModel: ObservableObject {
         let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedPassword = password.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedNombre = nombre.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // Validar campos obligatorios
         guard !trimmedEmail.isEmpty,
               !trimmedPassword.isEmpty,
               !trimmedNombre.isEmpty,
               !seleccionLenguajes.isEmpty else {
-            toastManager.showToast("❌ Por favor, completa todos los campos.")
+            // Antes: "❌ Por favor, completa todos los campos."
+            let missingFields = NSLocalizedString("register_vm_missing_fields", comment: "Faltan campos por rellenar")
+            toastManager.showToast("❌ \(missingFields)")
             return
         }
+        
         Task {
             do {
+                // Realizar registro en el repositorio de autenticación
                 _ = try await authRepository.register(
                     email: trimmedEmail,
                     password: trimmedPassword,
@@ -40,12 +46,16 @@ class RegisterViewModel: ObservableObject {
                     lenguajes: seleccionLenguajes,
                     descripcion: descripcion
                 )
+                
                 DispatchQueue.main.async {
-                    self.toastManager.showToast("✅ Registro exitoso. Verifica tu correo para confirmar tu cuenta.")
+                    // Antes: "✅ Registro exitoso. Verifica tu correo para confirmar tu cuenta."
+                    let successMessage = NSLocalizedString("register_vm_success", comment: "Registro exitoso, verifica tu correo.")
+                    self.toastManager.showToast("✅ \(successMessage)")
                     self.clearFields()
                 }
             } catch {
                 DispatchQueue.main.async {
+                    // Antes: "❌ \(error.localizedDescription)"
                     self.toastManager.showToast("❌ \(error.localizedDescription)")
                 }
             }

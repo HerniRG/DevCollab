@@ -11,11 +11,11 @@ class ProyectosViewModel: ObservableObject {
     private let obtenerProyectosUseCase: ObtenerProyectosUseCase
     private let obtenerSolicitudesUseCase: ObtenerSolicitudesUseCase
     
-    // ToastManager para mostrar mensajes (inyectado)
+    // ToastManager (opcional) para mostrar mensajes, inyectado
     var toastManager: ToastManager
 
     init(toastManager: ToastManager = ToastManager()) {
-        let proyectoRepository = FirebaseProyectoRepository()  // Suponiendo que este repositorio implementa el protocolo para proyectos
+        let proyectoRepository = FirebaseProyectoRepository()
         self.obtenerProyectosUseCase = ObtenerProyectosUseCaseImpl(repository: proyectoRepository)
         
         let solicitudRepository = FirebaseSolicitudRepository()
@@ -39,7 +39,12 @@ class ProyectosViewModel: ObservableObject {
             } catch {
                 DispatchQueue.main.async { [weak self] in
                     self?.isLoading = false
-                    debugPrint("❌ Error al obtener proyectos: \(error.localizedDescription)")
+                    let errorFormat = NSLocalizedString("proyectos_vm_error_fetch_projects_format", comment: "Error al obtener proyectos: %@")
+                    let finalError = String(format: errorFormat, error.localizedDescription)
+                    debugPrint(finalError)
+                    
+                    // Si quisieras mostrar un Toast en lugar de debugPrint:
+                    // self?.toastManager.showToast(finalError)
                 }
             }
         }
@@ -51,11 +56,17 @@ class ProyectosViewModel: ObservableObject {
             var nuevasSolicitudes: [String: [Solicitud]] = [:]
             for proyecto in misProyectos {
                 do {
-                    let solicitudes = try await ObtenerSolicitudesPorProyectoUseCaseImpl(repository: FirebaseSolicitudRepository()).execute(proyectoID: proyecto.id)
-                    // Solo nos interesan las que están pendientes
+                    let solicitudes = try await ObtenerSolicitudesPorProyectoUseCaseImpl(repository: FirebaseSolicitudRepository())
+                        .execute(proyectoID: proyecto.id)
+                    // Solo las pendientes
                     nuevasSolicitudes[proyecto.id] = solicitudes.filter { $0.estado == "Pendiente" }
                 } catch {
-                    debugPrint("Error al obtener solicitudes para el proyecto \(proyecto.id): \(error.localizedDescription)")
+                    let errorFormat = NSLocalizedString("proyectos_vm_error_fetch_solicitudes_project_format", comment: "Error al obtener solicitudes para el proyecto %@: %@")
+                    let finalError = String(format: errorFormat, proyecto.id, error.localizedDescription)
+                    debugPrint(finalError)
+                    
+                    // Si quisieras Toast:
+                    // self.toastManager.showToast(finalError)
                 }
             }
             DispatchQueue.main.async {
@@ -74,7 +85,9 @@ class ProyectosViewModel: ObservableObject {
                 }
             } catch {
                 DispatchQueue.main.async { [weak self] in
-                    debugPrint("❌ Error al obtener solicitudes: \(error.localizedDescription)")
+                    let errorFormat = NSLocalizedString("proyectos_vm_error_fetch_solicitudes_format", comment: "Error al obtener solicitudes: %@")
+                    let finalError = String(format: errorFormat, error.localizedDescription)
+                    debugPrint(finalError)
                 }
             }
         }

@@ -30,14 +30,16 @@ final class CrearProyectoViewModel: ObservableObject {
               !horasSemanales.isEmpty,
               !tipoColaboracion.isEmpty,
               !lenguajes.isEmpty else {
-            toastManager.showToast("❌ Faltan campos por rellenar")
+            let missingFieldsMessage = NSLocalizedString("crear_proyecto_vm_missing_fields", comment: "Faltan campos por rellenar")
+            toastManager.showToast("❌ \(missingFieldsMessage)")
             completion(false)
             return
         }
         
         // Validación de horas semanales como número válido
         guard let horas = Int(horasSemanales), horas > 0 else {
-            toastManager.showToast("❌ Las horas semanales deben ser un número válido mayor que 0.")
+            let invalidHoursMessage = NSLocalizedString("crear_proyecto_vm_invalid_hours", comment: "Las horas semanales deben ser un número mayor que 0")
+            toastManager.showToast("❌ \(invalidHoursMessage)")
             completion(false)
             return
         }
@@ -52,7 +54,8 @@ final class CrearProyectoViewModel: ObservableObject {
                 
                 // 3. Comprobar cuántos proyectos tiene
                 if misProyectos.count >= 2 {
-                    toastManager.showToast("❌ Ya tienes 2 proyectos creados. No puedes crear más.")
+                    let tooManyProjectsMessage = NSLocalizedString("crear_proyecto_vm_too_many_projects", comment: "Ya tienes 2 proyectos creados. No puedes crear más.")
+                    toastManager.showToast("❌ \(tooManyProjectsMessage)")
                     completion(false)
                     return
                 }
@@ -73,7 +76,8 @@ final class CrearProyectoViewModel: ObservableObject {
                 try await crearProyectoUseCase.execute(proyecto: proyecto)
                 
                 // 6. Éxito
-                toastManager.showToast("✅ Proyecto creado exitosamente.")
+                let successMessage = NSLocalizedString("crear_proyecto_vm_project_created", comment: "Proyecto creado exitosamente.")
+                toastManager.showToast("✅ \(successMessage)")
                 completion(true)
             } catch {
                 toastManager.showToast("❌ \(error.localizedDescription)")

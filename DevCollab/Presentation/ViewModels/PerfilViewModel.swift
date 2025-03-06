@@ -35,17 +35,21 @@ final class PerfilViewModel: ObservableObject {
         fetchUserProfile()
     }
     
-    // MARK: - Toast Helpers (delegados al ToastManager)
+    // MARK: - Toast Helpers
     private func showToast(_ message: String) {
         toastManager.showToast(message)
     }
     
     private func showError(_ message: String) {
-        showToast("❌ \(message)")
+        // Prefijo de error
+        let errorPrefix = NSLocalizedString("perfil_vm_error_prefix", comment: "Prefijo para errores (❌)")
+        showToast("\(errorPrefix) \(message)")
     }
     
     private func showSuccess(_ message: String) {
-        showToast("✅ \(message)")
+        // Prefijo de éxito
+        let successPrefix = NSLocalizedString("perfil_vm_success_prefix", comment: "Prefijo para éxitos (✅)")
+        showToast("\(successPrefix) \(message)")
     }
     
     // MARK: - Perfil y Proyectos
@@ -143,9 +147,14 @@ final class PerfilViewModel: ObservableObject {
                     self.proyectosCreados.removeAll { $0.id == proyecto.id }
                     self.proyectosParticipando.removeAll { $0.id == proyecto.id }
                 }
-                showSuccess("Proyecto eliminado correctamente.")
+                // Antes: "Proyecto eliminado correctamente."
+                let successMsg = NSLocalizedString("perfil_vm_project_deleted", comment: "Proyecto eliminado correctamente.")
+                showSuccess(successMsg)
             } catch {
-                showError("Error al eliminar proyecto: \(error.localizedDescription)")
+                // Antes: "Error al eliminar proyecto: \(error.localizedDescription)"
+                let errorFormat = NSLocalizedString("perfil_vm_project_delete_error_format", comment: "Error al eliminar proyecto con formato: %@")
+                let finalErr = String(format: errorFormat, error.localizedDescription)
+                showError(finalErr)
             }
         }
     }
@@ -157,29 +166,37 @@ final class PerfilViewModel: ObservableObject {
         let maxNombreLength = 25
         let maxDescripcionLength = 150
         
+        // Validaciones
+        let nameEmpty = NSLocalizedString("perfil_vm_name_empty", comment: "El nombre no puede estar vacío.")
+        let nameExceeded = String(format: NSLocalizedString("perfil_vm_name_exceeded_format", comment: "El nombre excede los %d caracteres."), maxNombreLength)
+        let descEmpty = NSLocalizedString("perfil_vm_description_empty", comment: "La descripción no puede estar vacía.")
+        let descExceeded = String(format: NSLocalizedString("perfil_vm_description_exceeded_format", comment: "La descripción excede los %d caracteres."), maxDescripcionLength)
+        let noLanguage = NSLocalizedString("perfil_vm_no_language", comment: "Selecciona al menos un lenguaje.")
+        let noUserToUpdate = NSLocalizedString("perfil_vm_no_user_to_update", comment: "No hay usuario para actualizar")
+        
         if nombre.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            showError("El nombre no puede estar vacío.")
+            showError(nameEmpty)
             return
         }
         if nombre.count > maxNombreLength {
-            showError("El nombre excede los \(maxNombreLength) caracteres.")
+            showError(nameExceeded)
             return
         }
         if descripcion.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            showError("La descripción no puede estar vacía.")
+            showError(descEmpty)
             return
         }
         if descripcion.count > maxDescripcionLength {
-            showError("La descripción excede los \(maxDescripcionLength) caracteres.")
+            showError(descExceeded)
             return
         }
         if lenguajes.isEmpty {
-            showError("Selecciona al menos un lenguaje.")
+            showError(noLanguage)
             return
         }
         
         guard let userID = usuario?.id else {
-            showError("No hay usuario para actualizar")
+            showError(noUserToUpdate)
             return
         }
         
@@ -201,9 +218,14 @@ final class PerfilViewModel: ObservableObject {
                         correo: self.usuario?.correo ?? ""
                     )
                 }
-                showSuccess("Perfil actualizado con éxito.")
+                // Antes: "Perfil actualizado con éxito."
+                let successMsg = NSLocalizedString("perfil_vm_profile_updated", comment: "Perfil actualizado con éxito.")
+                showSuccess(successMsg)
             } catch {
-                showError("Error al actualizar el perfil: \(error.localizedDescription)")
+                // Antes: "Error al actualizar el perfil: \(error.localizedDescription)"
+                let errorFormat = NSLocalizedString("perfil_vm_profile_update_error_format", comment: "Error al actualizar el perfil: %@")
+                let finalErr = String(format: errorFormat, error.localizedDescription)
+                showError(finalErr)
             }
         }
     }

@@ -40,11 +40,11 @@
 "Kotlin" = "Kotlin";
 "Java" = "Java";
 "Python" = "Python";
-"JavaScript" = "JavaScript"
-"C#" = "C#"
-"Dart" = "Dart"
-"Go" = "Go"
-"Ruby" = "Ruby"
+"JavaScript" = "JavaScript";
+"C#" = "C#";
+"Dart" = "Dart";
+"Go" = "Go";
+"Ruby" = "Ruby";
 
 "project_name" = "Project name: %@";
 "project_languages" = "Languages: %@";
@@ -56,3 +56,454 @@
 "delete_project_hint" = "Removes this project from Firebase";
 "pending_request" = "Pending request";
 "pending_request_hint" = "There are pending requests for this project";
+
+// Loading and state
+"loading_info" = "Loading information...";
+"loading_project_info" = "Loading project information";
+"loading_details" = "Loading details...";
+"loading_request_details" = "Loading request details...";
+
+// Project
+"project_name" = "Project name: %@";
+"project_info" = "Project Information";
+"description" = "Description:";
+"languages" = "Languages:";
+"weekly_hours" = "Weekly hours:";
+"collab_type" = "Collaboration type:";
+"status" = "Status:";
+"Abierto" = "Open";
+"Cerrado" = "Closed";
+"project_status" = "Project status: %@";
+
+// Project state
+"close_project" = "Close Project";
+"reopen_project" = "Reopen Project";
+"toggle_project_status" = "Change the project status";
+
+// Requests
+"no_pending_requests" = "No pending requests.";
+"user" = "User";
+"message_format" = "Message: %@";
+"no_message" = "No message";
+"participation_request" = "Participation request";
+"view_request_details" = "View request details";
+"participation_requests" = "Participation Requests";
+
+// Participants
+"no_approved_participants" = "No approved participants.";
+"participant_info" = "Participant: %@. Languages: %@";
+"participants" = "Participants";
+
+// Delete
+"delete_project_button" = "Delete Project";
+"delete_project" = "Delete project";
+"delete_project_hint" = "Permanently removes this project";
+
+// Error
+"error_label" = "Error: %@";
+
+// Delete alert
+"confirm_delete" = "Confirm deletion";
+"delete" = "Delete";
+"cancel" = "Cancel";
+"confirm_delete_message" = "Are you sure you want to delete this project? This action cannot be undone.";
+
+// Loading
+"loading_info" = "Loading information...";
+"loading_project_info" = "Loading project information";
+
+// Project
+"project_name" = "Project name: %@";
+"description" = "Description:";
+"languages" = "Languages:";
+"weekly_hours" = "Weekly hours:";
+"collab_type" = "Collaboration type:";
+"status" = "Status:";
+"Abierto" = "Open";
+"Cerrado" = "Closed";
+"project_status" = "Project status: %@";
+
+// Creator
+"creator_info" = "Creator Information";
+"creator_name" = "Name:";
+"creator_name_accessibility" = "Creator name: %@";
+"creator_description" = "Description:";
+"creator_description_accessibility" = "Creator description: %@";
+"creator_languages" = "Languages:";
+"creator_languages_accessibility" = "Creator languages: %@";
+
+// Participation
+"request_participation" = "Request Participation";
+"request_participation_hint" = "Sends a request to the creator";
+"request_approved" = "Request Approved";
+"request_approved_accessibility" = "Your request has been approved";
+"abandon_project" = "Abandon Project";
+"abandon_project_hint" = "You will no longer participate in this project";
+"request_rejected" = "Request Rejected";
+"request_rejected_accessibility" = "Your request was rejected";
+"request_pending" = "Request Pending";
+"request_pending_accessibility" = "Your request is pending";
+
+// Participants
+"participants" = "Participants";
+"no_approved_participants" = "No approved participants.";
+"no_approved_participants_accessibility" = "No approved participants";
+"participant_info" = "Participant: %@. Languages: %@";
+
+// Messages
+"no_message" = "No message";
+"message_format" = "Message: %@";
+
+// Empty sections
+"no_pending_requests" = "No pending requests.";
+
+// Error
+"error_label" = "Error: %@";
+
+// Alert to abandon project
+"confirm_abandon" = "Confirm abandonment";
+"abandon" = "Abandon";
+"cancel" = "Cancel";
+"confirm_abandon_message" = "Are you sure you want to abandon this project?";
+
+// Title and navigation
+"request_details_title" = "Request Details";
+"request_details_accessibility" = "Details of the request";
+"request_nav_title" = "Request";
+
+// User
+"user_name_format" = "Name: %@";
+"user_name_accessibility" = "User name: %@";
+"user_languages_format" = "Languages: %@";
+"user_languages_accessibility" = "User languages: %@";
+"user_description_format" = "Description: %@";
+"user_description_accessibility" = "User description: %@";
+
+// Request message
+"request_message_format" = "Message: %@";
+"request_message_accessibility" = "User message: %@";
+
+// Buttons
+"approve_request" = "Approve";
+"approve_request_accessibility" = "Approve request";
+"approve_request_hint" = "Accept the participation request";
+"reject_request" = "Reject";
+"reject_request_accessibility" = "Reject request";
+"reject_request_hint" = "Reject the participation request";
+"close" = "Close";
+"close_request_view_accessibility" = "Close the request view";
+"close_request_view_hint" = "Go back to the previous screen";
+
+// Message instructions
+"participation_message_instructions" = "Write a message explaining why you want to participate:";
+"participation_message_instructions_accessibility" = "Describe why you want to join the project";
+"participation_message_instructions_hint" = "Explain your motivations and skills to join the project";
+
+// TextEditor field
+"request_message_field" = "Request message";
+"request_message_field_hint" = "Explain your reasons for participating in this project";
+"request_message_placeholder" = "Write your motivation here...";
+
+// Main title
+"participation_request_title" = "Participation Request";
+"participation_request_title_accessibility" = "Participation request";
+
+// Navigation bar buttons
+"cancel_button" = "Cancel";
+"cancel_button_accessibility" = "Cancel submission";
+"cancel_button_hint" = "Closes the form without sending the request";
+
+"send_button" = "Send";
+"send_button_accessibility" = "Send request";
+"send_button_hint" = "Sends the message to the project owner";
+
+"devcollab_app_title" = "DevCollab";
+"devcollab_app_title_accessibility" = "DevCollab";
+
+"create_account" = "Create your account";
+"create_account_accessibility" = "Create your account";
+
+"start_session" = "Login";
+"start_session_accessibility" = "Login to your account";
+
+// Email placeholder and accessibility
+"login_email_placeholder" = "Email";
+"login_email_accessibility" = "Email";
+"login_email_hint" = "Enter your email to sign in";
+
+// Password placeholder and accessibility
+"login_password_placeholder" = "Password";
+"login_password_accessibility" = "Password";
+"login_password_hint" = "Enter your login password";
+
+// Forgot password button
+"forgot_password_button" = "Forgot your password?";
+"forgot_password_accessibility" = "Forgot my password";
+"forgot_password_hint" = "Sends a reset email if the address is valid";
+
+// Resend verification button
+"resend_verification_button" = "Resend verification email";
+"resend_verification_accessibility" = "Resend verification";
+"resend_verification_hint" = "Requests a new email to verify your address";
+
+"register_button" = "Register";
+"register_button_accessibility" = "Register a new account";
+"register_button_hint" = "Creates a new account";
+
+"login_button" = "Login";
+"login_button_accessibility" = "Login to your account";
+"login_button_hint" = "Sign in with your email and password";
+
+// Toggle between login and register
+"already_have_account" = "Already have an account? Login";
+"already_have_account_accessibility" = "Access your account if you have one created";
+"dont_have_account" = "Don't have an account? Register";
+"dont_have_account_accessibility" = "Create a new account if you don't have one yet";
+
+// Email
+"register_email_placeholder" = "Email";
+"register_email_accessibility" = "Email for registration";
+"register_email_hint" = "Enter your email to sign up";
+
+// Password
+"register_password_placeholder" = "Password";
+"register_password_accessibility" = "Password for registration";
+"register_password_hint" = "Enter a password for your new account";
+
+// Name
+"register_name_placeholder" = "Name";
+"register_name_accessibility" = "Name or alias field";
+"register_name_hint" = "Enter your name or alias";
+
+// Description
+"register_description_placeholder" = "Description (e.g. Mobile Developer, Backend, UX/UI Design)";
+"register_description_accessibility" = "Description field";
+"register_description_hint" = "Max %d characters. Briefly describe your experience or role.";
+"register_description_counter_accessibility" = "Description used: %d out of %d characters";
+
+// Main section
+"edit_profile_section_header" = "Edit Profile";
+
+// Name
+"edit_profile_name_placeholder" = "Name (max. %d characters)";
+"edit_profile_name_accessibility" = "Profile name";
+"edit_profile_name_hint" = "Enter your name, up to %d characters.";
+
+// Description
+"edit_profile_description_label" = "Description (max. %d characters)";
+"edit_profile_description_accessibility" = "Profile description";
+"edit_profile_description_hint" = "Max %d characters. Describe your role or experience";
+"edit_profile_description_placeholder" = "E.g. Mobile Developer, Backend, UX/UI Design...";
+"edit_profile_description_counter_accessibility" = "Characters used: %d out of %d";
+
+// Languages
+"edit_profile_languages_accessibility" = "Programming languages";
+"edit_profile_languages_hint" = "Select the languages you usually work with";
+
+// Save button
+"edit_profile_save_button" = "Save Changes";
+"edit_profile_save_accessibility" = "Save changes";
+"edit_profile_save_hint" = "Updates your profile with the entered data";
+
+// Language selection subview
+"select_languages" = "Select languages";
+"select_languages_accessibility" = "Open languages list";
+"select_languages_hint" = "Opens the list of programming languages";
+
+// Languages screen
+"languages_title" = "Programming Languages";
+"languages_done_button" = "Done";
+"languages_done_button_accessibility" = "Done";
+"languages_done_button_hint" = "Closes the list of languages";
+"language_selected_hint" = "Currently selected. Tap to unselect";
+"language_unselected_hint" = "Not selected. Tap to select";
+
+// Profile section
+"profile_section_header" = "Profile";
+"profile_user_name" = "Username: %@";
+"profile_user_name_hint" = "This is your profile name";
+"profile_user_description" = "Description: %@";
+"profile_user_languages" = "Languages: %@";
+"profile_user_languages_accessibility" = "User languages: %@";
+"edit_profile_button" = "Edit profile";
+"edit_profile_button_hint" = "Opens the screen to edit your profile";
+
+// Created projects section
+"profile_created_projects_header" = "My created projects";
+"profile_no_created_projects" = "You have no created projects.";
+"profile_no_created_projects_accessibility" = "No created projects found";
+"closed_project_delete_hint" = "Project is closed, you can remove it";
+
+// Participation section
+"profile_participations_header" = "Projects you participate in";
+"profile_no_participations" = "You are not participating in any project.";
+"profile_no_participations_accessibility" = "No project participations found";
+
+// Logout section
+"logout_button" = "Log out";
+"logout_button_accessibility" = "Log out";
+"logout_button_hint" = "Your session will be closed in this app";
+
+// Loading state
+"loading_profile" = "Loading profile...";
+"loading_profile_accessibility" = "Loading user profile";
+
+// Main section: Project info
+"crear_proyecto_nombre_placeholder" = "Project name (max. %d characters)";
+"crear_proyecto_nombre_accessibility" = "Project name. Maximum %d characters";
+"crear_proyecto_nombre_hint" = "Enter the project name, up to %d characters";
+
+"crear_proyecto_descripcion_accessibility" = "Project description";
+"crear_proyecto_descripcion_hint" = "Max. %d characters. Explain your project idea";
+"crear_proyecto_descripcion_placeholder" = "Description";
+"crear_proyecto_informacion_principal" = "Main information";
+
+// Details section
+"crear_proyecto_detalles_header" = "Project details";
+"crear_proyecto_lenguajes_accessibility" = "Programming languages";
+"crear_proyecto_lenguajes_hint" = "Select the required languages for this project";
+"crear_proyecto_horas_placeholder" = "Weekly hours";
+"crear_proyecto_horas_accessibility" = "Weekly hours";
+"crear_proyecto_horas_hint" = "Approximate number of hours you'll dedicate";
+"crear_proyecto_colaboracion_placeholder" = "Collaboration type (max. %d characters)";
+"crear_proyecto_colaboracion_accessibility" = "Collaboration type";
+"crear_proyecto_colaboracion_hint" = "Example: remote, on-site, hybrid";
+
+// Buttons
+"crear_proyecto_boton" = "Create Project";
+"crear_proyecto_boton_accessibility" = "Create project";
+"crear_proyecto_boton_hint" = "Saves the project and closes the window";
+
+"crear_proyecto_cerrar_boton" = "Close";
+"crear_proyecto_cerrar_accessibility" = "Close creation screen";
+"crear_proyecto_cerrar_hint" = "Cancels project creation and goes back";
+
+// --- Main information ---
+
+"crear_proyecto_informacion_principal" = "Main information";
+
+// Name
+"crear_proyecto_nombre_placeholder" = "Project name (max. %d characters)";
+"crear_proyecto_nombre_accessibility" = "Project name (up to %d characters)";
+"crear_proyecto_nombre_hint" = "Enter the project name, up to %d characters";
+
+// Description
+"crear_proyecto_descripcion_placeholder" = "Description";
+"crear_proyecto_descripcion_accessibility" = "Project description";
+"crear_proyecto_descripcion_hint" = "Explain your project idea, up to %d characters";
+
+// --- Project details ---
+
+"crear_proyecto_detalles_header" = "Project details";
+
+// Languages
+"crear_proyecto_lenguajes_accessibility" = "Programming languages";
+"crear_proyecto_lenguajes_hint" = "Select the required languages for this project";
+
+// Weekly hours
+"crear_proyecto_horas_placeholder" = "Weekly hours";
+"crear_proyecto_horas_accessibility" = "Weekly hours";
+"crear_proyecto_horas_hint" = "How many hours will you dedicate to the project each week?";
+
+// Collaboration type
+"crear_proyecto_colaboracion_placeholder" = "Collaboration type (max. %d characters)";
+"crear_proyecto_colaboracion_accessibility" = "Collaboration type";
+"crear_proyecto_colaboracion_hint" = "For example: remote, on-site, or hybrid...";
+
+// My created projects section
+"explorar_no_created_projects" = "You haven't created any project.";
+"explorar_created_project_hint" = "View details of your created project";
+"explorar_created_projects_header" = "My Created Projects";
+
+// Projects you participate in
+"explorar_no_participation" = "You are not participating in any project.";
+"explorar_participation_project_hint" = "View details of the project you participate in";
+"explorar_participation_header" = "Projects you're participating in";
+
+// Open projects section
+"explorar_filter_language_label" = "Filter by language:";
+"explorar_filter_language_all" = "All";
+"explorar_filter_language_accessibility" = "Language filter";
+"explorar_filter_language_hint" = "Choose a language to filter projects";
+"explorar_no_open_projects" = "No open projects available.";
+"explorar_open_project_hint" = "View details of the open project";
+"explorar_open_projects_header" = "Open Projects";
+
+// LoadingView en inglés
+
+"loading_view_icon_accessibility" = "Loading DevCollab";
+"loading_view_text" = "Connecting to DevCollab...";
+"loading_view_progress_accessibility" = "Connecting";
+"loading_view_progress_hint" = "Please wait while the connection is established";
+
+// auth_container_logout_error
+"auth_container_logout_error" = "❌ Error logging out: %@";
+
+// CrearProyectoViewModel
+"crear_proyecto_vm_missing_fields" = "Some fields are missing.";
+"crear_proyecto_vm_invalid_hours" = "Weekly hours must be a valid number greater than 0.";
+"crear_proyecto_vm_too_many_projects" = "You already have 2 created projects. You cannot create more.";
+"crear_proyecto_vm_project_created" = "Project created successfully.";
+
+// Generic prefixes
+"detalle_proyecto_error_prefix" = "❌";
+"detalle_proyecto_success_prefix" = "✅";
+
+// Messages
+"detalle_proyecto_participant_added" = "Participant added successfully";
+"detalle_proyecto_could_not_add_participant" = "Could not add participant.";
+
+"detalle_proyecto_state_changed_format" = "Project changed to state: %@";
+"detalle_proyecto_could_not_change_state" = "Could not change the project state.";
+
+"detalle_proyecto_request_sent" = "Request sent successfully.";
+"detalle_proyecto_request_state_format" = "Request %@";
+"detalle_proyecto_could_not_update_request_format" = "Could not update the request to %@.";
+
+"detalle_proyecto_abandon_success" = "You have left the project successfully.";
+"detalle_proyecto_abandon_error_format" = "Error leaving the project: %@";
+
+"detalle_proyecto_deleted_success" = "Project deleted successfully";
+"detalle_proyecto_deleted_error_format" = "Error deleting project: %@";
+
+// LoginViewModel
+"login_vm_error_fetch_user" = "❌ Error fetching user.";
+"login_vm_missing_email_password" = "❌ Please enter your email and password.";
+"login_vm_login_successful" = "✅ Login successful.";
+"login_vm_reset_mail_sent" = "✅ Recovery email sent.";
+"login_vm_reset_mail_error" = "❌ Error sending recovery email.";
+"login_vm_verification_resent" = "✅ Verification email resent.";
+"login_vm_verification_resent_error" = "❌ Error resending verification email.";
+"login_vm_logout_error" = "❌ Error logging out.";
+
+// Prefixes
+"perfil_vm_error_prefix" = "❌";
+"perfil_vm_success_prefix" = "✅";
+
+// Project deletion messages
+"perfil_vm_project_deleted" = "Project deleted successfully.";
+"perfil_vm_project_delete_error_format" = "Error deleting project: %@";
+
+// Profile validations
+"perfil_vm_name_empty" = "Name cannot be empty.";
+"perfil_vm_name_exceeded_format" = "Name exceeds %d characters.";
+"perfil_vm_description_empty" = "Description cannot be empty.";
+"perfil_vm_description_exceeded_format" = "Description exceeds %d characters.";
+"perfil_vm_no_language" = "Select at least one language.";
+"perfil_vm_no_user_to_update" = "No user to update.";
+
+// Success messages when updating profile
+"perfil_vm_profile_updated" = "Profile updated successfully.";
+"perfil_vm_profile_update_error_format" = "Error updating profile: %@";
+
+// ProyectosViewModel
+"proyectos_vm_error_fetch_projects_format" = "❌ Error fetching projects: %@";
+"proyectos_vm_error_fetch_solicitudes_project_format" = "Error fetching requests for project %@: %@";
+"proyectos_vm_error_fetch_solicitudes_format" = "❌ Error fetching requests: %@";
+
+// RegisterViewModel
+"register_vm_missing_fields" = "Please fill in all fields.";
+"register_vm_success" = "Registration successful. Please verify your email to confirm your account.";
+
+// SolicitudesViewModel
+"solicitudes_vm_error_fetch_format" = "❌ Error fetching requests: %@";

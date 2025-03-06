@@ -33,12 +33,17 @@ class AuthContainerViewModel: ObservableObject {
             }
         } catch {
             DispatchQueue.main.async {
-                self.toastManager.showToast("❌ Error al cerrar sesión: \(error.localizedDescription)")
+                // ❌ Mensaje de error al cerrar sesión → lo internacionalizamos
+                let errorKey = String(
+                    format: NSLocalizedString("auth_container_logout_error", comment: "Mensaje de error con descripción: %@"),
+                    error.localizedDescription
+                )
+                self.toastManager.showToast(errorKey)
             }
         }
     }
 
-    /// **🔥 Nueva función para cambiar entre Login y Registro limpiando los Toasts**
+    /// **Nueva función para cambiar entre Login y Registro limpiando los Toasts**
     func toggleRegistering() {
         DispatchQueue.main.async {
             self.toastManager.hideToast() // Ocultar TOAST antes de cambiar

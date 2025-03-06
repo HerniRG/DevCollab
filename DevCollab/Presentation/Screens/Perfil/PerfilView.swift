@@ -17,25 +17,37 @@ struct PerfilView: View {
                                 Text(usuario.nombre)
                                     .font(.largeTitle)
                                     .fontWeight(.bold)
-                                    .accessibilityLabel("Nombre de usuario: \(usuario.nombre)")
-                                    .accessibilityHint("Este es tu nombre de perfil")
+                                    .accessibilityLabel(
+                                        String(
+                                            format: NSLocalizedString("profile_user_name", comment: "Nombre de usuario con formato: %@"),
+                                            usuario.nombre
+                                        )
+                                    )
+                                    .accessibilityHint(NSLocalizedString("profile_user_name_hint", comment: "Este es tu nombre de perfil"))
                                 
                                 // Descripción del usuario (si existe)
                                 if let descripcion = usuario.descripcion {
                                     Text(descripcion)
                                         .font(.subheadline)
                                         .foregroundColor(.secondary)
-                                        .accessibilityLabel("Descripción: \(descripcion)")
+                                        .accessibilityLabel(
+                                            String(
+                                                format: NSLocalizedString("profile_user_description", comment: "Descripción del usuario: %@"),
+                                                descripcion
+                                            )
+                                        )
                                 }
                                 
                                 // Lenguajes del usuario
                                 if !usuario.lenguajes.isEmpty {
-                                    Text("Lenguajes: \(usuario.lenguajes.map { $0.rawValue }.joined(separator: ", "))")
+                                    let lenguajesTexto = usuario.lenguajes
+                                        .map { NSLocalizedString($0.rawValue, comment: "Nombre del lenguaje") }
+                                        .joined(separator: ", ")
+                                    
+                                    Text(String(format: NSLocalizedString("profile_user_languages", comment: "Lenguajes: %@"), lenguajesTexto))
                                         .font(.subheadline)
                                         .foregroundColor(.secondary)
-                                        .accessibilityLabel(
-                                            "Lenguajes: \(usuario.lenguajes.map { $0.rawValue }.joined(separator: ", "))"
-                                        )
+                                        .accessibilityLabel(String(format: NSLocalizedString("profile_user_languages_accessibility", comment: "Lenguajes con formato: %@"), lenguajesTexto))
                                 }
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -49,11 +61,11 @@ struct PerfilView: View {
                                     .font(.system(size: 20, weight: .semibold))
                                     .padding(8)
                             }
-                            .accessibilityLabel("Editar perfil")
-                            .accessibilityHint("Abre la pantalla de edición de tu perfil")
+                            .accessibilityLabel(NSLocalizedString("edit_profile_button", comment: "Editar perfil"))
+                            .accessibilityHint(NSLocalizedString("edit_profile_button_hint", comment: "Abre la pantalla de edición de tu perfil"))
                         }
                     } header: {
-                        Text("Perfil")
+                        Text(NSLocalizedString("profile_section_header", comment: "Encabezado: Perfil"))
                             .font(.headline)
                             .foregroundColor(.primary)
                             .accessibilityAddTraits(.isHeader)
@@ -70,10 +82,10 @@ struct PerfilView: View {
                                         .foregroundColor(.gray)
                                         .accessibilityHidden(true)
                                     
-                                    Text("No tienes proyectos creados.")
+                                    Text(NSLocalizedString("profile_no_created_projects", comment: "No tienes proyectos creados."))
                                         .foregroundColor(.gray)
                                         .multilineTextAlignment(.center)
-                                        .accessibilityLabel("No tienes proyectos creados")
+                                        .accessibilityLabel(NSLocalizedString("profile_no_created_projects_accessibility", comment: "No tienes proyectos creados"))
                                 }
                                 Spacer()
                             }
@@ -88,14 +100,14 @@ struct PerfilView: View {
                                             viewModel.deleteProject(proyecto: proyecto)
                                         }
                                     )
-                                    .accessibilityHint("Proyecto cerrado, puedes borrarlo con un deslizamiento o pulsando el botón eliminar")
+                                    .accessibilityHint(NSLocalizedString("closed_project_delete_hint", comment: "Proyecto cerrado, puedes eliminarlo"))
                                 } else {
                                     ProyectoRowView(proyecto: proyecto)
                                 }
                             }
                         }
                     } header: {
-                        Text("Mis proyectos creados")
+                        Text(NSLocalizedString("profile_created_projects_header", comment: "Mis proyectos creados"))
                             .font(.headline)
                             .foregroundColor(.primary)
                             .accessibilityAddTraits(.isHeader)
@@ -112,10 +124,10 @@ struct PerfilView: View {
                                         .foregroundColor(.gray)
                                         .accessibilityHidden(true)
                                     
-                                    Text("No participas en ningún proyecto.")
+                                    Text(NSLocalizedString("profile_no_participations", comment: "No participas en ningún proyecto."))
                                         .foregroundColor(.gray)
                                         .multilineTextAlignment(.center)
-                                        .accessibilityLabel("No participas en ningún proyecto")
+                                        .accessibilityLabel(NSLocalizedString("profile_no_participations_accessibility", comment: "No participas en ningún proyecto"))
                                 }
                                 Spacer()
                             }
@@ -126,7 +138,7 @@ struct PerfilView: View {
                             }
                         }
                     } header: {
-                        Text("Proyectos en los que participas")
+                        Text(NSLocalizedString("profile_participations_header", comment: "Proyectos en los que participas"))
                             .font(.headline)
                             .foregroundColor(.primary)
                             .accessibilityAddTraits(.isHeader)
@@ -139,12 +151,12 @@ struct PerfilView: View {
                                 await ViewModelProvider.shared.loginVM.logout()
                             }
                         }) {
-                            Text("Cerrar sesión")
+                            Text(NSLocalizedString("logout_button", comment: "Cerrar sesión"))
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .foregroundColor(.white)
                         }
-                        .accessibilityLabel("Cerrar sesión")
-                        .accessibilityHint("Se cerrará tu sesión en la aplicación")
+                        .accessibilityLabel(NSLocalizedString("logout_button_accessibility", comment: "Cerrar sesión"))
+                        .accessibilityHint(NSLocalizedString("logout_button_hint", comment: "Se cerrará tu sesión en la aplicación"))
                         .listRowBackground(Color.red)
                     }
                 }
@@ -167,11 +179,11 @@ struct PerfilView: View {
                 // MARK: - Estado de carga
                 VStack {
                     Spacer()
-                    ProgressView("Cargando perfil...")
+                    ProgressView(NSLocalizedString("loading_profile", comment: "Cargando perfil..."))
                     Spacer()
                 }
                 .accessibilityElement()
-                .accessibilityLabel("Cargando el perfil del usuario")
+                .accessibilityLabel(NSLocalizedString("loading_profile_accessibility", comment: "Cargando el perfil del usuario"))
                 .onAppear {
                     viewModel.fetchUserProfile()
                 }

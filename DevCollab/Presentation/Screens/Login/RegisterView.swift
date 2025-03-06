@@ -24,7 +24,7 @@ struct RegisterView: View {
             
             // MARK: - Campo de Correo
             CustomTextField(
-                placeholder: "Correo electrónico",
+                placeholderKey: "register_email_placeholder",
                 text: $email,
                 keyboardType: .emailAddress
             )
@@ -35,13 +35,12 @@ struct RegisterView: View {
             .onSubmit {
                 focusedField = .password
             }
-            // Accesibilidad
-            .accessibilityLabel("Correo electrónico")
-            .accessibilityHint("Introduce tu correo para registrarte")
+            .accessibilityLabel(NSLocalizedString("register_email_accessibility", comment: "Accesibilidad: campo de correo para registro"))
+            .accessibilityHint(NSLocalizedString("register_email_hint", comment: "Hint: introduce tu correo para registrarte"))
             
             // MARK: - Campo de Contraseña (con visor)
             CustomSecureField(
-                placeholder: "Contraseña",
+                placeholder: NSLocalizedString("register_password_placeholder", comment: "Placeholder para contraseña"),
                 text: $password,
                 isPasswordVisible: $isPasswordVisible
             )
@@ -50,12 +49,12 @@ struct RegisterView: View {
             .onSubmit {
                 focusedField = .nombre
             }
-            .accessibilityLabel("Contraseña")
-            .accessibilityHint("Introduce tu contraseña de registro")
+            .accessibilityLabel(NSLocalizedString("register_password_accessibility", comment: "Accesibilidad: campo de contraseña"))
+            .accessibilityHint(NSLocalizedString("register_password_hint", comment: "Hint: introduce tu contraseña para registro"))
             
             // MARK: - Campo de Nombre
             CustomTextField(
-                placeholder: "Nombre",
+                placeholderKey: "register_name_placeholder",
                 text: $nombre
             )
             .autocorrectionDisabled(true)
@@ -65,13 +64,13 @@ struct RegisterView: View {
             .onSubmit {
                 focusedField = .descripcion
             }
-            .accessibilityLabel("Nombre")
-            .accessibilityHint("Introduce tu nombre o alias en la plataforma")
+            .accessibilityLabel(NSLocalizedString("register_name_accessibility", comment: "Accesibilidad: campo de nombre"))
+            .accessibilityHint(NSLocalizedString("register_name_hint", comment: "Hint: introduce tu nombre o alias"))
             
             // MARK: - Campo de Descripción con contador de caracteres
             VStack(alignment: .trailing, spacing: 4) {
                 CustomTextField(
-                    placeholder: "Descripción (ej. Mobile Developer, Backend, Diseño UX/UI)",
+                    placeholderKey: "register_description_placeholder",
                     text: $descripcion
                 )
                 .autocorrectionDisabled(true)
@@ -86,14 +85,24 @@ struct RegisterView: View {
                         descripcion = String(newValue.prefix(maxDescriptionLength))
                     }
                 }
-                // Accesibilidad
-                .accessibilityLabel("Descripción")
-                .accessibilityHint("Máximo \(maxDescriptionLength) caracteres. Describe brevemente tu experiencia o rol.")
+                .accessibilityLabel(NSLocalizedString("register_description_accessibility", comment: "Accesibilidad: campo de descripción"))
+                .accessibilityHint(
+                    String(
+                        format: NSLocalizedString("register_description_hint", comment: "Hint: Máximo %d caracteres. Describe tu experiencia o rol."),
+                        maxDescriptionLength
+                    )
+                )
                 
                 Text("\(descripcion.count)/\(maxDescriptionLength)")
                     .font(.caption)
                     .foregroundColor(descripcion.count >= maxDescriptionLength ? .red : .gray)
-                    .accessibilityLabel("Caracteres usados: \(descripcion.count) de \(maxDescriptionLength)")
+                    .accessibilityLabel(
+                        String(
+                            format: NSLocalizedString("register_description_counter_accessibility", comment: "Contador de descripción"),
+                            descripcion.count,
+                            maxDescriptionLength
+                        )
+                    )
             }
             
             // MARK: - Vista de selección de lenguajes
@@ -103,32 +112,42 @@ struct RegisterView: View {
     }
 }
 
-// MARK: - Vista de Selección de Lenguajes
+// MARK: - Vista de Selección de Lenguajes (Internacionalizada)
 struct LanguageSelectionView: View {
     @Binding var seleccionLenguajes: [LenguajeProgramacion]
     @State private var showLanguageSheet = false
-    
+
     var body: some View {
         Button(action: {
             showLanguageSheet = true
         }) {
             HStack {
-                Text(seleccionLenguajes.isEmpty
-                     ? "Seleccionar lenguajes"
-                     : seleccionLenguajes.map { $0.rawValue }.joined(separator: ", "))
+                // Texto dinámico: si no hay lenguajes seleccionados → "select_languages"
+                // si hay lenguajes → los traducimos uno a uno.
+                Text(
+                    seleccionLenguajes.isEmpty
+                    ? NSLocalizedString("select_languages", comment: "Texto para seleccionar lenguajes")
+                    : seleccionLenguajes
+                        .map { NSLocalizedString($0.rawValue, comment: "Nombre de lenguaje") }
+                        .joined(separator: ", ")
+                )
                 .foregroundColor(seleccionLenguajes.isEmpty ? .gray : .primary)
-                
+
                 Spacer()
                 Image(systemName: "chevron.right")
                     .foregroundColor(.gray)
-                    .accessibilityHidden(true) // Icono decorativo
+                    .accessibilityHidden(true) // icono decorativo
             }
-            .padding()
+            .padding(8)
             .background(Color(UIColor.secondarySystemBackground))
             .cornerRadius(8)
         }
-        .accessibilityLabel("Seleccionar lenguajes")
-        .accessibilityHint("Abre la lista para elegir lenguajes de programación")
+        .accessibilityLabel(
+            NSLocalizedString("select_languages_accessibility", comment: "Accesibilidad: Botón para seleccionar lenguajes")
+        )
+        .accessibilityHint(
+            NSLocalizedString("select_languages_hint", comment: "Abre la lista para elegir lenguajes de programación")
+        )
         .sheet(isPresented: $showLanguageSheet) {
             NavigationView {
                 List {
@@ -137,6 +156,7 @@ struct LanguageSelectionView: View {
                             lenguaje: lenguaje,
                             isSelected: seleccionLenguajes.contains(lenguaje),
                             action: {
+                                // Agregar o quitar lenguaje de la lista
                                 if seleccionLenguajes.contains(lenguaje) {
                                     seleccionLenguajes.removeAll { $0 == lenguaje }
                                 } else {
@@ -146,15 +166,15 @@ struct LanguageSelectionView: View {
                         )
                     }
                 }
-                .navigationTitle("Lenguajes de Programación")
+                .navigationTitle(NSLocalizedString("languages_title", comment: "Título para la lista de lenguajes"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Hecho") {
+                        Button(NSLocalizedString("languages_done_button", comment: "Botón para cerrar la lista de lenguajes")) {
                             showLanguageSheet = false
                         }
-                        .accessibilityLabel("Hecho")
-                        .accessibilityHint("Cierra la lista de lenguajes seleccionados")
+                        .accessibilityLabel(NSLocalizedString("languages_done_button_accessibility", comment: "Accesibilidad: Hecho"))
+                        .accessibilityHint(NSLocalizedString("languages_done_button_hint", comment: "Cierra la lista de lenguajes"))
                     }
                 }
             }
@@ -162,16 +182,17 @@ struct LanguageSelectionView: View {
     }
 }
 
-// MARK: - Fila de Selección Múltiple
+// MARK: - Fila de Selección Múltiple (Internacionalizada)
 struct MultipleSelectionRow: View {
     var lenguaje: LenguajeProgramacion
     var isSelected: Bool
     var action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             HStack {
-                Text(lenguaje.rawValue)
+                // Mostramos el lenguaje en su traducción, si existe
+                Text(NSLocalizedString(lenguaje.rawValue, comment: "Nombre del lenguaje de programación"))
                     .foregroundColor(.primary)
                 Spacer()
                 if isSelected {
@@ -182,11 +203,13 @@ struct MultipleSelectionRow: View {
             .padding(.vertical, 8)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(lenguaje.rawValue)
+        .accessibilityLabel(
+            NSLocalizedString(lenguaje.rawValue, comment: "Nombre del lenguaje de programación en accesibilidad")
+        )
         .accessibilityHint(
             isSelected
-            ? "Actualmente seleccionado. Pulsa para deseleccionar"
-            : "No seleccionado. Pulsa para seleccionar"
+            ? NSLocalizedString("language_selected_hint", comment: "Seleccionado. Pulsa para deseleccionar")
+            : NSLocalizedString("language_unselected_hint", comment: "No seleccionado. Pulsa para seleccionar")
         )
     }
 }

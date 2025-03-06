@@ -20,7 +20,13 @@ class SolicitudesViewModel: ObservableObject {
                 }
             } catch {
                 DispatchQueue.main.async { [weak self] in
-                    debugPrint("❌ Error al obtener solicitudes: \(error.localizedDescription)")
+                    // Antes: "❌ Error al obtener solicitudes: \(error.localizedDescription)"
+                    let errorFormat = NSLocalizedString("solicitudes_vm_error_fetch_format", comment: "Error al obtener solicitudes: %@")
+                    let finalError = String(format: errorFormat, error.localizedDescription)
+                    
+                    // Lo imprimimos o usamos un Toast (descomenta si deseas un Toast):
+                    debugPrint(finalError)
+                    // self?.toastManager.showToast(finalError)
                 }
             }
         }

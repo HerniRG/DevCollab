@@ -10,12 +10,12 @@ struct SolicitudModalView: View {
     var body: some View {
         NavigationView {
             VStack {
-                Text("Escribe un mensaje explicando por qué deseas participar:")
+                // Instrucción para el mensaje
+                Text(NSLocalizedString("participation_message_instructions", comment: "Instrucción para redactar la solicitud"))
                     .padding()
-                    // Accesibilidad
-                    .accessibilityLabel("Instrucción para el mensaje")
-                    .accessibilityHint("Describe tus motivaciones y habilidades para unirte al proyecto")
-                
+                    .accessibilityLabel(NSLocalizedString("participation_message_instructions_accessibility", comment: "Accesibilidad: Describe por qué deseas participar"))
+                    .accessibilityHint(NSLocalizedString("participation_message_instructions_hint", comment: "Explica tus motivaciones y habilidades para unirte al proyecto"))
+
                 // Campo de texto (TextEditor) para redactar la solicitud
                 ZStack(alignment: .topLeading) {
                     TextEditor(text: $mensaje)
@@ -26,12 +26,12 @@ struct SolicitudModalView: View {
                         )
                         .padding(.horizontal)
                         // Accesibilidad
-                        .accessibilityLabel("Mensaje de solicitud")
-                        .accessibilityHint("Explica las razones para participar en este proyecto")
+                        .accessibilityLabel(NSLocalizedString("request_message_field", comment: "Mensaje de solicitud"))
+                        .accessibilityHint(NSLocalizedString("request_message_field_hint", comment: "Describe las razones para participar en este proyecto"))
                     
-                    // Placeholder (si está vacío). Lo ocultamos de VoiceOver con .accessibilityHidden(true)
+                    // Placeholder (solo visible si está vacío). Lo ocultamos de VoiceOver
                     if mensaje.isEmpty {
-                        Text("Escribe aquí tu motivación...")
+                        Text(NSLocalizedString("request_message_placeholder", comment: "Placeholder: Escribe aquí tu motivación..."))
                             .foregroundColor(.gray)
                             .padding(.horizontal, 18)
                             .padding(.top, 8)
@@ -47,26 +47,26 @@ struct SolicitudModalView: View {
             .toolbar {
                 // Título principal
                 ToolbarItem(placement: .principal) {
-                    Text("Solicitud de Participación")
+                    Text(NSLocalizedString("participation_request_title", comment: "Solicitud de Participación"))
                         .font(.headline)
                         .multilineTextAlignment(.center)
                         .lineLimit(2)
                         .minimumScaleFactor(0.5)
-                        .accessibilityLabel("Solicitud de participación")
+                        .accessibilityLabel(NSLocalizedString("participation_request_title_accessibility", comment: "Accesibilidad: Solicitud de participación"))
                 }
                 
                 // Botón para cerrar (Cancelar)
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancelar") {
+                    Button(NSLocalizedString("cancel_button", comment: "Cancelar")) {
                         presentationMode.wrappedValue.dismiss()
                     }
-                    .accessibilityLabel("Cancelar envío")
-                    .accessibilityHint("Cierra el formulario sin enviar la solicitud")
+                    .accessibilityLabel(NSLocalizedString("cancel_button_accessibility", comment: "Cerrar sin enviar"))
+                    .accessibilityHint(NSLocalizedString("cancel_button_hint", comment: "Cierra el formulario sin enviar la solicitud"))
                 }
                 
                 // Botón para enviar
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Enviar") {
+                    Button(NSLocalizedString("send_button", comment: "Enviar")) {
                         let msg = mensaje.trimmingCharacters(in: .whitespacesAndNewlines)
                         // Solo enviamos si no está vacío
                         if !msg.isEmpty {
@@ -75,8 +75,8 @@ struct SolicitudModalView: View {
                         presentationMode.wrappedValue.dismiss()
                     }
                     .disabled(mensaje.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                    .accessibilityLabel("Enviar solicitud")
-                    .accessibilityHint("Envía el mensaje de motivación al creador del proyecto")
+                    .accessibilityLabel(NSLocalizedString("send_button_accessibility", comment: "Enviar solicitud"))
+                    .accessibilityHint(NSLocalizedString("send_button_hint", comment: "Envía el mensaje al creador del proyecto"))
                 }
             }
         }

@@ -2,7 +2,6 @@ import SwiftUI
 import FirebaseAuth
 
 struct ExploracionProyectosView: View {
-    // Usa el shared ProyectosViewModel
     @StateObject private var viewModel = ViewModelProvider.shared.proyectosViewModel
     @State private var userID: String = Auth.auth().currentUser?.uid ?? ""
     @State private var selectedLanguage: LenguajeProgramacion? = nil
@@ -15,7 +14,7 @@ struct ExploracionProyectosView: View {
                 if misProyectos.isEmpty {
                     emptyStateView(
                         icon: "doc.badge.plus",
-                        text: "No has creado ningún proyecto."
+                        text: NSLocalizedString("explorar_no_created_projects", comment: "No has creado ningún proyecto.")
                     )
                 } else {
                     ForEach(misProyectos, id: \.id) { proyecto in
@@ -25,16 +24,15 @@ struct ExploracionProyectosView: View {
                                 proyecto: proyecto,
                                 tieneSolicitudPendiente: tieneSolicitudPendiente
                             )
-                            // Indica a VoiceOver qué pasará al pulsar
-                            .accessibilityHint("Ver detalles del proyecto creado")
+                            // VoiceOver: qué pasará al pulsar
+                            .accessibilityHint(NSLocalizedString("explorar_created_project_hint", comment: "Ver detalles del proyecto creado"))
                         }
                     }
                 }
             } header: {
-                Text("Mis proyectos creados")
+                Text(NSLocalizedString("explorar_created_projects_header", comment: "Mis proyectos creados"))
                     .font(.headline)
                     .foregroundColor(.primary)
-                    // Hace que VoiceOver lo trate como cabecera
                     .accessibilityAddTraits(.isHeader)
             }
             
@@ -46,18 +44,18 @@ struct ExploracionProyectosView: View {
                 if proyectosParticipas.isEmpty {
                     emptyStateView(
                         icon: "person.2.circle",
-                        text: "No participas en ningún proyecto."
+                        text: NSLocalizedString("explorar_no_participation", comment: "No participas en ningún proyecto.")
                     )
                 } else {
                     ForEach(proyectosParticipas, id: \.id) { proyecto in
                         NavigationLink(destination: DetalleProyectoParticipanteView(proyecto: proyecto)) {
                             ProyectoRowView(proyecto: proyecto)
-                                .accessibilityHint("Ver detalles del proyecto en el que participas")
+                                .accessibilityHint(NSLocalizedString("explorar_participation_project_hint", comment: "Ver detalles del proyecto en el que participas"))
                         }
                     }
                 }
             } header: {
-                Text("Proyectos en los que participas")
+                Text(NSLocalizedString("explorar_participation_header", comment: "Proyectos en los que participas"))
                     .font(.headline)
                     .foregroundColor(.primary)
                     .accessibilityAddTraits(.isHeader)
@@ -65,13 +63,13 @@ struct ExploracionProyectosView: View {
             
             // MARK: - Sección: Proyectos Abiertos
             Section {
-                // Filtro con VoiceOver optimizado
+                // Filtro por lenguaje
                 HStack {
-                    Text("Filtrar por lenguaje:")
+                    Text(NSLocalizedString("explorar_filter_language_label", comment: "Filtrar por lenguaje:"))
                         .font(.subheadline)
                     Spacer()
                     Menu {
-                        Button("Todos", action: { selectedLanguage = nil })
+                        Button(NSLocalizedString("explorar_filter_language_all", comment: "Todos"), action: { selectedLanguage = nil })
                         ForEach(LenguajeProgramacion.allCases, id: \.self) { lenguaje in
                             Button(lenguaje.rawValue) {
                                 selectedLanguage = lenguaje
@@ -79,14 +77,14 @@ struct ExploracionProyectosView: View {
                         }
                     } label: {
                         Label(
-                            selectedLanguage?.rawValue ?? "Todos",
+                            selectedLanguage?.rawValue ?? NSLocalizedString("explorar_filter_language_all", comment: "Todos"),
                             systemImage: "line.horizontal.3.decrease.circle"
                         )
                         .font(.subheadline)
                         .foregroundColor(.blue)
                     }
-                    .accessibilityLabel("Filtro de lenguaje")
-                    .accessibilityHint("Selecciona el lenguaje para filtrar proyectos")
+                    .accessibilityLabel(NSLocalizedString("explorar_filter_language_accessibility", comment: "Filtro de lenguaje"))
+                    .accessibilityHint(NSLocalizedString("explorar_filter_language_hint", comment: "Selecciona el lenguaje para filtrar proyectos"))
                 }
                 .padding(.vertical, 4)
                 
@@ -96,21 +94,22 @@ struct ExploracionProyectosView: View {
                     !userEstaParticipando(proyecto: proyecto) &&
                     (selectedLanguage == nil || proyecto.lenguajes.contains(selectedLanguage!))
                 }
+                
                 if proyectosAbiertos.isEmpty {
                     emptyStateView(
                         icon: "rectangle.stack.badge.person.crop",
-                        text: "No hay proyectos abiertos disponibles."
+                        text: NSLocalizedString("explorar_no_open_projects", comment: "No hay proyectos abiertos disponibles.")
                     )
                 } else {
                     ForEach(proyectosAbiertos, id: \.id) { proyecto in
                         NavigationLink(destination: DetalleProyectoParticipanteView(proyecto: proyecto)) {
                             ProyectoRowView(proyecto: proyecto)
-                                .accessibilityHint("Ver detalles del proyecto abierto")
+                                .accessibilityHint(NSLocalizedString("explorar_open_project_hint", comment: "Ver detalles del proyecto abierto"))
                         }
                     }
                 }
             } header: {
-                Text("Proyectos Abiertos")
+                Text(NSLocalizedString("explorar_open_projects_header", comment: "Proyectos Abiertos"))
                     .font(.headline)
                     .foregroundColor(.primary)
                     .accessibilityAddTraits(.isHeader)
@@ -148,13 +147,11 @@ struct ExploracionProyectosView: View {
                 Image(systemName: icon)
                     .font(.largeTitle)
                     .foregroundColor(.gray)
-                    // Puro icono decorativo
                     .accessibilityHidden(true)
                 
                 Text(text)
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.center)
-                    // VoiceOver leerá el texto
                     .accessibilityLabel(text)
             }
             Spacer()

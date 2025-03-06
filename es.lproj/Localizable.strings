@@ -1,3 +1,5 @@
+
+
 "auth_invalid_email" = "El correo electrónico no es válido.";
 "auth_weak_password" = "La contraseña es demasiado débil.";
 "auth_email_in_use" = "El correo electrónico ya está en uso.";
@@ -40,11 +42,11 @@
 "Kotlin" = "Kotlin";
 "Java" = "Java";
 "Python" = "Python";
-"JavaScript" = "JavaScript"
-"C#" = "C#"
-"Dart" = "Dart"
-"Go" = "Go"
-"Ruby" = "Ruby"
+"JavaScript" = "JavaScript";
+"C#" = "C#";
+"Dart" = "Dart";
+"Go" = "Go";
+"Ruby" = "Ruby";
 
 "project_name" = "Nombre del proyecto: %@";
 "project_languages" = "Lenguajes: %@";
@@ -56,3 +58,485 @@
 "delete_project_hint" = "Elimina este proyecto de Firebase";
 "pending_request" = "Solicitud pendiente";
 "pending_request_hint" = "Hay solicitudes pendientes para este proyecto";
+
+// Carga y estado
+"loading_info" = "Cargando información...";
+"loading_project_info" = "Cargando información del proyecto";
+"loading_details" = "Cargando detalles...";
+"loading_request_details" = "Cargando detalles de la solicitud";
+
+// Proyecto
+"project_name" = "Nombre del proyecto: %@";
+"project_info" = "Información del Proyecto";
+"description" = "Descripción:";
+"languages" = "Lenguajes:";
+"weekly_hours" = "Horas semanales:";
+"collab_type" = "Tipo de colaboración:";
+"status" = "Estado:";
+"Abierto" = "Abierto";
+"Cerrado" = "Cerrado";
+"project_status" = "Estado del proyecto: %@";
+
+// Estado proyecto
+"close_project" = "Cerrar Proyecto";
+"reopen_project" = "Reabrir Proyecto";
+"toggle_project_status" = "Cambia el estado del proyecto";
+
+// Solicitudes
+"no_pending_requests" = "No hay solicitudes pendientes.";
+"user" = "Usuario";
+"message_format" = "Mensaje: %@";
+"no_message" = "Sin mensaje";
+"participation_request" = "Solicitud de participación";
+"view_request_details" = "Ver detalles de la solicitud";
+"participation_requests" = "Solicitudes de Participación";
+
+// Participantes
+"no_approved_participants" = "No hay participantes aprobados.";
+"participant_info" = "Participante: %@. Lenguajes: %@";
+"participants" = "Participantes";
+
+// Eliminar
+"delete_project_button" = "Eliminar Proyecto";
+"delete_project" = "Eliminar proyecto";
+"delete_project_hint" = "Borra permanentemente este proyecto";
+
+// Error
+"error_label" = "Error: %@";
+
+// Alerta de eliminación
+"confirm_delete" = "Confirmar eliminación";
+"delete" = "Eliminar";
+"cancel" = "Cancelar";
+"confirm_delete_message" = "¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer.";
+
+// Carga
+"loading_info" = "Cargando información...";
+"loading_project_info" = "Cargando información del proyecto";
+
+// Project
+"project_name" = "Nombre del proyecto: %@";
+"description" = "Descripción:";
+"languages" = "Lenguajes:";
+"weekly_hours" = "Horas semanales:";
+"collab_type" = "Tipo de colaboración:";
+"status" = "Estado:";
+"Abierto" = "Abierto";
+"Cerrado" = "Cerrado";
+"project_status" = "Estado del proyecto: %@";
+
+// Creador
+"creator_info" = "Información del Creador";
+"creator_name" = "Nombre:";
+"creator_name_accessibility" = "Nombre del creador: %@";
+"creator_description" = "Descripción:";
+"creator_description_accessibility" = "Descripción del creador: %@";
+"creator_languages" = "Lenguajes:";
+"creator_languages_accessibility" = "Lenguajes del creador: %@";
+
+// Participación
+"request_participation" = "Solicitar Participación";
+"request_participation_hint" = "Envía una solicitud al creador";
+"request_approved" = "Solicitud Aprobada";
+"request_approved_accessibility" = "Tu solicitud ha sido aprobada";
+"abandon_project" = "Abandonar Proyecto";
+"abandon_project_hint" = "Dejas de participar en este proyecto";
+"request_rejected" = "Solicitud Rechazada";
+"request_rejected_accessibility" = "Tu solicitud ha sido rechazada";
+"request_pending" = "Solicitud Pendiente";
+"request_pending_accessibility" = "Tu solicitud está pendiente";
+
+// Participantes
+"participants" = "Participantes";
+"no_approved_participants" = "No hay participantes aprobados.";
+"no_approved_participants_accessibility" = "No hay participantes aprobados";
+"participant_info" = "Participante: %@. Lenguajes: %@";
+
+// Mensajes
+"no_message" = "Sin mensaje";
+"message_format" = "Mensaje: %@";
+
+// Secciones vacías
+"no_pending_requests" = "No hay solicitudes pendientes.";
+
+// Error
+"error_label" = "Error: %@";
+
+// Alerta de abandonar proyecto
+"confirm_abandon" = "Confirmar abandono";
+"abandon" = "Abandonar";
+"cancel" = "Cancelar";
+"confirm_abandon_message" = "¿Estás seguro de que deseas abandonar este proyecto?";
+
+// Título y navegación
+"request_details_title" = "Detalles de la Solicitud";
+"request_details_accessibility" = "Detalles de la solicitud";
+"request_nav_title" = "Solicitud";
+
+// Usuario
+"user_name_format" = "Nombre: %@";
+"user_name_accessibility" = "Nombre del usuario: %@";
+"user_languages_format" = "Lenguajes: %@";
+"user_languages_accessibility" = "Lenguajes del usuario: %@";
+"user_description_format" = "Descripción: %@";
+"user_description_accessibility" = "Descripción del usuario: %@";
+
+// Mensaje de la solicitud
+"request_message_format" = "Mensaje: %@";
+"request_message_accessibility" = "Mensaje del usuario: %@";
+
+// Botones
+"approve_request" = "Aprobar";
+"approve_request_accessibility" = "Aprobar solicitud";
+"approve_request_hint" = "Acepta la solicitud de participación";
+"reject_request" = "Rechazar";
+"reject_request_accessibility" = "Rechazar solicitud";
+"reject_request_hint" = "Rechaza la solicitud de participación";
+"close" = "Cerrar";
+"close_request_view_accessibility" = "Cerrar la vista de solicitud";
+"close_request_view_hint" = "Regresa a la pantalla anterior";
+
+// Instrucciones para el mensaje
+"participation_message_instructions" = "Escribe un mensaje explicando por qué deseas participar:";
+"participation_message_instructions_accessibility" = "Describe por qué deseas participar en el proyecto";
+"participation_message_instructions_hint" = "Explica tus motivaciones y habilidades para unirte al proyecto";
+
+// Campo de texto (TextEditor)
+"request_message_field" = "Mensaje de solicitud";
+"request_message_field_hint" = "Explica las razones para participar en este proyecto";
+"request_message_placeholder" = "Escribe aquí tu motivación...";
+
+// Título principal
+"participation_request_title" = "Solicitud de Participación";
+"participation_request_title_accessibility" = "Solicitud de participación";
+
+// Botones de la barra de navegación
+"cancel_button" = "Cancelar";
+"cancel_button_accessibility" = "Cancelar envío";
+"cancel_button_hint" = "Cierra el formulario sin enviar la solicitud";
+
+"send_button" = "Enviar";
+"send_button_accessibility" = "Enviar solicitud";
+"send_button_hint" = "Envía el mensaje al creador del proyecto";
+
+"devcollab_app_title" = "DevCollab";
+"devcollab_app_title_accessibility" = "DevCollab";
+
+"create_account" = "Crea tu cuenta";
+"create_account_accessibility" = "Crea tu cuenta";
+
+"start_session" = "Inicia sesión";
+"start_session_accessibility" = "Inicia sesión";
+
+// Placeholder y accesibilidad para el email
+"login_email_placeholder" = "Correo electrónico";
+"login_email_accessibility" = "Correo electrónico";
+"login_email_hint" = "Introduce tu correo para iniciar sesión";
+
+// Placeholder y accesibilidad para la contraseña
+"login_password_placeholder" = "Contraseña";
+"login_password_accessibility" = "Contraseña";
+"login_password_hint" = "Introduce tu contraseña de acceso";
+
+// Botón: ¿Olvidaste tu contraseña?
+"forgot_password_button" = "¿Olvidaste tu contraseña?";
+"forgot_password_accessibility" = "Olvidé mi contraseña";
+"forgot_password_hint" = "Envía un correo de restablecimiento si el email es válido";
+
+// Botón: Reenviar correo de verificación
+"resend_verification_button" = "Reenviar correo de verificación";
+"resend_verification_accessibility" = "Reenviar correo de verificación";
+"resend_verification_hint" = "Solicita que se envíe nuevamente el correo para verificar tu dirección";
+
+// Botones y textos de LoginRegisterScreen
+"register_button" = "Registrar";
+"register_button_accessibility" = "Registrar cuenta nueva";
+"register_button_hint" = "Crea una cuenta nueva";
+
+"login_button" = "Iniciar Sesión";
+"login_button_accessibility" = "Iniciar sesión";
+"login_button_hint" = "Accede a tu cuenta con tu email y contraseña";
+
+// Alternar entre Login y Registro
+"already_have_account" = "¿Ya tienes cuenta? Inicia sesión";
+"already_have_account_accessibility" = "Accede a tu cuenta si ya tienes una creada";
+"dont_have_account" = "¿No tienes cuenta? Regístrate";
+"dont_have_account_accessibility" = "Crea una cuenta nueva si no la tienes";
+
+// Email
+"register_email_placeholder" = "Correo electrónico";
+"register_email_accessibility" = "Correo electrónico para registro";
+"register_email_hint" = "Introduce tu correo para registrarte";
+
+// Password
+"register_password_placeholder" = "Contraseña";
+"register_password_accessibility" = "Contraseña para registro";
+"register_password_hint" = "Introduce tu contraseña para tu cuenta nueva";
+
+// Name
+"register_name_placeholder" = "Nombre";
+"register_name_accessibility" = "Campo de nombre o alias";
+"register_name_hint" = "Introduce tu nombre o alias";
+
+// Description
+"register_description_placeholder" = "Descripción (ej. Mobile Developer, Backend, Diseño UX/UI)";
+"register_description_accessibility" = "Campo de descripción";
+"register_description_hint" = "Máximo %d caracteres. Describe tu experiencia o rol.";
+"register_description_counter_accessibility" = "Descripción usada: %d de %d caracteres";
+
+// Botón principal para seleccionar lenguajes
+"select_languages" = "Seleccionar lenguajes";
+"select_languages_accessibility" = "Selecciona lenguajes de programación";
+"select_languages_hint" = "Abre la lista de lenguajes disponibles";
+
+// Pantalla de lenguajes
+"languages_title" = "Lenguajes de Programación";
+"languages_done_button" = "Hecho";
+"languages_done_button_accessibility" = "Hecho";
+"languages_done_button_hint" = "Cierra la lista de lenguajes";
+
+// Fila de selección
+"language_selected_hint" = "Actualmente seleccionado. Pulsa para deseleccionar";
+"language_unselected_hint" = "No seleccionado. Pulsa para seleccionar";
+
+// Main button to select languages
+"select_languages" = "Select languages";
+"select_languages_accessibility" = "Select programming languages";
+"select_languages_hint" = "Opens the list of available languages";
+
+// Languages screen
+"languages_title" = "Programming Languages";
+"languages_done_button" = "Done";
+"languages_done_button_accessibility" = "Done";
+"languages_done_button_hint" = "Closes the list of languages";
+
+// Selection row
+"language_selected_hint" = "Currently selected. Tap to unselect";
+"language_unselected_hint" = "Not selected. Tap to select";
+
+// Sección principal
+"edit_profile_section_header" = "Editar Perfil";
+
+// Nombre
+"edit_profile_name_placeholder" = "Nombre (máx. %d caracteres)";
+"edit_profile_name_accessibility" = "Nombre del perfil";
+"edit_profile_name_hint" = "Introduce tu nombre, máximo %d caracteres.";
+
+// Descripción
+"edit_profile_description_label" = "Descripción (máx. %d caracteres)";
+"edit_profile_description_accessibility" = "Descripción del perfil";
+"edit_profile_description_hint" = "Máximo %d caracteres. Describe tu experiencia o rol";
+"edit_profile_description_placeholder" = "Ej. Mobile Developer, Backend, Diseño UX/UI...";
+"edit_profile_description_counter_accessibility" = "Carácteres usados: %d de %d";
+
+// Lenguajes
+"edit_profile_languages_accessibility" = "Lenguajes de programación";
+"edit_profile_languages_hint" = "Selecciona lenguajes en los que sueles trabajar";
+
+// Botón Guardar
+"edit_profile_save_button" = "Guardar Cambios";
+"edit_profile_save_accessibility" = "Guardar Cambios";
+"edit_profile_save_hint" = "Actualiza tu perfil con los datos ingresados";
+
+// Seleccionar lenguajes subvista
+"select_languages" = "Seleccionar lenguajes";
+"select_languages_accessibility" = "Abrir lista de lenguajes";
+"select_languages_hint" = "Abre la lista de lenguajes de programación";
+
+// Pantalla de lenguajes
+"languages_title" = "Lenguajes de Programación";
+"languages_done_button" = "Hecho";
+"languages_done_button_accessibility" = "Hecho";
+"languages_done_button_hint" = "Cierra la lista de lenguajes";
+"language_selected_hint" = "Actualmente seleccionado. Toca para deseleccionar";
+"language_unselected_hint" = "No seleccionado. Toca para seleccionar";
+
+// Sección: Perfil
+"profile_section_header" = "Perfil";
+"profile_user_name" = "Nombre de usuario: %@";
+"profile_user_name_hint" = "Este es tu nombre de perfil";
+"profile_user_description" = "Descripción: %@";
+"profile_user_languages" = "Lenguajes: %@";
+"profile_user_languages_accessibility" = "Lenguajes del usuario: %@";
+"edit_profile_button" = "Editar perfil";
+"edit_profile_button_hint" = "Abre la pantalla de edición de tu perfil";
+
+// Sección: Proyectos Creados
+"profile_created_projects_header" = "Mis proyectos creados";
+"profile_no_created_projects" = "No tienes proyectos creados.";
+"profile_no_created_projects_accessibility" = "No tienes proyectos creados";
+"closed_project_delete_hint" = "Proyecto cerrado, puedes eliminarlo";
+
+// Sección: Proyectos en los que participas
+"profile_participations_header" = "Proyectos en los que participas";
+"profile_no_participations" = "No participas en ningún proyecto.";
+"profile_no_participations_accessibility" = "No participas en ningún proyecto";
+
+// Sección: Cerrar sesión
+"logout_button" = "Cerrar sesión";
+"logout_button_accessibility" = "Cerrar sesión";
+"logout_button_hint" = "Se cerrará tu sesión en la aplicación";
+
+// Estado de carga
+"loading_profile" = "Cargando perfil...";
+"loading_profile_accessibility" = "Cargando el perfil del usuario";
+
+// Sección: Información principal
+"crear_proyecto_nombre_placeholder" = "Nombre del proyecto (máx. %d caracteres)";
+"crear_proyecto_nombre_accessibility" = "Nombre del proyecto. Máximo %d caracteres";
+"crear_proyecto_nombre_hint" = "Introduce el nombre del proyecto, máximo %d caracteres";
+
+"crear_proyecto_descripcion_accessibility" = "Descripción del proyecto";
+"crear_proyecto_descripcion_hint" = "Máximo %d caracteres. Explica de qué trata el proyecto";
+"crear_proyecto_descripcion_placeholder" = "Descripción";
+"crear_proyecto_informacion_principal" = "Información principal";
+
+// Sección: Detalles del proyecto
+"crear_proyecto_detalles_header" = "Detalles del proyecto";
+"crear_proyecto_lenguajes_accessibility" = "Lenguajes de programación";
+"crear_proyecto_lenguajes_hint" = "Selecciona los lenguajes necesarios para este proyecto";
+"crear_proyecto_horas_placeholder" = "Horas semanales";
+"crear_proyecto_horas_accessibility" = "Horas semanales";
+"crear_proyecto_horas_hint" = "Número aproximado de horas que dedicarás";
+"crear_proyecto_colaboracion_placeholder" = "Tipo de colaboración (máx. %d caracteres)";
+"crear_proyecto_colaboracion_accessibility" = "Tipo de colaboración";
+"crear_proyecto_colaboracion_hint" = "Ejemplo: remoto, presencial, híbrido";
+
+// Botones
+"crear_proyecto_boton" = "Crear Proyecto";
+"crear_proyecto_boton_accessibility" = "Crear proyecto";
+"crear_proyecto_boton_hint" = "Guarda el proyecto y cierra la ventana";
+
+"crear_proyecto_cerrar_boton" = "Cerrar";
+"crear_proyecto_cerrar_accessibility" = "Cerrar pantalla de creación";
+"crear_proyecto_cerrar_hint" = "Cancela la creación de proyecto y vuelve atrás";
+
+// --- Información principal ---
+
+"crear_proyecto_informacion_principal" = "Información principal";
+
+// Nombre
+"crear_proyecto_nombre_placeholder" = "Nombre del proyecto (máx. %d caracteres)";
+"crear_proyecto_nombre_accessibility" = "Nombre del proyecto (hasta %d caracteres)";
+"crear_proyecto_nombre_hint" = "Introduce el nombre, máximo %d caracteres";
+
+// Descripción
+"crear_proyecto_descripcion_placeholder" = "Descripción";
+"crear_proyecto_descripcion_accessibility" = "Descripción del proyecto";
+"crear_proyecto_descripcion_hint" = "Explica de qué trata el proyecto, máximo %d caracteres";
+
+// --- Detalles del proyecto ---
+
+"crear_proyecto_detalles_header" = "Detalles del proyecto";
+
+// Lenguajes
+"crear_proyecto_lenguajes_accessibility" = "Lenguajes de programación";
+"crear_proyecto_lenguajes_hint" = "Selecciona los lenguajes necesarios para este proyecto";
+
+// Horas semanales
+"crear_proyecto_horas_placeholder" = "Horas semanales";
+"crear_proyecto_horas_accessibility" = "Horas semanales";
+"crear_proyecto_horas_hint" = "Cuántas horas piensas dedicar al proyecto cada semana";
+
+// Tipo de colaboración
+"crear_proyecto_colaboracion_placeholder" = "Tipo de colaboración (máx. %d caracteres)";
+"crear_proyecto_colaboracion_accessibility" = "Tipo de colaboración";
+"crear_proyecto_colaboracion_hint" = "Por ejemplo remoto, presencial, híbrido...";
+
+// Sección: Mis proyectos creados
+"explorar_no_created_projects" = "No has creado ningún proyecto.";
+"explorar_created_project_hint" = "Ver detalles del proyecto creado";
+"explorar_created_projects_header" = "Mis proyectos creados";
+
+// Sección: Proyectos en los que participas
+"explorar_no_participation" = "No participas en ningún proyecto.";
+"explorar_participation_project_hint" = "Ver detalles del proyecto en el que participas";
+"explorar_participation_header" = "Proyectos en los que participas";
+
+// Sección: Proyectos abiertos
+"explorar_filter_language_label" = "Filtrar por lenguaje:";
+"explorar_filter_language_all" = "Todos";
+"explorar_filter_language_accessibility" = "Filtro de lenguaje";
+"explorar_filter_language_hint" = "Selecciona el lenguaje para filtrar proyectos";
+"explorar_no_open_projects" = "No hay proyectos abiertos disponibles.";
+"explorar_open_project_hint" = "Ver detalles del proyecto abierto";
+"explorar_open_projects_header" = "Proyectos Abiertos";
+
+// LoadingView en español
+
+"loading_view_icon_accessibility" = "Cargando DevCollab";
+"loading_view_text" = "Conectando con DevCollab...";
+"loading_view_progress_accessibility" = "Conectando";
+"loading_view_progress_hint" = "Por favor, espera mientras se establece la conexión";
+
+// auth_container_logout_error
+"auth_container_logout_error" = "❌ Error al cerrar sesión: %@";
+
+// CrearProyectoViewModel
+"crear_proyecto_vm_missing_fields" = "Faltan campos por rellenar";
+"crear_proyecto_vm_invalid_hours" = "Las horas semanales deben ser un número válido mayor que 0.";
+"crear_proyecto_vm_too_many_projects" = "Ya tienes 2 proyectos creados. No puedes crear más.";
+"crear_proyecto_vm_project_created" = "Proyecto creado exitosamente.";
+
+// Prefijos genéricos
+"detalle_proyecto_error_prefix" = "❌";
+"detalle_proyecto_success_prefix" = "✅";
+
+// Mensajes
+"detalle_proyecto_participant_added" = "Participante agregado correctamente";
+"detalle_proyecto_could_not_add_participant" = "No se pudo agregar al participante.";
+
+"detalle_proyecto_state_changed_format" = "Proyecto cambiado a estado: %@";
+"detalle_proyecto_could_not_change_state" = "No se pudo cambiar el estado del proyecto.";
+
+"detalle_proyecto_request_sent" = "Solicitud enviada correctamente.";
+"detalle_proyecto_request_state_format" = "Solicitud %@";
+"detalle_proyecto_could_not_update_request_format" = "No se pudo actualizar la solicitud a %@.";
+
+"detalle_proyecto_abandon_success" = "Has abandonado el proyecto correctamente.";
+"detalle_proyecto_abandon_error_format" = "Error al abandonar el proyecto: %@";
+
+"detalle_proyecto_deleted_success" = "Proyecto eliminado correctamente";
+"detalle_proyecto_deleted_error_format" = "Error al eliminar proyecto: %@";
+
+// LoginViewModel
+"login_vm_error_fetch_user" = "❌ Error al obtener el usuario.";
+"login_vm_missing_email_password" = "❌ Por favor, introduce tu email y contraseña.";
+"login_vm_login_successful" = "✅ Login exitoso.";
+"login_vm_reset_mail_sent" = "✅ Correo de recuperación enviado.";
+"login_vm_reset_mail_error" = "❌ Error al enviar el correo de recuperación.";
+"login_vm_verification_resent" = "✅ Correo de verificación reenviado.";
+"login_vm_verification_resent_error" = "❌ Error al reenviar el correo de verificación.";
+"login_vm_logout_error" = "❌ Error al cerrar sesión.";
+
+// Prefijos
+"perfil_vm_error_prefix" = "❌";
+"perfil_vm_success_prefix" = "✅";
+
+// Mensajes de eliminación proyecto
+"perfil_vm_project_deleted" = "Proyecto eliminado correctamente.";
+"perfil_vm_project_delete_error_format" = "Error al eliminar proyecto: %@";
+
+// Validaciones de perfil
+"perfil_vm_name_empty" = "El nombre no puede estar vacío.";
+"perfil_vm_name_exceeded_format" = "El nombre excede los %d caracteres.";
+"perfil_vm_description_empty" = "La descripción no puede estar vacía.";
+"perfil_vm_description_exceeded_format" = "La descripción excede los %d caracteres.";
+"perfil_vm_no_language" = "Selecciona al menos un lenguaje.";
+"perfil_vm_no_user_to_update" = "No hay usuario para actualizar";
+
+// Mensajes de éxito al actualizar perfil
+"perfil_vm_profile_updated" = "Perfil actualizado con éxito.";
+"perfil_vm_profile_update_error_format" = "Error al actualizar el perfil: %@";
+
+// ProyectosViewModel
+"proyectos_vm_error_fetch_projects_format" = "❌ Error al obtener proyectos: %@";
+"proyectos_vm_error_fetch_solicitudes_project_format" = "Error al obtener solicitudes para el proyecto %@: %@";
+"proyectos_vm_error_fetch_solicitudes_format" = "❌ Error al obtener solicitudes: %@";
+
+// RegisterViewModel
+"register_vm_missing_fields" = "Por favor, completa todos los campos.";
+"register_vm_success" = "Registro exitoso. Verifica tu correo para confirmar tu cuenta.";
+
+// SolicitudesViewModel
+"solicitudes_vm_error_fetch_format" = "❌ Error al obtener solicitudes: %@";

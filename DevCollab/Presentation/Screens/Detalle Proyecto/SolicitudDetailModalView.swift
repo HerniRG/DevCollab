@@ -12,38 +12,40 @@ struct SolicitudDetailModalView: View {
             VStack(alignment: .leading, spacing: 16) {
                 
                 // Título
-                Text("Detalles de la Solicitud")
+                Text(NSLocalizedString("request_details_title", comment: "Título para detalles de la solicitud"))
                     .font(.title)
                     .bold()
                     .padding(.bottom, 20)
-                    // Accesibilidad
-                    .accessibilityLabel("Detalles de la solicitud")
+                    .accessibilityLabel(NSLocalizedString("request_details_accessibility", comment: "Accesibilidad: Detalles de la solicitud"))
                 
                 // Datos del usuario
-                Text("Nombre: \(usuario.nombre)")
+                Text(String(format: NSLocalizedString("user_name_format", comment: "Nombre: %@"), usuario.nombre))
                     .font(.body)
-                    .accessibilityLabel("Nombre del usuario: \(usuario.nombre)")
+                    .accessibilityLabel(String(format: NSLocalizedString("user_name_accessibility", comment: "Nombre del usuario: %@"), usuario.nombre))
                 
+                // Lenguajes del usuario, si existen
                 if !usuario.lenguajes.isEmpty {
-                    Text("Lenguajes: \(usuario.lenguajes.map { $0.rawValue }.joined(separator: ", "))")
+                    let lenguajesString = usuario.lenguajes
+                        .map { NSLocalizedString($0.rawValue, comment: "Nombre de lenguaje") }
+                        .joined(separator: ", ")
+                    Text(String(format: NSLocalizedString("user_languages_format", comment: "Lenguajes: %@"), lenguajesString))
                         .font(.body)
-                        .accessibilityLabel(
-                            "Lenguajes del usuario: \(usuario.lenguajes.map { $0.rawValue }.joined(separator: ", "))"
-                        )
+                        .accessibilityLabel(String(format: NSLocalizedString("user_languages_accessibility", comment: "Lenguajes del usuario: %@"), lenguajesString))
                 }
                 
+                // Descripción del usuario, si existe
                 if let descripcion = usuario.descripcion, !descripcion.isEmpty {
-                    Text("Descripción: \(descripcion)")
+                    Text(String(format: NSLocalizedString("user_description_format", comment: "Descripción: %@"), descripcion))
                         .font(.body)
-                        .accessibilityLabel("Descripción del usuario: \(descripcion)")
+                        .accessibilityLabel(String(format: NSLocalizedString("user_description_accessibility", comment: "Descripción del usuario: %@"), descripcion))
                 }
                 
                 // Mensaje de la solicitud
                 if let mensaje = solicitud.mensaje, !mensaje.isEmpty {
-                    Text("Mensaje: \(mensaje)")
+                    Text(String(format: NSLocalizedString("request_message_format", comment: "Mensaje: %@"), mensaje))
                         .font(.body)
                         .padding(.top, 8)
-                        .accessibilityLabel("Mensaje del usuario: \(mensaje)")
+                        .accessibilityLabel(String(format: NSLocalizedString("request_message_accessibility", comment: "Mensaje del usuario: %@"), mensaje))
                 }
                 
                 Spacer()
@@ -54,39 +56,39 @@ struct SolicitudDetailModalView: View {
                         onDecision(true)
                         presentationMode.wrappedValue.dismiss()
                     }) {
-                        Text("Aprobar")
+                        Text(NSLocalizedString("approve_request", comment: "Aprobar"))
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.green)
                             .foregroundColor(.white)
                             .cornerRadius(8)
                     }
-                    .accessibilityLabel("Aprobar solicitud")
-                    .accessibilityHint("Acepta la solicitud del usuario para participar en el proyecto")
+                    .accessibilityLabel(NSLocalizedString("approve_request_accessibility", comment: "Aprobar solicitud"))
+                    .accessibilityHint(NSLocalizedString("approve_request_hint", comment: "Acepta la solicitud de participación"))
                     
                     Button(action: {
                         onDecision(false)
                         presentationMode.wrappedValue.dismiss()
                     }) {
-                        Text("Rechazar")
+                        Text(NSLocalizedString("reject_request", comment: "Rechazar"))
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.red)
                             .foregroundColor(.white)
                             .cornerRadius(8)
                     }
-                    .accessibilityLabel("Rechazar solicitud")
-                    .accessibilityHint("Rechaza la solicitud del usuario para participar en el proyecto")
+                    .accessibilityLabel(NSLocalizedString("reject_request_accessibility", comment: "Rechazar solicitud"))
+                    .accessibilityHint(NSLocalizedString("reject_request_hint", comment: "Rechaza la solicitud de participación"))
                 }
             }
             .padding()
-            .navigationBarTitle("Solicitud", displayMode: .inline)
+            .navigationBarTitle(NSLocalizedString("request_nav_title", comment: "Título de la navegación"), displayMode: .inline)
             // Botón para cerrar la vista
-            .navigationBarItems(trailing: Button("Cerrar") {
+            .navigationBarItems(trailing: Button(NSLocalizedString("close", comment: "Cerrar")) {
                 presentationMode.wrappedValue.dismiss()
             }
-            .accessibilityLabel("Cerrar la vista de solicitud")
-            .accessibilityHint("Regresa a la pantalla anterior"))
+            .accessibilityLabel(NSLocalizedString("close_request_view_accessibility", comment: "Cerrar la vista de solicitud"))
+            .accessibilityHint(NSLocalizedString("close_request_view_hint", comment: "Regresa a la pantalla anterior")))
         }
         // Evita cierre interactivo con swipe mientras se procesa la acción
         .interactiveDismissDisabled(true)

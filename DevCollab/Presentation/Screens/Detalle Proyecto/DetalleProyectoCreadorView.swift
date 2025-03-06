@@ -25,14 +25,14 @@ struct DetalleProyectoCreadorView: View {
             if viewModel.isLoading {
                 VStack {
                     Spacer()
-                    ProgressView("Cargando información...")
+                    ProgressView(NSLocalizedString("loading_info", comment: "Texto de carga"))
                         .progressViewStyle(CircularProgressViewStyle())
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 // Accesibilidad para el estado de carga
                 .accessibilityElement()
-                .accessibilityLabel("Cargando información del proyecto")
+                .accessibilityLabel(NSLocalizedString("loading_project_info", comment: "Cargando información del proyecto"))
             }
             // MARK: - Contenido principal
             else {
@@ -43,30 +43,39 @@ struct DetalleProyectoCreadorView: View {
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             .frame(maxWidth: .infinity, alignment: .center)
-                            .accessibilityLabel("Nombre del proyecto: \(proyecto.nombre)")
+                            .accessibilityLabel(String(format: NSLocalizedString("project_name", comment: "Nombre del proyecto con formato: %@"), proyecto.nombre))
                     }
                     
                     // MARK: - Sección: Información del proyecto
                     Section {
                         VStack(alignment: .leading, spacing: 8) {
-                            infoLabel("Descripción:", proyecto.descripcion)
+                            infoLabel(NSLocalizedString("description", comment: "Descripción"), proyecto.descripcion)
+                            
                             infoLabel(
-                                "Lenguajes:",
-                                proyecto.lenguajes.map { $0.rawValue }.joined(separator: ", ")
+                                NSLocalizedString("languages", comment: "Lenguajes"),
+                                proyecto.lenguajes
+                                    .map { NSLocalizedString($0.rawValue, comment: "Nombre de lenguaje") }
+                                    .joined(separator: ", ")
                             )
-                            infoLabel("Horas semanales:", "\(proyecto.horasSemanales)")
-                            infoLabel("Tipo de colaboración:", proyecto.tipoColaboracion)
+                            
+                            infoLabel(NSLocalizedString("weekly_hours", comment: "Horas semanales"), "\(proyecto.horasSemanales)")
+                            infoLabel(NSLocalizedString("collab_type", comment: "Tipo de colaboración"), proyecto.tipoColaboracion)
                             
                             HStack {
-                                Text("Estado:").fontWeight(.semibold)
-                                Text(viewModel.estadoProyecto)
+                                Text(NSLocalizedString("status", comment: "Estado"))
+                                    .fontWeight(.semibold)
+                                
+                                Text(NSLocalizedString(viewModel.estadoProyecto, comment: "Abierto o Cerrado"))
                                     .foregroundColor(viewModel.estadoProyecto == "Abierto" ? .green : .red)
-                                    .accessibilityLabel("Estado del proyecto: \(viewModel.estadoProyecto)")
+                                    .accessibilityLabel(
+                                        String(format: NSLocalizedString("project_status", comment: "Estado del proyecto: %@"),
+                                               viewModel.estadoProyecto)
+                                    )
                             }
                         }
                         .padding(.vertical, 4)
                     } header: {
-                        Text("Información del Proyecto")
+                        Text(NSLocalizedString("project_info", comment: "Información del proyecto"))
                             .font(.headline)
                             .foregroundColor(.primary)
                             .accessibilityAddTraits(.isHeader)
@@ -79,39 +88,19 @@ struct DetalleProyectoCreadorView: View {
                                 await viewModel.alternarEstadoProyecto(proyectoID: proyecto.id)
                             }
                         }) {
-                            Text(viewModel.estadoProyecto == "Abierto"
-                                 ? "Cerrar Proyecto"
-                                 : "Reabrir Proyecto")
+                            Text(NSLocalizedString(viewModel.estadoProyecto == "Abierto" ? "close_project" : "reopen_project", comment: "Botón para cerrar o reabrir proyecto"))
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .foregroundColor(.white)
                         }
-                        .listRowBackground(
-                            viewModel.estadoProyecto == "Abierto" ? Color.red : Color.green
-                        )
-                        .accessibilityLabel(viewModel.estadoProyecto == "Abierto"
-                                            ? "Cerrar proyecto"
-                                            : "Reabrir proyecto")
-                        .accessibilityHint("Cambia el estado del proyecto")
+                        .listRowBackground(viewModel.estadoProyecto == "Abierto" ? Color.red : Color.green)
+                        .accessibilityLabel(NSLocalizedString(viewModel.estadoProyecto == "Abierto" ? "close_project" : "reopen_project", comment: "Cambia el estado del proyecto"))
+                        .accessibilityHint(NSLocalizedString("toggle_project_status", comment: "Hint para cambiar estado del proyecto"))
                     }
                     
                     // MARK: - Sección: Solicitudes pendientes
                     Section {
                         if viewModel.solicitudesPendientes.isEmpty {
-                            HStack {
-                                Spacer()
-                                VStack(spacing: 8) {
-                                    Image(systemName: "envelope.badge")
-                                        .font(.largeTitle)
-                                        .foregroundColor(.gray)
-                                        .accessibilityHidden(true)
-                                    Text("No hay solicitudes pendientes.")
-                                        .foregroundColor(.gray)
-                                        .multilineTextAlignment(.center)
-                                        .accessibilityLabel("No hay solicitudes pendientes")
-                                }
-                                Spacer()
-                            }
-                            .padding(.vertical, 8)
+                            emptyStateView(icon: "envelope.badge", messageKey: "no_pending_requests")
                         } else {
                             ForEach(viewModel.solicitudesPendientes, id: \.id) { solicitud in
                                 Button(action: {
@@ -128,10 +117,14 @@ struct DetalleProyectoCreadorView: View {
                                     HStack {
                                         VStack(alignment: .leading, spacing: 4) {
                                             HStack {
-                                                Text("Usuario:").fontWeight(.semibold)
+                                                Text(NSLocalizedString("user", comment: "Usuario"))
+                                                    .fontWeight(.semibold)
                                                 UserNameView(userID: solicitud.usuarioID)
                                             }
-                                            Text("Mensaje: \(solicitud.mensaje ?? "Sin mensaje")")
+                                            
+                                            Text(String(
+                                                format: NSLocalizedString("message_format", comment: "Mensaje: %@"),
+                                                solicitud.mensaje ?? NSLocalizedString("no_message", comment: "Sin mensaje")))
                                                 .font(.subheadline)
                                                 .foregroundColor(.secondary)
                                         }
@@ -142,12 +135,12 @@ struct DetalleProyectoCreadorView: View {
                                     }
                                     .padding(.vertical, 4)
                                 }
-                                .accessibilityLabel("Solicitud de participación")
-                                .accessibilityHint("Ver detalles de la solicitud")
+                                .accessibilityLabel(NSLocalizedString("participation_request", comment: "Solicitud de participación"))
+                                .accessibilityHint(NSLocalizedString("view_request_details", comment: "Ver detalles de la solicitud"))
                             }
                         }
                     } header: {
-                        Text("Solicitudes de Participación")
+                        Text(NSLocalizedString("participation_requests", comment: "Solicitudes de participación"))
                             .font(.headline)
                             .foregroundColor(.primary)
                             .accessibilityAddTraits(.isHeader)
@@ -156,38 +149,28 @@ struct DetalleProyectoCreadorView: View {
                     // MARK: - Sección: Participantes
                     Section {
                         if viewModel.participantes.isEmpty {
-                            HStack {
-                                Spacer()
-                                VStack(spacing: 8) {
-                                    Image(systemName: "person.3")
-                                        .font(.largeTitle)
-                                        .foregroundColor(.gray)
-                                        .accessibilityHidden(true)
-                                    Text("No hay participantes aprobados.")
-                                        .foregroundColor(.gray)
-                                        .multilineTextAlignment(.center)
-                                        .accessibilityLabel("No hay participantes aprobados")
-                                }
-                                Spacer()
-                            }
-                            .padding(.vertical, 8)
+                            emptyStateView(icon: "person.3", messageKey: "no_approved_participants")
                         } else {
                             ForEach(viewModel.participantes, id: \.id) { participante in
                                 HStack {
                                     Text(participante.nombre)
                                         .fontWeight(.semibold)
                                     if !participante.lenguajes.isEmpty {
-                                        Text("(\(participante.lenguajes.map { $0.rawValue }.joined(separator: ", ")))")
+                                        Text("(\(participante.lenguajes.map { NSLocalizedString($0.rawValue, comment: "Nombre de lenguaje") }.joined(separator: ", ")))")
                                             .foregroundColor(.secondary)
                                     }
                                 }
                                 .accessibilityLabel(
-                                    "Participante: \(participante.nombre). Lenguajes: \(participante.lenguajes.map { $0.rawValue }.joined(separator: ", "))"
+                                    String(
+                                        format: NSLocalizedString("participant_info", comment: "Información del participante con formato"),
+                                        participante.nombre,
+                                        participante.lenguajes.map { NSLocalizedString($0.rawValue, comment: "Nombre de lenguaje") }.joined(separator: ", ")
+                                    )
                                 )
                             }
                         }
                     } header: {
-                        Text("Participantes")
+                        Text(NSLocalizedString("participants", comment: "Participantes"))
                             .font(.headline)
                             .foregroundColor(.primary)
                             .accessibilityAddTraits(.isHeader)
@@ -199,13 +182,13 @@ struct DetalleProyectoCreadorView: View {
                             Button(action: {
                                 showingDeleteConfirmation = true
                             }) {
-                                Text("Eliminar Proyecto")
+                                Text(NSLocalizedString("delete_project_button", comment: "Eliminar proyecto"))
                                     .frame(maxWidth: .infinity, alignment: .center)
                                     .foregroundColor(.white)
                             }
                             .listRowBackground(Color.red)
-                            .accessibilityLabel("Eliminar proyecto")
-                            .accessibilityHint("Borra permanentemente este proyecto")
+                            .accessibilityLabel(NSLocalizedString("delete_project", comment: "Eliminar proyecto"))
+                            .accessibilityHint(NSLocalizedString("delete_project_hint", comment: "Borra permanentemente el proyecto"))
                         }
                     }
                     
@@ -215,7 +198,7 @@ struct DetalleProyectoCreadorView: View {
                             Text(error)
                                 .foregroundColor(.red)
                                 .frame(maxWidth: .infinity, alignment: .center)
-                                .accessibilityLabel("Error: \(error)")
+                                .accessibilityLabel(String(format: NSLocalizedString("error_label", comment: "Error: %@"), error))
                         }
                     }
                 }
@@ -249,8 +232,8 @@ struct DetalleProyectoCreadorView: View {
             }
         }
         // Alerta de confirmación de eliminación
-        .alert("Confirmar eliminación", isPresented: $showingDeleteConfirmation) {
-            Button("Eliminar", role: .destructive) {
+        .alert(NSLocalizedString("confirm_delete", comment: "Confirmar eliminación"), isPresented: $showingDeleteConfirmation) {
+            Button(NSLocalizedString("delete", comment: "Eliminar"), role: .destructive) {
                 Task {
                     await viewModel.eliminarProyecto(proyecto: proyecto)
                     if viewModel.errorMessage == nil {
@@ -258,15 +241,14 @@ struct DetalleProyectoCreadorView: View {
                     }
                 }
             }
-            Button("Cancelar", role: .cancel) { }
+            Button(NSLocalizedString("cancel", comment: "Cancelar"), role: .cancel) { }
         } message: {
-            Text("¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer.")
+            Text(NSLocalizedString("confirm_delete_message", comment: "Mensaje de alerta para eliminación"))
         }
     }
 }
 
-// MARK: - Helper para mostrar un label con un título en negrita y el contenido
-private func infoLabel(_ title: String, _ content: String) -> some View {
+fileprivate func infoLabel(_ title: String, _ content: String) -> some View {
     VStack(alignment: .leading, spacing: 2) {
         Text(title)
             .fontWeight(.semibold)
@@ -277,7 +259,25 @@ private func infoLabel(_ title: String, _ content: String) -> some View {
     }
 }
 
-// MARK: - SolicitudDetailModalContainerView (igual que tu código original)
+// MARK: - Vista de estado vacío
+fileprivate func emptyStateView(icon: String, messageKey: String) -> some View {
+    HStack {
+        Spacer()
+        VStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.largeTitle)
+                .foregroundColor(.gray)
+                .accessibilityHidden(true)
+            Text(NSLocalizedString(messageKey, comment: "Texto vacío"))
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+                .accessibilityLabel(NSLocalizedString(messageKey, comment: "Accesibilidad: Estado vacío"))
+        }
+        Spacer()
+    }
+    .padding(.vertical, 8)
+}
+
 struct SolicitudDetailModalContainerView: View {
     @Binding var selectedSolicitud: Solicitud?
     @Binding var selectedUsuario: Usuario?
@@ -288,17 +288,16 @@ struct SolicitudDetailModalContainerView: View {
             SolicitudDetailModalView(solicitud: solicitud, usuario: usuario, onDecision: onDecision)
         } else {
             VStack {
-                ProgressView("Cargando detalles...")
+                ProgressView(NSLocalizedString("loading_details", comment: "Cargando detalles"))
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(UIColor.systemBackground))
             .accessibilityElement()
-            .accessibilityLabel("Cargando detalles de la solicitud")
+            .accessibilityLabel(NSLocalizedString("loading_request_details", comment: "Cargando detalles de la solicitud"))
         }
     }
 }
 
-// MARK: - UserNameView (igual que tu código original)
 struct UserNameView: View {
     let userID: String
     @State private var nombre: String = ""

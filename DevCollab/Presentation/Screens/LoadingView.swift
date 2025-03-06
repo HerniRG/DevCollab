@@ -22,17 +22,18 @@ struct LoadingView: View {
                             .repeatForever(autoreverses: true),
                         value: pulsate
                     )
-                    .accessibilityLabel("Cargando DevCollab") // VoiceOver lo describe
-                    .accessibilityHidden(false) // Importante: es un icono con significado
-                    
+                    .accessibilityLabel(NSLocalizedString("loading_view_icon_accessibility", comment: "Texto que describe el icono de carga"))
+                    .accessibilityHidden(false) // Es un icono con significado
+                
                 // Texto informativo con accesibilidad activa
-                Text("Conectando con DevCollab...")
+                Text(NSLocalizedString("loading_view_text", comment: "Texto de carga principal"))
                     .font(.headline)
-                    .foregroundColor(.primary)                
-                // Barra de carga animada con descripción accesible
+                    .foregroundColor(.primary)
+                
+                // Barra de carga animada
                 LoadingBar()
-                    .accessibilityLabel("Conectando")
-                    .accessibilityHint("Por favor, espera mientras se establece la conexión")
+                    .accessibilityLabel(NSLocalizedString("loading_view_progress_accessibility", comment: "Accesibilidad para la barra de progreso"))
+                    .accessibilityHint(NSLocalizedString("loading_view_progress_hint", comment: "Indica al usuario que debe esperar"))
             }
             .padding()
         }
@@ -56,7 +57,7 @@ struct LoadingBar: View {
                 RoundedRectangle(cornerRadius: 4)
                     .fill(Color.gray.opacity(0.2))
                     .frame(height: 8)
-                    .accessibilityHidden(true) // No necesario para VoiceOver
+                    .accessibilityHidden(true) // No es necesario para VoiceOver
                 
                 // Barra animada
                 RoundedRectangle(cornerRadius: 4)

@@ -25,13 +25,17 @@ struct CrearProyectoView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
+            // Usamos ScrollViewReader solo si necesitamos desplazar el foco al campo
             ScrollViewReader { proxy in
                 Form {
                     // MARK: - Sección: Información principal
                     Section {
                         // Campo: Nombre del proyecto
                         TextField(
-                            "Nombre del proyecto (máx. \(maxNombreLength) caracteres)",
+                            String(
+                                format: NSLocalizedString("crear_proyecto_nombre_placeholder", comment: "Placeholder nombre con max %d caracteres"),
+                                maxNombreLength
+                            ),
                             text: $nombre
                         )
                         .autocorrectionDisabled(true)
@@ -46,8 +50,12 @@ struct CrearProyectoView: View {
                                 nombre = String(newValue.prefix(maxNombreLength))
                             }
                         }
-                        .accessibilityLabel("Nombre del proyecto")
-                        .accessibilityHint("Introduce el nombre del proyecto, máximo \(maxNombreLength) caracteres")
+                        .accessibilityLabel(
+                            String(format: NSLocalizedString("crear_proyecto_nombre_accessibility", comment: "Accesibilidad para nombre"), maxNombreLength)
+                        )
+                        .accessibilityHint(
+                            String(format: NSLocalizedString("crear_proyecto_nombre_hint", comment: "Hint para nombre"), maxNombreLength)
+                        )
                         .id(Field.nombre)
                         
                         // Campo: Descripción (TextEditor con placeholder)
@@ -63,24 +71,29 @@ struct CrearProyectoView: View {
                                 }
                                 .background(Color(UIColor.secondarySystemBackground))
                                 .cornerRadius(8)
-                                .accessibilityLabel("Descripción del proyecto")
-                                .accessibilityHint("Máximo \(maxDescripcionLength) caracteres. Explica de qué trata el proyecto.")
+                                .accessibilityLabel(NSLocalizedString("crear_proyecto_descripcion_accessibility", comment: "Descripción del proyecto"))
+                                .accessibilityHint(
+                                    String(
+                                        format: NSLocalizedString("crear_proyecto_descripcion_hint", comment: "Máximo %d caracteres"),
+                                        maxDescripcionLength
+                                    )
+                                )
                                 .id(Field.descripcion)
                             
-                            // Placeholder accesible
+                            // Placeholder accesible (pero oculto a VoiceOver)
                             if descripcion.isEmpty {
-                                Text("Descripción")
+                                Text(NSLocalizedString("crear_proyecto_descripcion_placeholder", comment: "Ej. Una app para..."))
                                     .foregroundColor(Color(UIColor.placeholderText))
                                     .padding(.top, 8)
                                     .padding(.leading, 4)
                                     .allowsHitTesting(false)
-                                    .accessibilityHidden(true) // VoiceOver no debe leerlo como texto real
+                                    .accessibilityHidden(true)
                             }
                         }
                         .padding(.vertical, 8)
                         
                     } header: {
-                        Text("Información principal")
+                        Text(NSLocalizedString("crear_proyecto_informacion_principal", comment: "Encabezado: Información principal"))
                             .font(.headline)
                             .foregroundColor(.primary)
                             .accessibilityAddTraits(.isHeader)
@@ -91,29 +104,35 @@ struct CrearProyectoView: View {
                         // Vista de selección de lenguajes
                         ProjectLanguageSelectionView(seleccionLenguajes: $lenguajesSeleccionados)
                             .id("lenguajes")
-                            .accessibilityLabel("Lenguajes de programación")
-                            .accessibilityHint("Selecciona los lenguajes necesarios para este proyecto")
+                            .accessibilityLabel(NSLocalizedString("crear_proyecto_lenguajes_accessibility", comment: "Lenguajes de programación"))
+                            .accessibilityHint(NSLocalizedString("crear_proyecto_lenguajes_hint", comment: "Selecciona los lenguajes necesarios para este proyecto"))
                         
                         // Campo: Horas semanales
-                        TextField("Horas semanales", text: $horasSemanales)
-                            .keyboardType(.numberPad)
-                            .autocorrectionDisabled(true)
-                            .textInputAutocapitalization(.never)
-                            .focused($focusedField, equals: .horas)
-                            .submitLabel(.next)
-                            .onSubmit {
-                                focusedField = .colaboracion
-                            }
-                            .onChange(of: horasSemanales) { newValue in
-                                // Podrías aplicar validaciones extra en accesibilidad
-                            }
-                            .accessibilityLabel("Horas semanales")
-                            .accessibilityHint("Número aproximado de horas que invertirás en el proyecto cada semana")
-                            .id(Field.horas)
+                        TextField(
+                            NSLocalizedString("crear_proyecto_horas_placeholder", comment: "Placeholder para horas semanales"),
+                            text: $horasSemanales
+                        )
+                        .keyboardType(.numberPad)
+                        .autocorrectionDisabled(true)
+                        .textInputAutocapitalization(.never)
+                        .focused($focusedField, equals: .horas)
+                        .submitLabel(.next)
+                        .onSubmit {
+                            focusedField = .colaboracion
+                        }
+                        .onChange(of: horasSemanales) { _ in
+                            // Validaciones extra si lo deseas
+                        }
+                        .accessibilityLabel(NSLocalizedString("crear_proyecto_horas_accessibility", comment: "Accesibilidad: Horas semanales"))
+                        .accessibilityHint(NSLocalizedString("crear_proyecto_horas_hint", comment: "Cuántas horas dedicarás"))
+                        .id(Field.horas)
                         
                         // Campo: Tipo de colaboración
                         TextField(
-                            "Tipo de colaboración (máx. \(maxTipoColaboracionLength) caracteres)",
+                            String(
+                                format: NSLocalizedString("crear_proyecto_colaboracion_placeholder", comment: "Tipo de colaboración con max %d caracteres"),
+                                maxTipoColaboracionLength
+                            ),
                             text: $tipoColaboracion
                         )
                         .autocorrectionDisabled(true)
@@ -125,12 +144,12 @@ struct CrearProyectoView: View {
                                 tipoColaboracion = String(newValue.prefix(maxTipoColaboracionLength))
                             }
                         }
-                        .accessibilityLabel("Tipo de colaboración")
-                        .accessibilityHint("Ejemplo: remoto, presencial, híbrido, etc.")
+                        .accessibilityLabel(NSLocalizedString("crear_proyecto_colaboracion_accessibility", comment: "Accesibilidad: Tipo de colaboración"))
+                        .accessibilityHint(NSLocalizedString("crear_proyecto_colaboracion_hint", comment: "Ejemplo: remoto, presencial, híbrido"))
                         .id(Field.colaboracion)
                         
                     } header: {
-                        Text("Detalles del proyecto")
+                        Text(NSLocalizedString("crear_proyecto_detalles_header", comment: "Encabezado: Detalles del proyecto"))
                             .font(.headline)
                             .foregroundColor(.primary)
                             .accessibilityAddTraits(.isHeader)
@@ -141,26 +160,28 @@ struct CrearProyectoView: View {
                         Button(action: {
                             crearProyecto()
                         }) {
-                            Text("Crear Proyecto")
+                            Text(NSLocalizedString("crear_proyecto_boton", comment: "Crear Proyecto"))
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .foregroundColor(.white)
                         }
-                        .accessibilityLabel("Crear Proyecto")
-                        .accessibilityHint("Guarda el proyecto y cierra la ventana")
+                        .accessibilityLabel(NSLocalizedString("crear_proyecto_boton_accessibility", comment: "Accesibilidad: Crear proyecto"))
+                        .accessibilityHint(NSLocalizedString("crear_proyecto_boton_hint", comment: "Guarda el proyecto y cierra la ventana"))
                         .listRowBackground(Color.blue)
                     }
                     
                     // MARK: - Sección: Botón de cerrar
                     Section {
                         Button(action: {
-                            isPresented = false
+                            withAnimation(.easeInOut) {
+                                isPresented = false
+                            }
                         }) {
-                            Text("Cerrar")
+                            Text(NSLocalizedString("crear_proyecto_cerrar_boton", comment: "Cerrar"))
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .foregroundColor(.white)
                         }
-                        .accessibilityLabel("Cerrar pantalla de creación")
-                        .accessibilityHint("Cancela la creación de proyecto y vuelve atrás")
+                        .accessibilityLabel(NSLocalizedString("crear_proyecto_cerrar_accessibility", comment: "Cerrar pantalla de creación"))
+                        .accessibilityHint(NSLocalizedString("crear_proyecto_cerrar_hint", comment: "Cancela la creación de proyecto y vuelve atrás"))
                         .listRowBackground(Color.gray)
                     }
                 }
@@ -208,7 +229,7 @@ struct CrearProyectoView: View {
     }
 }
 
-// MARK: - Subvista: Información Principal
+// MARK: - Subvista: Información Principal (Internacionalizada)
 private struct InformacionPrincipalSection: View {
     @Binding var nombre: String
     @Binding var descripcion: String
@@ -217,15 +238,17 @@ private struct InformacionPrincipalSection: View {
     @FocusState.Binding var focusedField: CrearProyectoView.Field?
     
     private var nombrePlaceholder: String {
-        "Nombre del proyecto (máx. \(maxNombreLength) caracteres)"
+        String(format: NSLocalizedString("crear_proyecto_nombre_placeholder", comment: "Placeholder para el nombre con max %d caracteres"), maxNombreLength)
     }
+    
     private var descripcionPlaceholder: String {
-        "Descripción"
+        NSLocalizedString("crear_proyecto_descripcion_placeholder", comment: "Placeholder para la descripción del proyecto")
     }
     
     var body: some View {
-        // Etiquetamos la sección para VoiceOver
-        Section("Información principal") {
+        Section(header: Text(NSLocalizedString("crear_proyecto_informacion_principal", comment: "Encabezado: Información principal"))
+                    .accessibilityAddTraits(.isHeader)) {
+            
             // Campo: Nombre del proyecto
             TextField(nombrePlaceholder, text: $nombre)
                 .autocorrectionDisabled(true)
@@ -242,8 +265,12 @@ private struct InformacionPrincipalSection: View {
                 }
                 .id(CrearProyectoView.Field.nombre)
                 // Accesibilidad
-                .accessibilityLabel("Nombre del proyecto")
-                .accessibilityHint("Introduce el nombre, máximo \(maxNombreLength) caracteres")
+                .accessibilityLabel(
+                    String(format: NSLocalizedString("crear_proyecto_nombre_accessibility", comment: "Accesibilidad para nombre"), maxNombreLength)
+                )
+                .accessibilityHint(
+                    String(format: NSLocalizedString("crear_proyecto_nombre_hint", comment: "Hint para nombre"), maxNombreLength)
+                )
             
             // Campo: Descripción con placeholder
             ZStack(alignment: .topLeading) {
@@ -260,27 +287,27 @@ private struct InformacionPrincipalSection: View {
                     .cornerRadius(8)
                     .id(CrearProyectoView.Field.descripcion)
                     // Accesibilidad
-                    .accessibilityLabel("Descripción del proyecto")
-                    .accessibilityHint("Explica de qué trata el proyecto, máximo \(maxDescripcionLength) caracteres")
+                    .accessibilityLabel(NSLocalizedString("crear_proyecto_descripcion_accessibility", comment: "Descripción del proyecto"))
+                    .accessibilityHint(
+                        String(format: NSLocalizedString("crear_proyecto_descripcion_hint", comment: "Hint para la descripción con max %d caracteres"), maxDescripcionLength)
+                    )
                 
-                // Placeholder decorativo
+                // Placeholder decorativo (oculto a VoiceOver)
                 if descripcion.isEmpty {
                     Text(descripcionPlaceholder)
                         .foregroundColor(Color(UIColor.placeholderText))
                         .padding(.top, 8)
                         .padding(.leading, 4)
                         .allowsHitTesting(false)
-                        .accessibilityHidden(true) // No lo anunciamos en VoiceOver
+                        .accessibilityHidden(true)
                 }
             }
             .padding(.vertical, 8)
         }
-        // Marca a VoiceOver que este 'Text("Información principal")' es cabecera
-        .accessibilityAddTraits(.isHeader)
     }
 }
 
-// MARK: - Subvista: Detalles del Proyecto
+// MARK: - Subvista: Detalles del Proyecto (Internacionalizada)
 private struct DetallesProyectoSection: View {
     @Binding var lenguajesSeleccionados: [LenguajeProgramacion]
     @Binding var horasSemanales: String
@@ -289,31 +316,39 @@ private struct DetallesProyectoSection: View {
     @FocusState.Binding var focusedField: CrearProyectoView.Field?
     
     private var colaboracionPlaceholder: String {
-        "Tipo de colaboración (máx. \(maxTipoColaboracionLength) caracteres)"
+        String(
+            format: NSLocalizedString("crear_proyecto_colaboracion_placeholder", comment: "Tipo de colaboración con max %d caracteres"),
+            maxTipoColaboracionLength
+        )
     }
     
     var body: some View {
-        Section("Detalles del proyecto") {
+        Section(header: Text(NSLocalizedString("crear_proyecto_detalles_header", comment: "Encabezado: Detalles del proyecto"))
+                    .accessibilityAddTraits(.isHeader)) {
+            
             // Vista de selección de lenguajes
             ProjectLanguageSelectionView(seleccionLenguajes: $lenguajesSeleccionados)
                 .id("lenguajes")
-                .accessibilityLabel("Lenguajes de programación")
-                .accessibilityHint("Selecciona los lenguajes necesarios para este proyecto")
+                .accessibilityLabel(NSLocalizedString("crear_proyecto_lenguajes_accessibility", comment: "Lenguajes de programación"))
+                .accessibilityHint(NSLocalizedString("crear_proyecto_lenguajes_hint", comment: "Selecciona los lenguajes necesarios para este proyecto"))
             
             // Campo: Horas semanales
-            TextField("Horas semanales", text: $horasSemanales)
-                .keyboardType(.numberPad)
-                .autocorrectionDisabled(true)
-                .textInputAutocapitalization(.never)
-                .focused($focusedField, equals: .horas)
-                .submitLabel(.next)
-                .onSubmit {
-                    focusedField = .colaboracion
-                }
-                .id(CrearProyectoView.Field.horas)
-                // Accesibilidad
-                .accessibilityLabel("Horas semanales")
-                .accessibilityHint("Cuántas horas piensas dedicar al proyecto cada semana")
+            TextField(
+                NSLocalizedString("crear_proyecto_horas_placeholder", comment: "Placeholder para horas semanales"),
+                text: $horasSemanales
+            )
+            .keyboardType(.numberPad)
+            .autocorrectionDisabled(true)
+            .textInputAutocapitalization(.never)
+            .focused($focusedField, equals: .horas)
+            .submitLabel(.next)
+            .onSubmit {
+                focusedField = .colaboracion
+            }
+            .id(CrearProyectoView.Field.horas)
+            // Accesibilidad
+            .accessibilityLabel(NSLocalizedString("crear_proyecto_horas_accessibility", comment: "Accesibilidad: Horas semanales"))
+            .accessibilityHint(NSLocalizedString("crear_proyecto_horas_hint", comment: "Cuántas horas piensas dedicar al proyecto cada semana"))
             
             // Campo: Tipo de colaboración
             TextField(colaboracionPlaceholder, text: $tipoColaboracion)
@@ -328,9 +363,8 @@ private struct DetallesProyectoSection: View {
                 }
                 .id(CrearProyectoView.Field.colaboracion)
                 // Accesibilidad
-                .accessibilityLabel("Tipo de colaboración")
-                .accessibilityHint("Por ejemplo remoto, presencial, híbrido...")
+                .accessibilityLabel(NSLocalizedString("crear_proyecto_colaboracion_accessibility", comment: "Tipo de colaboración"))
+                .accessibilityHint(NSLocalizedString("crear_proyecto_colaboracion_hint", comment: "Ejemplo: remoto, presencial, híbrido"))
         }
-        .accessibilityAddTraits(.isHeader)
     }
 }
