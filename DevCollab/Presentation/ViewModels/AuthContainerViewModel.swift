@@ -49,13 +49,12 @@ class AuthContainerViewModel: ObservableObject {
     func logout() async {
         do {
             try await loginVM.authRepository.logout()
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.loginVM.user = nil
                 self.isRegistering = false
-                // Ahora self.user se pone a nil automáticamente por el sink
             }
         } catch {
-            DispatchQueue.main.async {
+            await MainActor.run {
                 let errorKey = String(
                     format: NSLocalizedString("auth_container_logout_error", comment: "Mensaje de error con descripción: %@"),
                     error.localizedDescription

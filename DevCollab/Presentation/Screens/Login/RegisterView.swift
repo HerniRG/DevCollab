@@ -80,7 +80,7 @@ struct RegisterView: View {
                 .onSubmit {
                     focusedField = nil
                 }
-                .onChange(of: descripcion) { newValue in
+                .onChange(of: descripcion) { oldValue, newValue in
                     if newValue.count > maxDescriptionLength {
                         descripcion = String(newValue.prefix(maxDescriptionLength))
                     }

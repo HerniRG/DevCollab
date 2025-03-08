@@ -90,7 +90,7 @@ final class DetalleProyectoViewModel: ObservableObject {
                 .getDocuments()
             
             let estado = snapshot.documents.first?.data()["estado"] as? String ?? ""
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.estadoSolicitud = estado
             }
         } catch {
@@ -118,14 +118,13 @@ final class DetalleProyectoViewModel: ObservableObject {
     
     // MARK: - Obtener Datos Adicionales del Proyecto
     func obtenerDatosAdicionales(proyectoID: String) async {
-        DispatchQueue.main.async {
+        await MainActor.run {
             self.isLoading = true
         }
         do {
             let detalles = try await obtenerDetallesProyectoUseCase.ejecutar(proyectoID: proyectoID, userID: userID)
             let estadoActual = try await gestionarSolicitudesUseCase.obtenerEstadoProyecto(proyectoID: proyectoID)
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
+            await MainActor.run {
                 self.nombreCreador = detalles.nombreCreador
                 self.descripcionCreador = detalles.descripcionCreador
                 self.lenguajesCreador = detalles.lenguajesCreador
@@ -137,37 +136,53 @@ final class DetalleProyectoViewModel: ObservableObject {
                 self.isLoading = false
             }
         } catch {
-            DispatchQueue.main.async { [weak self] in
-                self?.isLoading = false
+            await MainActor.run {
+                self.isLoading = false
             }
             debugPrint("Error al obtener datos del proyecto: \(error.localizedDescription)")
         }
     }
     
     // MARK: - Fetch Participantes
+    // MARK: - Fetch Participantes
     func fetchParticipantes(proyectoID: String) async {
         do {
             let snapshot = try await db.collection("participantes")
                 .whereField("proyectoID", isEqualTo: proyectoID)
                 .getDocuments()
-            var lista: [Usuario] = []
-            for document in snapshot.documents {
-                let data = document.data()
-                let usuarioID = data["usuarioID"] as? String ?? ""
-                let userDoc = try await db.collection("usuarios").document(usuarioID).getDocument()
-                if let userData = userDoc.data() {
-                    let usuario = Usuario(
-                        id: usuarioID,
-                        nombre: userData["nombre"] as? String ?? "",
-                        lenguajes: (userData["lenguajes"] as? [String])?.compactMap { LenguajeProgramacion(rawValue: $0) } ?? [],
-                        descripcion: userData["descripcion"] as? String,
-                        correo: userData["correo"] as? String ?? ""
-                    )
-                    lista.append(usuario)
+            
+            // Mapeamos todos los documentos y obtenemos los datos concurrentemente
+            let usuarios = try await withThrowingTaskGroup(of: Usuario?.self) { group -> [Usuario] in
+                for document in snapshot.documents {
+                    let data = document.data()
+                    let usuarioID = data["usuarioID"] as? String ?? ""
+                    
+                    group.addTask {
+                        let userDoc = try await self.db.collection("usuarios").document(usuarioID).getDocument()
+                        if let userData = userDoc.data() {
+                            return Usuario(
+                                id: usuarioID,
+                                nombre: userData["nombre"] as? String ?? "",
+                                lenguajes: (userData["lenguajes"] as? [String])?.compactMap { LenguajeProgramacion(rawValue: $0) } ?? [],
+                                descripcion: userData["descripcion"] as? String,
+                                correo: userData["correo"] as? String ?? ""
+                            )
+                        }
+                        return nil
+                    }
                 }
+                
+                var usuarios: [Usuario] = []
+                for try await usuario in group {
+                    if let usuario = usuario {
+                        usuarios.append(usuario)
+                    }
+                }
+                return usuarios
             }
-            DispatchQueue.main.async {
-                self.participantes = lista
+            
+            await MainActor.run {
+                self.participantes = usuarios
             }
         } catch {
             debugPrint("Error al obtener participantes: \(error.localizedDescription)")
@@ -178,7 +193,7 @@ final class DetalleProyectoViewModel: ObservableObject {
     func fetchSolicitudes() async {
         do {
             let solicitudes = try await obtenerSolicitudesUseCase.execute(usuarioID: userID)
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.solicitudesPendientes = solicitudes
             }
         } catch {
@@ -190,7 +205,7 @@ final class DetalleProyectoViewModel: ObservableObject {
     func fetchSolicitudesPorProyecto(proyectoID: String) async {
         do {
             let solicitudes = try await obtenerSolicitudesPorProyectoUseCase.execute(proyectoID: proyectoID)
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.solicitudesPendientes = solicitudes
             }
         } catch {
@@ -205,7 +220,7 @@ final class DetalleProyectoViewModel: ObservableObject {
             let nuevoEstado = (estadoActual == "Abierto") ? "Cerrado" : "Abierto"
             try await gestionarSolicitudesUseCase.cambiarEstadoProyecto(proyectoID: proyectoID, nuevoEstado: nuevoEstado)
             
-            DispatchQueue.main.async {
+            await MainActor.run {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     self.estadoProyecto = nuevoEstado
                 }
@@ -225,15 +240,15 @@ final class DetalleProyectoViewModel: ObservableObject {
     func solicitarParticipacion(proyectoID: String, mensaje: String) async {
         do {
             try await gestionarSolicitudesUseCase.enviarSolicitud(proyectoID: proyectoID, usuarioID: userID, mensaje: mensaje)
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
+            
+            await MainActor.run {
                 self.yaSolicitado = true
                 let successMsg = NSLocalizedString("detalle_proyecto_request_sent", comment: "Solicitud enviada correctamente.")
                 self.showSuccess(successMsg)
             }
         } catch {
             let err = (error as NSError).localizedDescription
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.showError(err)
             }
         }
@@ -258,7 +273,7 @@ final class DetalleProyectoViewModel: ObservableObject {
     func abandonarProyecto(proyectoID: String) async {
         do {
             try await gestionarSolicitudesUseCase.abandonarProyecto(proyectoID: proyectoID, usuarioID: userID)
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.soyParticipante = false
                 self.yaSolicitado = false
                 let msg = NSLocalizedString("detalle_proyecto_abandon_success", comment: "Has abandonado el proyecto correctamente.")
@@ -268,7 +283,7 @@ final class DetalleProyectoViewModel: ObservableObject {
             debugPrint("Error al abandonar proyecto: \(error.localizedDescription)")
             let errMsgFormat = NSLocalizedString("detalle_proyecto_abandon_error_format", comment: "Error al abandonar el proyecto: %@")
             let finalErr = String(format: errMsgFormat, error.localizedDescription)
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.showError(finalErr)
             }
         }
@@ -287,7 +302,7 @@ final class DetalleProyectoViewModel: ObservableObject {
             try await batch.commit()
             try await proyectoRepository.eliminarProyecto(proyectoID: proyecto.id)
             
-            DispatchQueue.main.async {
+            await MainActor.run {
                 let successMsg = NSLocalizedString("detalle_proyecto_deleted_success", comment: "Proyecto eliminado correctamente")
                 self.showSuccess(successMsg)
                 self.errorMessage = nil
@@ -296,7 +311,7 @@ final class DetalleProyectoViewModel: ObservableObject {
             let errMsgFormat = NSLocalizedString("detalle_proyecto_deleted_error_format", comment: "Error al eliminar proyecto: %@")
             let finalErr = String(format: errMsgFormat, error.localizedDescription)
             
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.errorMessage = finalErr
             }
         }

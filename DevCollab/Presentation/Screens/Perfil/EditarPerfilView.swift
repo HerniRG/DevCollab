@@ -35,7 +35,7 @@ struct EditarPerfilView: View {
                     ),
                     text: $nombre
                 )
-                .onChange(of: nombre) { newValue in
+                .onChange(of: nombre) { oldValue, newValue in
                     if newValue.count > maxNombreLength {
                         nombre = String(newValue.prefix(maxNombreLength))
                     }
@@ -64,7 +64,7 @@ struct EditarPerfilView: View {
                     ZStack(alignment: .topLeading) {
                         TextEditor(text: $descripcion)
                             .frame(minHeight: 80)
-                            .onChange(of: descripcion) { newValue in
+                            .onChange(of: descripcion) { oldValue, newValue in
                                 if newValue.count > maxDescripcionLength {
                                     descripcion = oldDescripcion
                                 } else {

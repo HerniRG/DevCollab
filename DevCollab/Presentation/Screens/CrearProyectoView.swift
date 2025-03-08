@@ -45,7 +45,7 @@ struct CrearProyectoView: View {
                         .onSubmit {
                             focusedField = .descripcion
                         }
-                        .onChange(of: nombre) { newValue in
+                        .onChange(of: nombre) { oldValue, newValue in
                             if newValue.count > maxNombreLength {
                                 nombre = String(newValue.prefix(maxNombreLength))
                             }
@@ -64,7 +64,7 @@ struct CrearProyectoView: View {
                                 .frame(minHeight: 100, maxHeight: 200)
                                 .focused($focusedField, equals: .descripcion)
                                 .scrollContentBackground(.hidden)
-                                .onChange(of: descripcion) { newValue in
+                                .onChange(of: descripcion) { oldValue, newValue in
                                     if newValue.count > maxDescripcionLength {
                                         descripcion = String(newValue.prefix(maxDescripcionLength))
                                     }
@@ -120,9 +120,6 @@ struct CrearProyectoView: View {
                         .onSubmit {
                             focusedField = .colaboracion
                         }
-                        .onChange(of: horasSemanales) { _ in
-                            // Validaciones extra si lo deseas
-                        }
                         .accessibilityLabel(NSLocalizedString("crear_proyecto_horas_accessibility", comment: "Accesibilidad: Horas semanales"))
                         .accessibilityHint(NSLocalizedString("crear_proyecto_horas_hint", comment: "Cuántas horas dedicarás"))
                         .id(Field.horas)
@@ -139,7 +136,7 @@ struct CrearProyectoView: View {
                         .textInputAutocapitalization(.never)
                         .focused($focusedField, equals: .colaboracion)
                         .submitLabel(.done)
-                        .onChange(of: tipoColaboracion) { newValue in
+                        .onChange(of: tipoColaboracion) { oldValue, newValue in
                             if newValue.count > maxTipoColaboracionLength {
                                 tipoColaboracion = String(newValue.prefix(maxTipoColaboracionLength))
                             }
@@ -188,10 +185,10 @@ struct CrearProyectoView: View {
                     }
                 }
                 .listStyle(InsetGroupedListStyle())
-                .onChange(of: focusedField) { field in
+                .onChange(of: focusedField) {
                     // Desplaza la vista para enfocar el campo si es necesario
                     withAnimation {
-                        proxy.scrollTo(field, anchor: .center)
+                        proxy.scrollTo(focusedField, anchor: .center)
                     }
                 }
             }
@@ -261,7 +258,7 @@ private struct InformacionPrincipalSection: View {
                 .onSubmit {
                     focusedField = .descripcion
                 }
-                .onChange(of: nombre) { newValue in
+                .onChange(of: nombre) { oldValue, newValue in
                     if newValue.count > maxNombreLength {
                         nombre = String(newValue.prefix(maxNombreLength))
                     }
@@ -281,7 +278,7 @@ private struct InformacionPrincipalSection: View {
                     .frame(minHeight: 100, maxHeight: 200)
                     .focused($focusedField, equals: .descripcion)
                     .scrollContentBackground(.hidden)
-                    .onChange(of: descripcion) { newValue in
+                    .onChange(of: descripcion) { oldValue, newValue in
                         if newValue.count > maxDescripcionLength {
                             descripcion = String(newValue.prefix(maxDescripcionLength))
                         }
@@ -359,7 +356,7 @@ private struct DetallesProyectoSection: View {
                 .textInputAutocapitalization(.never)
                 .focused($focusedField, equals: .colaboracion)
                 .submitLabel(.done)
-                .onChange(of: tipoColaboracion) { newValue in
+                .onChange(of: tipoColaboracion) { oldValue, newValue in
                     if newValue.count > maxTipoColaboracionLength {
                         tipoColaboracion = String(newValue.prefix(maxTipoColaboracionLength))
                     }

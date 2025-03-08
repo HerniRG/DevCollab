@@ -4,6 +4,7 @@ import FirebaseAuth
 struct PerfilView: View {
     @ObservedObject var viewModel: PerfilViewModel
     @State private var isEditing = false
+    @State private var usuarioParaEditar: Usuario?
     
     var body: some View {
         Group {
@@ -55,7 +56,7 @@ struct PerfilView: View {
                             
                             // Botón de editar (activar vista EditarPerfilView)
                             Button {
-                                isEditing = true
+                                usuarioParaEditar = usuario
                             } label: {
                                 Image(systemName: "square.and.pencil")
                                     .font(.system(size: 20, weight: .semibold))
@@ -162,15 +163,9 @@ struct PerfilView: View {
                 }
                 .listStyle(InsetGroupedListStyle())
                 // Navegación a EditarPerfilView
-                .background(
-                    NavigationLink(
-                        destination: EditarPerfilView(usuario: usuario, viewModel: viewModel),
-                        isActive: $isEditing
-                    ) {
-                        EmptyView()
-                    }
-                    .hidden()
-                )
+                .navigationDestination(item: $usuarioParaEditar) { usuario in
+                    EditarPerfilView(usuario: usuario, viewModel: viewModel)
+                }
                 // Actualiza el perfil al aparecer
                 .onAppear {
                     viewModel.fetchUserProfile()

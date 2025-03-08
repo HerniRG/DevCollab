@@ -57,7 +57,7 @@ final class PerfilViewModel: ObservableObject {
         Task {
             do {
                 if let user = try await authRepository.getCurrentUser() {
-                    DispatchQueue.main.async {
+                    await MainActor.run {
                         self.usuario = user
                     }
                     fetchUserProjects(userID: user.id)
@@ -74,7 +74,7 @@ final class PerfilViewModel: ObservableObject {
         Task {
             do {
                 let proyectos = try await proyectoRepository.obtenerProyectos()
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.proyectosCreados = proyectos.filter { $0.creadorID == userID }
                 }
             } catch {
@@ -87,7 +87,7 @@ final class PerfilViewModel: ObservableObject {
         Task {
             do {
                 let solicitudes = try await solicitudRepository.obtenerSolicitudes(usuarioID: usuarioID)
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.solicitudes = solicitudes
                 }
             } catch {
@@ -101,26 +101,41 @@ final class PerfilViewModel: ObservableObject {
             let snapshot = try await db.collection("participantes")
                 .whereField("usuarioID", isEqualTo: userID)
                 .getDocuments()
-            var proyectos: [Proyecto] = []
-            for document in snapshot.documents {
-                let data = document.data()
-                let proyectoID = data["proyectoID"] as? String ?? ""
-                let proyectoDoc = try await db.collection("proyectos").document(proyectoID).getDocument()
-                if let projectData = proyectoDoc.data() {
-                    let proyecto = Proyecto(
-                        id: proyectoID,
-                        nombre: projectData["nombre"] as? String ?? "",
-                        descripcion: projectData["descripcion"] as? String ?? "",
-                        lenguajes: (projectData["lenguajes"] as? [String])?.compactMap { LenguajeProgramacion(rawValue: $0) } ?? [],
-                        horasSemanales: projectData["horasSemanales"] as? Int ?? 0,
-                        tipoColaboracion: projectData["tipoColaboracion"] as? String ?? "",
-                        estado: projectData["estado"] as? String ?? "Abierto",
-                        creadorID: projectData["creadorID"] as? String ?? ""
-                    )
-                    proyectos.append(proyecto)
+
+            // 🔥 Ejecutamos consultas en paralelo usando `withThrowingTaskGroup`
+            let proyectos = try await withThrowingTaskGroup(of: Proyecto?.self) { group -> [Proyecto] in
+                for document in snapshot.documents {
+                    let data = document.data()
+                    let proyectoID = data["proyectoID"] as? String ?? ""
+
+                    group.addTask {
+                        let proyectoDoc = try await self.db.collection("proyectos").document(proyectoID).getDocument()
+                        if let projectData = proyectoDoc.data() {
+                            return Proyecto(
+                                id: proyectoID,
+                                nombre: projectData["nombre"] as? String ?? "",
+                                descripcion: projectData["descripcion"] as? String ?? "",
+                                lenguajes: (projectData["lenguajes"] as? [String])?.compactMap { LenguajeProgramacion(rawValue: $0) } ?? [],
+                                horasSemanales: projectData["horasSemanales"] as? Int ?? 0,
+                                tipoColaboracion: projectData["tipoColaboracion"] as? String ?? "",
+                                estado: projectData["estado"] as? String ?? "Abierto",
+                                creadorID: projectData["creadorID"] as? String ?? ""
+                            )
+                        }
+                        return nil
+                    }
                 }
+
+                var resultados: [Proyecto] = []
+                for try await proyecto in group {
+                    if let proyecto = proyecto {
+                        resultados.append(proyecto)
+                    }
+                }
+                return resultados
             }
-            DispatchQueue.main.async {
+
+            await MainActor.run {
                 self.proyectosParticipando = proyectos
             }
         } catch {
@@ -143,7 +158,7 @@ final class PerfilViewModel: ObservableObject {
                 
                 try await proyectoRepository.eliminarProyecto(proyectoID: proyecto.id)
                 
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.proyectosCreados.removeAll { $0.id == proyecto.id }
                     self.proyectosParticipando.removeAll { $0.id == proyecto.id }
                 }
@@ -208,8 +223,7 @@ final class PerfilViewModel: ObservableObject {
                     descripcion: descripcion,
                     lenguajes: lenguajes
                 )
-                DispatchQueue.main.async { [weak self] in
-                    guard let self = self else { return }
+                await MainActor.run {
                     self.usuario = Usuario(
                         id: userID,
                         nombre: nombre,

@@ -29,7 +29,7 @@ struct MainView: View {
             }
             // Si hay usuario, mostramos la app principal
             else if authContainerVM.user != nil {
-                NavigationView {
+                NavigationStack {
                     ZStack(alignment: .bottomTrailing) {
                         ExploracionProyectosView()
                             .navigationBarTitleDisplayMode(.inline)
@@ -72,15 +72,9 @@ struct MainView: View {
                         .padding(.bottom, 24)
                     }
                     // Navegación al Perfil
-                    .background(
-                        NavigationLink(
-                            destination: PerfilView(viewModel: ViewModelProvider.shared.perfilViewModel),
-                            isActive: $showingProfile
-                        ) {
-                            EmptyView()
-                        }
-                        .hidden()
-                    )
+                    .navigationDestination(isPresented: $showingProfile) {
+                            PerfilView(viewModel: ViewModelProvider.shared.perfilViewModel)
+                    }
                 }
                 .transition(.opacity)
             }

@@ -29,22 +29,24 @@ class ProyectosViewModel: ObservableObject {
     
     func fetchProyectos() {
         Task {
-            DispatchQueue.main.async { self.isLoading = true }
+            await MainActor.run { self.isLoading = true }
+            
             do {
                 let proyectos = try await obtenerProyectosUseCase.execute()
-                DispatchQueue.main.async { [weak self] in
-                    self?.proyectos = proyectos
-                    self?.isLoading = false
+                
+                await MainActor.run {
+                    self.proyectos = proyectos
+                    self.isLoading = false
                 }
             } catch {
-                DispatchQueue.main.async { [weak self] in
-                    self?.isLoading = false
+                await MainActor.run {
+                    self.isLoading = false
                     let errorFormat = NSLocalizedString("proyectos_vm_error_fetch_projects_format", comment: "Error al obtener proyectos: %@")
                     let finalError = String(format: errorFormat, error.localizedDescription)
                     debugPrint(finalError)
                     
-                    // Si quisieras mostrar un Toast en lugar de debugPrint:
-                    // self?.toastManager.showToast(finalError)
+                    // Si quieres mostrar un Toast en lugar de debugPrint:
+                    // self.toastManager.showToast(finalError)
                 }
             }
         }
@@ -53,24 +55,34 @@ class ProyectosViewModel: ObservableObject {
     func fetchSolicitudesPendientesParaMisProyectos() {
         Task {
             let misProyectos = self.proyectos.filter { $0.creadorID == Auth.auth().currentUser?.uid }
-            var nuevasSolicitudes: [String: [Solicitud]] = [:]
-            for proyecto in misProyectos {
-                do {
-                    let solicitudes = try await ObtenerSolicitudesPorProyectoUseCaseImpl(repository: FirebaseSolicitudRepository())
-                        .execute(proyectoID: proyecto.id)
-                    // Solo las pendientes
-                    nuevasSolicitudes[proyecto.id] = solicitudes.filter { $0.estado == "Pendiente" }
-                } catch {
-                    let errorFormat = NSLocalizedString("proyectos_vm_error_fetch_solicitudes_project_format", comment: "Error al obtener solicitudes para el proyecto %@: %@")
-                    let finalError = String(format: errorFormat, proyecto.id, error.localizedDescription)
-                    debugPrint(finalError)
-                    
-                    // Si quisieras Toast:
-                    // self.toastManager.showToast(finalError)
+            
+            let solicitudesPendientes = try await withThrowingTaskGroup(of: (String, [Solicitud])?.self) { group -> [String: [Solicitud]] in
+                for proyecto in misProyectos {
+                    group.addTask {
+                        do {
+                            let solicitudes = try await ObtenerSolicitudesPorProyectoUseCaseImpl(repository: FirebaseSolicitudRepository())
+                                .execute(proyectoID: proyecto.id)
+                            return (proyecto.id, solicitudes.filter { $0.estado == "Pendiente" })
+                        } catch {
+                            let errorFormat = NSLocalizedString("proyectos_vm_error_fetch_solicitudes_project_format", comment: "Error al obtener solicitudes para el proyecto %@: %@")
+                            let finalError = String(format: errorFormat, proyecto.id, error.localizedDescription)
+                            debugPrint(finalError)
+                            return nil
+                        }
+                    }
                 }
+                
+                var resultado: [String: [Solicitud]] = [:]
+                for try await solicitud in group {
+                    if let (proyectoID, listaSolicitudes) = solicitud {
+                        resultado[proyectoID] = listaSolicitudes
+                    }
+                }
+                return resultado
             }
-            DispatchQueue.main.async {
-                self.solicitudesPendientesPorProyecto = nuevasSolicitudes
+
+            await MainActor.run {
+                self.solicitudesPendientesPorProyecto = solicitudesPendientes
             }
         }
     }
@@ -80,11 +92,11 @@ class ProyectosViewModel: ObservableObject {
             do {
                 let currentUserID = Auth.auth().currentUser?.uid ?? ""
                 let solicitudes = try await obtenerSolicitudesUseCase.execute(usuarioID: currentUserID)
-                DispatchQueue.main.async { [weak self] in
-                    self?.solicitudes = solicitudes
+                await MainActor.run {
+                    self.solicitudes = solicitudes
                 }
             } catch {
-                DispatchQueue.main.async { [weak self] in
+                await MainActor.run {
                     let errorFormat = NSLocalizedString("proyectos_vm_error_fetch_solicitudes_format", comment: "Error al obtener solicitudes: %@")
                     let finalError = String(format: errorFormat, error.localizedDescription)
                     debugPrint(finalError)

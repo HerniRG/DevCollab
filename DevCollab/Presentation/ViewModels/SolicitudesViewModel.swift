@@ -15,11 +15,11 @@ class SolicitudesViewModel: ObservableObject {
         Task {
             do {
                 let solicitudes = try await obtenerSolicitudesUseCase.execute(usuarioID: usuarioID)
-                DispatchQueue.main.async { [weak self] in
-                    self?.solicitudes = solicitudes
+                await MainActor.run {
+                    self.solicitudes = solicitudes
                 }
             } catch {
-                DispatchQueue.main.async { [weak self] in
+                await MainActor.run {
                     // Antes: "❌ Error al obtener solicitudes: \(error.localizedDescription)"
                     let errorFormat = NSLocalizedString("solicitudes_vm_error_fetch_format", comment: "Error al obtener solicitudes: %@")
                     let finalError = String(format: errorFormat, error.localizedDescription)

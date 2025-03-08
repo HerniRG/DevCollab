@@ -48,14 +48,14 @@ class RegisterViewModel: ObservableObject {
                     descripcion: descripcion
                 )
                 
-                DispatchQueue.main.async {
+                await MainActor.run {
                     let successMessage = NSLocalizedString("register_vm_success", comment: "Registro exitoso, verifica tu correo.")
                     self.toastManager.showToast("✅ \(successMessage)")
                     self.isRegistered = true
                     self.clearFields()
                 }
             } catch {
-                DispatchQueue.main.async {
+                await MainActor.run {
                     // Antes: "❌ \(error.localizedDescription)"
                     self.toastManager.showToast("❌ \(error.localizedDescription)")
                 }

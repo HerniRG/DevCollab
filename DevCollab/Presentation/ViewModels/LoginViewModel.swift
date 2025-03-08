@@ -21,11 +21,11 @@ class LoginViewModel: ObservableObject {
     func fetchCurrentUser() async {
         do {
             let usuario = try await authRepository.getCurrentUser()
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.user = usuario
             }
         } catch {
-            DispatchQueue.main.async {
+            await MainActor.run {
                 // Antes: "❌ Error al obtener el usuario."
                 let msg = NSLocalizedString("login_vm_error_fetch_user", comment: "Error al obtener el usuario")
                 self.toastManager.showToast(msg)
@@ -48,14 +48,14 @@ class LoginViewModel: ObservableObject {
         Task {
             do {
                 let usuario = try await authRepository.login(email: trimmedEmail, password: trimmedPassword)
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.user = usuario
                     // Antes: "✅ Login exitoso."
                     let successMsg = NSLocalizedString("login_vm_login_successful", comment: "Login exitoso")
                     self.toastManager.showToast(successMsg)
                 }
             } catch {
-                DispatchQueue.main.async {
+                await MainActor.run {
                     let errorMsg = error.localizedDescription
                     // Antes: "❌ \(error.localizedDescription)"
                     self.toastManager.showToast("❌ \(errorMsg)")
@@ -75,13 +75,13 @@ class LoginViewModel: ObservableObject {
         let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
         do {
             try await authRepository.resetPassword(email: trimmedEmail)
-            DispatchQueue.main.async {
+            await MainActor.run {
                 // Antes: "✅ Correo de recuperación enviado."
                 let msg = NSLocalizedString("login_vm_reset_mail_sent", comment: "Correo de recuperación enviado.")
                 self.toastManager.showToast(msg)
             }
         } catch {
-            DispatchQueue.main.async {
+            await MainActor.run {
                 // Antes: "❌ Error al enviar el correo de recuperación."
                 let errMsg = NSLocalizedString("login_vm_reset_mail_error", comment: "Error al enviar el correo de recuperación.")
                 self.toastManager.showToast(errMsg)
@@ -92,13 +92,13 @@ class LoginViewModel: ObservableObject {
     func resendVerificationEmail() async {
         do {
             try await authRepository.resendVerificationEmail()
-            DispatchQueue.main.async {
+            await MainActor.run {
                 // Antes: "✅ Correo de verificación reenviado."
                 let msg = NSLocalizedString("login_vm_verification_resent", comment: "Correo de verificación reenviado.")
                 self.toastManager.showToast(msg)
             }
         } catch {
-            DispatchQueue.main.async {
+            await MainActor.run {
                 // Antes: "❌ Error al reenviar el correo de verificación."
                 let errMsg = NSLocalizedString("login_vm_verification_resent_error", comment: "Error al reenviar el correo de verificación.")
                 self.toastManager.showToast(errMsg)
@@ -109,11 +109,11 @@ class LoginViewModel: ObservableObject {
     func logout() async {
         do {
             try await authRepository.logout()
-            DispatchQueue.main.async {
+            await MainActor.run {
                 self.user = nil
             }
         } catch {
-            DispatchQueue.main.async {
+            await MainActor.run {
                 // Antes: "❌ Error al cerrar sesión."
                 let errMsg = NSLocalizedString("login_vm_logout_error", comment: "Error al cerrar sesión")
                 self.toastManager.showToast(errMsg)
