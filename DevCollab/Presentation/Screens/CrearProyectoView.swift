@@ -158,7 +158,9 @@ struct CrearProyectoView: View {
                     // MARK: - Sección: Botón de crear proyecto
                     Section {
                         Button(action: {
-                            crearProyecto()
+                            withAnimation(.easeInOut) {
+                                crearProyecto()
+                            }
                         }) {
                             Text(NSLocalizedString("crear_proyecto_boton", comment: "Crear Proyecto"))
                                 .frame(maxWidth: .infinity, alignment: .center)
@@ -212,6 +214,7 @@ struct CrearProyectoView: View {
         ) { success in
             if success {
                 clearFields()
+                ViewModelProvider.shared.proyectosViewModel.fetchProyectos()
                 withAnimation(.easeInOut) {
                     isPresented = false
                 }

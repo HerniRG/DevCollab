@@ -3,5 +3,5 @@ struct Solicitud {
     let usuarioID: String
     let proyectoID: String
     let mensaje: String?
-    let estado: String // "Pendiente", "Aceptada", "Rechazada"
+    let estado: String // "Pendiente", "Aceptada", "Rechazada", "Abandonado"
 }

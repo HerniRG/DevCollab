@@ -540,3 +540,6 @@
 
 // SolicitudesViewModel
 "solicitudes_vm_error_fetch_format" = "❌ Error al obtener solicitudes: %@";
+
+"request_abandoned" = "Has abandonado este proyecto";
+"request_abandoned_accessibility" = "Tu solicitud ha quedado en estado abandonado";

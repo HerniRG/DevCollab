@@ -507,3 +507,6 @@
 
 // SolicitudesViewModel
 "solicitudes_vm_error_fetch_format" = "❌ Error fetching requests: %@";
+
+"request_abandoned" = "You have abandoned this project";
+"request_abandoned_accessibility" = "Your request has been marked as abandoned";

@@ -11,6 +11,7 @@ class RegisterViewModel: ObservableObject {
     @Published var seleccionLenguajes: [LenguajeProgramacion] = []
     @Published var isPasswordVisible: Bool = false
     @Published var showSuccessResetAlert: Bool = false
+    @Published var isRegistered: Bool = false
 
     let authRepository: AuthRepository
     var toastManager: ToastManager
@@ -48,9 +49,9 @@ class RegisterViewModel: ObservableObject {
                 )
                 
                 DispatchQueue.main.async {
-                    // Antes: "✅ Registro exitoso. Verifica tu correo para confirmar tu cuenta."
                     let successMessage = NSLocalizedString("register_vm_success", comment: "Registro exitoso, verifica tu correo.")
                     self.toastManager.showToast("✅ \(successMessage)")
+                    self.isRegistered = true
                     self.clearFields()
                 }
             } catch {

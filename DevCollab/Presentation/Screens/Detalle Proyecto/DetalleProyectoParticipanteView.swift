@@ -68,6 +68,7 @@ struct DetalleProyectoParticipanteView: View {
                                     )
                             }
                         }
+                        .transition(.opacity)
                         .padding(.vertical, 4)
                     } header: {
                         Text(NSLocalizedString("project_info", comment: "Información del proyecto"))
@@ -102,6 +103,7 @@ struct DetalleProyectoParticipanteView: View {
                                     )
                             }
                         }
+                        .transition(.opacity)
                         .padding(.vertical, 4)
                     } header: {
                         Text(NSLocalizedString("creator_info", comment: "Información del Creador"))
@@ -113,7 +115,7 @@ struct DetalleProyectoParticipanteView: View {
                     // MARK: - Sección: Acciones de Participación
                     Section {
                         if !viewModel.yaSolicitado {
-                            // Botón para solicitar participación
+                            // Botón para solicitar participación (cuando aún no se ha enviado solicitud)
                             Button(action: {
                                 showSolicitudModal = true
                             }) {
@@ -124,7 +126,7 @@ struct DetalleProyectoParticipanteView: View {
                             .listRowBackground(Color.blue)
                             .accessibilityLabel(NSLocalizedString("request_participation", comment: "Solicitar participación"))
                             .accessibilityHint(NSLocalizedString("request_participation_hint", comment: "Envía una solicitud al creador"))
-                            
+                            .transition(.opacity)
                         } else {
                             // Si ya se solicitó
                             if viewModel.soyParticipante {
@@ -148,23 +150,32 @@ struct DetalleProyectoParticipanteView: View {
                                     }
                                     .accessibilityLabel(NSLocalizedString("abandon_project", comment: "Abandonar proyecto"))
                                     .accessibilityHint(NSLocalizedString("abandon_project_hint", comment: "Dejas de participar en este proyecto"))
-                                }
+                                }.transition(.opacity)
+                            } else if viewModel.estadoSolicitud == "Abandonado" {
+                                // Nuevo: si la solicitud está en estado "Abandonado"
+                                Text(NSLocalizedString("request_abandoned", comment: "Has abandonado este proyecto"))
+                                    .foregroundColor(.orange)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .accessibilityLabel(NSLocalizedString("request_abandoned_accessibility", comment: "Tu solicitud ha quedado en estado abandonado"))
                             } else {
-                                // Solicitud rechazada o pendiente
+                                // Caso de solicitud rechazada o pendiente
                                 if viewModel.estadoSolicitud == "Rechazada" {
                                     Text(NSLocalizedString("request_rejected", comment: "Solicitud Rechazada"))
                                         .foregroundColor(.red)
                                         .frame(maxWidth: .infinity, alignment: .center)
                                         .accessibilityLabel(NSLocalizedString("request_rejected_accessibility", comment: "Tu solicitud ha sido rechazada"))
+                                        .transition(.opacity)
                                 } else {
                                     Text(NSLocalizedString("request_pending", comment: "Solicitud Pendiente"))
                                         .foregroundColor(.gray)
                                         .frame(maxWidth: .infinity, alignment: .center)
                                         .accessibilityLabel(NSLocalizedString("request_pending_accessibility", comment: "Tu solicitud está pendiente"))
+                                        .transition(.opacity)
                                 }
                             }
                         }
                     }
+                    .animation(.easeInOut(duration: 0.3), value: viewModel.estadoSolicitud)
                     
                     // MARK: - Sección: Lista de participantes
                     Section {

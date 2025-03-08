@@ -148,7 +148,7 @@ struct PerfilView: View {
                     Section {
                         Button(action: {
                             Task {
-                                await ViewModelProvider.shared.loginVM.logout()
+                                await ViewModelProvider.shared.authContainerVM.loginVM.logout()
                             }
                         }) {
                             Text(NSLocalizedString("logout_button", comment: "Cerrar sesión"))

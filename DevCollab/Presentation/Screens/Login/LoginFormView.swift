@@ -22,6 +22,7 @@ struct LoginFormView: View {
             )
             .autocorrectionDisabled(true)
             .textInputAutocapitalization(.never)
+            .textContentType(.username)
             .focused($focusedField, equals: .email)
             .submitLabel(.next)
             .onSubmit {
@@ -36,6 +37,7 @@ struct LoginFormView: View {
                 text: $password,
                 isPasswordVisible: $isPasswordVisible
             )
+            .textContentType(.password)
             .focused($focusedField, equals: .password)
             .submitLabel(.go)
             .onSubmit {

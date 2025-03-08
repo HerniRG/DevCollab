@@ -4,26 +4,26 @@ class ViewModelProvider {
     static let shared = ViewModelProvider()
     
     let toastManager: ToastManager
-    let loginVM: LoginViewModel
-    let registerVM: RegisterViewModel
+    
+    // ViewModels individuales (Login/Registro) ya incluidos en AuthContainerViewModel.
+    let authContainerVM: AuthContainerViewModel
+    
     let crearProyectoViewModel: CrearProyectoViewModel
     let proyectosViewModel: ProyectosViewModel
     let solicitudesViewModel: SolicitudesViewModel
     let perfilViewModel: PerfilViewModel
 
     private init() {
-        // Inicializamos ToastManager
+        // 1) Inicializamos ToastManager
         self.toastManager = ToastManager()
         
-        self.loginVM = LoginViewModel(
-            authRepository: DependencyManager.shared.authRepository,
-            toastManager: self.toastManager
-        )
-        self.registerVM = RegisterViewModel(
+        // 2) Creamos el AuthContainerViewModel que internamente tiene loginVM y registerVM
+        self.authContainerVM = AuthContainerViewModel(
             authRepository: DependencyManager.shared.authRepository,
             toastManager: self.toastManager
         )
         
+        // 3) Demás ViewModels
         self.crearProyectoViewModel = CrearProyectoViewModel(
             crearProyectoUseCase: UseCaseProvider.shared.crearProyectoUseCase,
             proyectoRepository: DependencyManager.shared.proyectoRepository,

@@ -2,8 +2,9 @@ import SwiftUI
 import FirebaseAuth
 
 struct MainView: View {
-    // Ahora usamos directamente el LoginViewModel en lugar del contenedor completo.
-    @StateObject var loginVM = ViewModelProvider.shared.loginVM
+    // Este es el que maneja Login, Registro y estado del usuario
+    @StateObject var authContainerVM = ViewModelProvider.shared.authContainerVM
+    
     @State private var isLoading = true
     
     // Variables para navegación a perfil y para mostrar el overlay de crear proyecto.
@@ -26,14 +27,21 @@ struct MainView: View {
                 LoadingView()
                     .transition(.opacity)
             }
-            else if loginVM.user != nil {
-                // Usuario autenticado: se muestra la app principal.
+            // Si hay usuario, mostramos la app principal
+            else if authContainerVM.user != nil {
                 NavigationView {
                     ZStack(alignment: .bottomTrailing) {
                         ExploracionProyectosView()
-                            .navigationTitle("DevCollab")
                             .navigationBarTitleDisplayMode(.inline)
                             .toolbar {
+                                ToolbarItem(placement: .principal) {
+                                    HStack {
+                                        Image(systemName: "chevron.left.forwardslash.chevron.right")
+                                            .foregroundColor(.accentColor)
+                                        Text("DevCollab")
+                                            .font(.headline)
+                                    }
+                                }
                                 ToolbarItem(placement: .navigationBarTrailing) {
                                     Button(action: {
                                         showingProfile = true
@@ -43,7 +51,7 @@ struct MainView: View {
                                 }
                             }
                         
-                        // Botón flotante para Crear Proyecto.
+                        // Botón flotante para "Crear Proyecto"
                         Button(action: {
                             withAnimation(.easeInOut) {
                                 showCrearProyectoOverlay = true
@@ -63,7 +71,7 @@ struct MainView: View {
                         .padding(.trailing, 24)
                         .padding(.bottom, 24)
                     }
-                    // Navegación al Perfil.
+                    // Navegación al Perfil
                     .background(
                         NavigationLink(
                             destination: PerfilView(viewModel: ViewModelProvider.shared.perfilViewModel),
@@ -76,15 +84,17 @@ struct MainView: View {
                 }
                 .transition(.opacity)
             }
-            
+            // Si no hay usuario, mostramos la pantalla de login/registro
             else {
-                LoginRegisterScreen()
+                // Aquí inyectas el MISMO authContainerVM
+                LoginRegisterScreen(authContainerVM: authContainerVM)
                     .onAppear {
                         showingProfile = false
                         showCrearProyectoOverlay = false
                     }
             }
-            // Overlay para Crear Proyecto (si procede).
+            
+            // Overlay para Crear Proyecto (si procede)
             if showCrearProyectoOverlay {
                 CrearProyectoView(
                     viewModel: ViewModelProvider.shared.crearProyectoViewModel,
@@ -94,10 +104,11 @@ struct MainView: View {
                 .zIndex(2)
             }
         }
-        .animation(.easeInOut, value: loginVM.user)
+        .animation(.easeInOut, value: authContainerVM.user)
         .task {
-            await loginVM.fetchCurrentUser()
-            // Simulación de espera para mostrar la pantalla de carga.
+            // Cargamos el usuario actual (auto-login si ya existía sesión)
+            await authContainerVM.fetchCurrentUser()
+            // Pequeña simulación de carga
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 withAnimation {
                     isLoading = false
