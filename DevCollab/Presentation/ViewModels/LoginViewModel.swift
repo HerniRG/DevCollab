@@ -120,4 +120,21 @@ class LoginViewModel: ObservableObject {
             }
         }
     }
+    
+    func eliminarCuenta() async {
+        do {
+            try await authRepository.deleteAccount(password: password)
+            await MainActor.run {
+                self.user = nil
+            }
+            toastManager.showToast(NSLocalizedString("delete_account_success", comment: "Tu cuenta ha sido eliminada correctamente."))
+        } catch {
+            await MainActor.run {
+                let errorMessage = (error as NSError).localizedDescription
+                toastManager.showToast("\(NSLocalizedString("perfil_vm_error_prefix", comment: "❌ Error:")) \(errorMessage)")
+            }
+            
+        }
+    }
+    
 }

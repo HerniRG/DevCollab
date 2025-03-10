@@ -568,3 +568,18 @@
 
 "request_abandoned" = "Has abandonado este proyecto";
 "request_abandoned_accessibility" = "Tu solicitud ha quedado en estado abandonado";
+
+// 🔥 Eliminación de cuenta - Confirmación
+"delete_account_title" = "¿Eliminar cuenta?";
+"delete_account_message" = "Esta acción eliminará permanentemente tu cuenta y todos tus datos. No podrás recuperarlos.";
+"delete_account_confirm" = "Eliminar cuenta";
+"delete_account_cancel" = "Cancelar";
+"password_placeholder" = "Introduce tu contraseña";
+
+// ⚠️ Eliminación de cuenta - Errores
+"delete_account_error_firestore" = "Hubo un problema eliminando tus datos. Inténtalo de nuevo.";
+"delete_account_error_auth" = "No se pudo eliminar tu cuenta de autenticación. Inténtalo más tarde.";
+"delete_account_error_not_found" = "No se encontró la cuenta. Por favor, inicia sesión de nuevo.";
+
+// ✅ Eliminación de cuenta - Éxito
+"delete_account_success" = "Tu cuenta ha sido eliminada correctamente.";

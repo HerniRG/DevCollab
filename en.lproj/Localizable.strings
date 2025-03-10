@@ -535,3 +535,18 @@
 
 "request_abandoned" = "You have abandoned this project";
 "request_abandoned_accessibility" = "Your request has been marked as abandoned";
+
+// 🔥 Account Deletion - Confirmation
+"delete_account_title" = "Delete Account?";
+"delete_account_message" = "This action will permanently delete your account and all your data. You will not be able to recover them.";
+"delete_account_confirm" = "Delete Account";
+"delete_account_cancel" = "Cancel";
+"password_placeholder" = "Enter your password";
+
+// ⚠️ Account Deletion - Errors
+"delete_account_error_firestore" = "There was a problem deleting your data. Please try again.";
+"delete_account_error_auth" = "Could not delete your authentication account. Please try again later.";
+"delete_account_error_not_found" = "Account not found. Please log in again.";
+
+// ✅ Account Deletion - Success
+"delete_account_success" = "Your account has been successfully deleted.";

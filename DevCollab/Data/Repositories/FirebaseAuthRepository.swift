@@ -31,11 +31,11 @@ class FirebaseAuthRepository: AuthRepository {
         let snapshot = try await db.collection("usuarios")
             .whereField("correo", isEqualTo: email)
             .getDocuments()
-
+        
         if !snapshot.documents.isEmpty {
             throw NSError(domain: "Firestore", code: 409, userInfo: [NSLocalizedDescriptionKey: NSLocalizedString("auth_email_exists", comment: "Error cuando el email ya está registrado")])
         }
-
+        
         // 🔥 Si el correo no existe, guardamos el nuevo usuario
         let userData: [String: Any] = [
             "nombre": usuario.nombre,
@@ -48,9 +48,16 @@ class FirebaseAuthRepository: AuthRepository {
     
     func getCurrentUser() async throws -> Usuario? {
         guard let user = auth.currentUser else { return nil }
+        
+        // 🔍 Si el usuario no verificó su email, cerramos sesión
+        if !user.isEmailVerified {
+            try await logout()
+            throw AuthRepositoryError.emailNotVerified
+        }
+
         let document = try await db.collection("usuarios").document(user.uid).getDocument()
         guard let data = document.data() else { return nil }
-        
+
         return Usuario(
             id: user.uid,
             nombre: data["nombre"] as? String ?? "",
@@ -105,6 +112,44 @@ class FirebaseAuthRepository: AuthRepository {
             throw AuthRepositoryError.userNotFound
         }
         try await user.sendEmailVerification()
+    }
+    
+    func deleteAccount(password: String) async throws {
+        guard let user = auth.currentUser, let email = user.email else {
+            throw AuthRepositoryError.userNotFound
+        }
+
+        let credential = EmailAuthProvider.credential(withEmail: email, password: password)
+
+        do {
+            // 1️⃣ 🔄 Re-autenticamos al usuario antes de eliminar la cuenta
+            try await user.reauthenticate(with: credential)
+
+            // 2️⃣ 🗑️ Eliminamos primero los datos del usuario en Firestore
+            do {
+                try await db.collection("usuarios").document(user.uid).delete()
+            } catch {
+                throw AuthRepositoryError.unknown(error)
+            }
+
+            // 3️⃣ 🚀 Eliminamos la cuenta de Firebase Authentication
+            do {
+                try await user.delete()
+            } catch let authError as NSError {
+                switch authError.code {
+                case AuthErrorCode.requiresRecentLogin.rawValue:
+                    throw AuthRepositoryError.emailNotVerified
+                default:
+                    throw AuthRepositoryError.unknown(authError)
+                }
+            }
+
+            // 4️⃣ ✅ Cerramos sesión manualmente para evitar que el usuario siga autenticado
+            try await logout()
+
+        } catch {
+            throw error
+        }
     }
 }
 

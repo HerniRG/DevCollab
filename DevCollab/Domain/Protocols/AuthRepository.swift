@@ -5,4 +5,5 @@ protocol AuthRepository {
     func getCurrentUser() async throws -> Usuario?
     func resetPassword(email: String) async throws
     func resendVerificationEmail() async throws
+    func deleteAccount(password: String) async throws
 }

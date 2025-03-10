@@ -4,6 +4,8 @@ import FirebaseAuth
 struct PerfilView: View {
     @ObservedObject var viewModel: PerfilViewModel
     @State private var isEditing = false
+    @State private var showDeleteSheet = false
+    @State private var password = ""
     @State private var usuarioParaEditar: Usuario?
     
     var body: some View {
@@ -160,6 +162,19 @@ struct PerfilView: View {
                         .accessibilityHint(NSLocalizedString("logout_button_hint", comment: "Se cerrará tu sesión en la aplicación"))
                         .listRowBackground(Color.red)
                     }
+                    
+                    // 🔴 Sección: Eliminar cuenta
+                    Section {
+                        Button(role: .destructive) {
+                            showDeleteSheet = true
+                        } label: {
+                            Text(NSLocalizedString("delete_account_confirm", comment: "Eliminar cuenta"))
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        }
+                        .accessibilityLabel(NSLocalizedString("delete_account_confirm", comment: "Eliminar cuenta"))
+                        .accessibilityHint(NSLocalizedString("delete_account_message", comment: "Eliminará todos tus datos de la app"))
+                        .listRowBackground(Color.red.opacity(0.1))
+                    }
                 }
                 .listStyle(InsetGroupedListStyle())
                 // Navegación a EditarPerfilView
@@ -183,6 +198,56 @@ struct PerfilView: View {
                     viewModel.fetchUserProfile()
                 }
             }
+        }
+        .sheet(isPresented: $showDeleteSheet) {
+            DeleteAccountView(viewModel: viewModel, showDeleteSheet: $showDeleteSheet)
+        }
+    }
+}
+
+struct DeleteAccountView: View {
+    @ObservedObject var viewModel: PerfilViewModel
+    @Binding var showDeleteSheet: Bool
+    @State private var password: String = ""
+
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 16) {
+                Text(NSLocalizedString("delete_account_message", comment: "Esta acción eliminará tu cuenta y todos tus datos. No podrás recuperarlos."))
+                    .multilineTextAlignment(.center)
+                    .padding()
+
+                SecureField(NSLocalizedString("password_placeholder", comment: "Introduce tu contraseña"), text: $password)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding(.horizontal)
+
+                Button(role: .destructive) {
+                    Task {
+                        try await ViewModelProvider.shared.authContainerVM.loginVM.authRepository.deleteAccount(password: password)
+                        showDeleteSheet = false
+                        DispatchQueue.main.async {
+                            ViewModelProvider.shared.authContainerVM.user = nil
+                        }
+                    }
+                } label: {
+                    Text(NSLocalizedString("delete_account_confirm", comment: "Eliminar cuenta"))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.red)
+
+                Button {
+                    showDeleteSheet = false
+                } label: {
+                    Text(NSLocalizedString("delete_account_cancel", comment: "Cancelar"))
+                }
+                .padding(.top, 10)
+
+                Spacer()
+            }
+            .navigationTitle(NSLocalizedString("delete_account_title", comment: "¿Eliminar cuenta?"))
+            .navigationBarTitleDisplayMode(.inline)
+            .padding()
         }
     }
 }
